@@ -2,7 +2,7 @@
 # Claude Code notification script
 
 EVENT_TYPE="$1"
-NOTIFIER="/Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier"
+NOTIFIER="claude-notifier"
 
 # Check if we're in the currently focused iTerm2 tab
 should_notify() {
