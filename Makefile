@@ -17,10 +17,7 @@ build:
 		-o $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME) \
 		-framework UserNotifications
 	@cp Resources/Info.plist $(APP_BUNDLE)/Contents/
-	@echo "Copying Claude icon..."
-	@cp /Applications/Claude.app/Contents/Resources/electron.icns \
-		$(APP_BUNDLE)/Contents/Resources/AppIcon.icns 2>/dev/null || \
-		echo "Warning: Claude.app not found, icon not copied"
+	@cp Resources/AppIcon.icns $(APP_BUNDLE)/Contents/Resources/
 	@codesign --force --deep --sign - $(APP_BUNDLE)
 	@echo "Built $(APP_BUNDLE)"
 

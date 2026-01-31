@@ -87,7 +87,6 @@ The wrapper script will:
 ## Requirements
 
 - macOS 11.0+
-- Claude.app installed (for the icon)
 
 ## License
 
