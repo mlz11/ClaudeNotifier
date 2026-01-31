@@ -29,6 +29,18 @@ source ~/.zshrc
 
 ## Usage
 
+### Quick Setup for Claude Code
+
+```bash
+claude-notifier setup
+```
+
+This automatically:
+- Installs the notification script to `~/.claude/notify.sh`
+- Adds hooks to `~/.claude/settings.json`
+
+### Sending Notifications
+
 ```bash
 claude-notifier -m "Message" -t "Title" -s "Subtitle"
 ```
@@ -39,50 +51,12 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 - `-t "title"` - The notification title (default: "Claude")
 - `-s "subtitle"` - The notification subtitle (optional)
 
-## Claude Code Integration
+## How It Works
 
-For smart notifications that only appear when you're not looking at the Claude tab, use the included wrapper script. Copy `examples/notify.sh` to `~/.claude/notify.sh`:
-
-```bash
-cp examples/notify.sh ~/.claude/notify.sh
-chmod +x ~/.claude/notify.sh
-```
-
-Then add to your `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/notify.sh input_needed"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/notify.sh task_complete"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The wrapper script will:
-- Skip notifications if you're focused on the iTerm2 tab running Claude
-- Show notifications when you're in a different app or different iTerm2 tab
-- Include the current repo/directory name as a subtitle
+The setup installs a smart notification script that:
+- Skips notifications if you're focused on the iTerm2 tab running Claude
+- Shows notifications when you're in a different app or different iTerm2 tab
+- Includes the current repo/directory name as a subtitle
 
 ## Requirements
 
