@@ -33,6 +33,12 @@ install: build
 	@ln -sf $(INSTALL_DIR)/$(APP_NAME).app/Contents/MacOS/$(APP_NAME) $(BIN_DIR)/$(CLI_NAME)
 	@echo "Installed to $(INSTALL_DIR)/$(APP_NAME).app"
 	@echo "CLI available as: $(CLI_NAME)"
+	@if ! echo "$$PATH" | grep -q "$(BIN_DIR)"; then \
+		echo ""; \
+		echo "NOTE: $(BIN_DIR) is not in your PATH."; \
+		echo "Add it with:"; \
+		echo "  echo 'export PATH=\"\$$HOME/.local/bin:\$$PATH\"' >> ~/.zshrc && source ~/.zshrc"; \
+	fi
 
 uninstall:
 	@echo "Uninstalling..."
