@@ -34,7 +34,14 @@ The app bundle will be created at `build/ClaudeNotifier.app`.
 
 ## Claude Code Integration
 
-Add to your `~/.claude/settings.json`:
+For smart notifications that only appear when you're not looking at the Claude tab, use the included wrapper script. Copy `examples/notify.sh` to `~/.claude/notify.sh`:
+
+```bash
+cp examples/notify.sh ~/.claude/notify.sh
+chmod +x ~/.claude/notify.sh
+```
+
+Then add to your `~/.claude/settings.json`:
 
 ```json
 {
@@ -45,7 +52,7 @@ Add to your `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier -t 'Claude Code' -m 'Awaiting your input'"
+            "command": "~/.claude/notify.sh input_needed"
           }
         ]
       }
@@ -56,7 +63,7 @@ Add to your `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "/Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier -t 'Claude Code' -m 'Task completed'"
+            "command": "~/.claude/notify.sh task_complete"
           }
         ]
       }
@@ -64,6 +71,11 @@ Add to your `~/.claude/settings.json`:
   }
 }
 ```
+
+The wrapper script will:
+- Skip notifications if you're focused on the iTerm2 tab running Claude
+- Show notifications when you're in a different app or different iTerm2 tab
+- Include the current repo/directory name as a subtitle
 
 ## Requirements
 
