@@ -1,0 +1,29 @@
+# SwiftLint configuration for ClaudeNotifier
+
+included:
+  - Sources
+
+# Adjust rules for this small single-file project
+disabled_rules:
+  - trailing_whitespace
+  - implicit_optional_initialization
+
+# Rule customization
+line_length:
+  warning: 150
+  error: 200
+  ignores_urls: true
+  ignores_interpolated_strings: true
+
+function_body_length:
+  warning: 80
+  error: 120
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  excluded:
+    - i
+    - id
+    - ok

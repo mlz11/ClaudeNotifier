@@ -13,6 +13,8 @@ make build      # Compile, bundle as .app, and codesign to build/ClaudeNotifier.
 make install    # Build + install to /Applications + create CLI at ~/.local/bin/claude-notifier
 make uninstall  # Remove app and CLI symlink
 make clean      # Remove build directory
+make lint       # Run SwiftLint
+make format     # Run SwiftFormat
 ```
 
 ## Architecture

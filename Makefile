@@ -5,7 +5,7 @@ INSTALL_DIR = /Applications
 BIN_DIR = $(HOME)/.local/bin
 CLI_NAME = claude-notifier
 
-.PHONY: all build install uninstall clean
+.PHONY: all build install uninstall clean lint format
 
 all: build
 
@@ -46,3 +46,9 @@ uninstall:
 clean:
 	@rm -rf $(BUILD_DIR)
 	@echo "Cleaned build directory"
+
+lint:
+	@swiftlint lint Sources/
+
+format:
+	@swiftformat Sources/

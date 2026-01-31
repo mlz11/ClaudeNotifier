@@ -166,7 +166,7 @@ func showNotification(title: String, subtitle: String?, body: String) {
     }
 }
 
-// Parse arguments
+/// Parse arguments
 let args = CommandLine.arguments
 
 // Check for subcommands
@@ -177,17 +177,17 @@ if args.count >= 2 {
         exit(0)
     case "-h", "--help", "help":
         print("""
-            Usage: claude-notifier [command] [options]
+        Usage: claude-notifier [command] [options]
 
-            Commands:
-              setup           Set up Claude Code integration (installs hooks)
+        Commands:
+          setup           Set up Claude Code integration (installs hooks)
 
-            Options:
-              -m "message"    The notification body (required for notifications)
-              -t "title"      The notification title (default: "Claude")
-              -s "subtitle"   The notification subtitle (optional)
-              -h, --help      Show this help message
-            """)
+        Options:
+          -m "message"    The notification body (required for notifications)
+          -t "title"      The notification title (default: "Claude")
+          -s "subtitle"   The notification subtitle (optional)
+          -h, --help      Show this help message
+        """)
         exit(0)
     default:
         break
@@ -195,19 +195,19 @@ if args.count >= 2 {
 }
 
 var title = "Claude"
-var subtitle: String? = nil
+var subtitle: String?
 var body = "Hello!"
 
 var i = 1
 while i < args.count {
     let arg = args[i]
-    if arg == "-t" && i + 1 < args.count {
+    if arg == "-t", i + 1 < args.count {
         title = args[i + 1]
         i += 2
-    } else if arg == "-s" && i + 1 < args.count {
+    } else if arg == "-s", i + 1 < args.count {
         subtitle = args[i + 1]
         i += 2
-    } else if arg == "-m" && i + 1 < args.count {
+    } else if arg == "-m", i + 1 < args.count {
         body = args[i + 1]
         i += 2
     } else {
