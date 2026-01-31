@@ -2,8 +2,10 @@ APP_NAME = ClaudeNotifier
 BUILD_DIR = build
 APP_BUNDLE = $(BUILD_DIR)/$(APP_NAME).app
 INSTALL_DIR = /Applications
+BIN_DIR = $(HOME)/.local/bin
+CLI_NAME = claude-notifier
 
-.PHONY: all build install clean
+.PHONY: all build install uninstall clean
 
 all: build
 
@@ -26,7 +28,17 @@ install: build
 	@echo "Installing to $(INSTALL_DIR)..."
 	@rm -rf $(INSTALL_DIR)/$(APP_NAME).app
 	@cp -r $(APP_BUNDLE) $(INSTALL_DIR)/
+	@echo "Creating CLI symlink..."
+	@mkdir -p $(BIN_DIR)
+	@ln -sf $(INSTALL_DIR)/$(APP_NAME).app/Contents/MacOS/$(APP_NAME) $(BIN_DIR)/$(CLI_NAME)
 	@echo "Installed to $(INSTALL_DIR)/$(APP_NAME).app"
+	@echo "CLI available as: $(CLI_NAME)"
+
+uninstall:
+	@echo "Uninstalling..."
+	@rm -rf $(INSTALL_DIR)/$(APP_NAME).app
+	@rm -f $(BIN_DIR)/$(CLI_NAME)
+	@echo "Uninstalled"
 
 clean:
 	@rm -rf $(BUILD_DIR)

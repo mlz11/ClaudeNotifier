@@ -10,7 +10,14 @@ A simple macOS notification app that displays notifications with Claude's icon. 
 make install
 ```
 
-This builds the app and installs it to `/Applications/ClaudeNotifier.app`.
+This builds the app, installs it to `/Applications/ClaudeNotifier.app`, and creates a `claude-notifier` CLI command in `~/.local/bin`.
+
+If `~/.local/bin` is not in your PATH, add it:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
 
 ### Manual Build
 
@@ -23,7 +30,7 @@ The app bundle will be created at `build/ClaudeNotifier.app`.
 ## Usage
 
 ```bash
-/Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier -m "Message" -t "Title" -s "Subtitle"
+claude-notifier -m "Message" -t "Title" -s "Subtitle"
 ```
 
 ### Options
