@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ClaudeNotifier is a macOS notification app for Claude Code integration. It displays native macOS notifications with Claude's icon, with smart suppression when the user is actively viewing the Claude terminal tab.
+ClaudeNotifier is a macOS notification app for Claude Code integration. It displays native macOS notifications with Claude's icon, with smart suppression when the user is actively viewing the Claude terminal tab. Clicking a notification focuses the iTerm2 tab that triggered it.
 
 ## Build Commands
 
@@ -35,26 +35,31 @@ chore: update dependencies
 
 ## Architecture
 
-Single-file Swift application (`Sources/ClaudeNotifier/main.swift`) with no external dependencies.
+Single-file Swift application (`Sources/ClaudeNotifier/main.swift`) using AppKit and UserNotifications frameworks.
 
 **Key components:**
-- **Notification display** (lines 142-167): Uses `UNUserNotificationCenter` with async semaphore pattern
-- **CLI parser** (lines 169-216): Custom argument parsing for `-t`, `-s`, `-m` flags and `setup` subcommand
-- **Setup command** (lines 65-138): Auto-configures `~/.claude/settings.json` hooks and installs notify.sh
-- **Embedded notify.sh script** (lines 8-61): Smart wrapper that detects iTerm2 focus state via AppleScript to suppress notifications when user is viewing the active tab
+- **NotificationConfig/ParsedArguments** (lines 6-19): Data structures for notification and CLI argument handling
+- **Embedded notify.sh script** (lines 23-62): Smart wrapper that detects iTerm2 focus state via AppleScript to suppress notifications when user is viewing the active tab
+- **Setup command** (lines 65-156): Auto-configures `~/.claude/settings.json` hooks and installs notify.sh
+- **focusITermSession** (lines 160-188): Uses AppleScript to focus the iTerm2 tab matching a session ID
+- **AppDelegate** (lines 192-275): NSApplicationDelegate and UNUserNotificationCenterDelegate for notification display and click handling
+- **CLI parser** (lines 279-324): Custom argument parsing for `-t`, `-s`, `-m`, `-i` flags and `setup` subcommand
 
-**Entry flow:** Parse args → show notification → request permission → add to notification center → wait on semaphore → exit
+**Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus iTerm2 tab → exit
 
 ## CLI Usage
 
 ```bash
 claude-notifier -m "Message" -t "Title" -s "Subtitle"
+claude-notifier -m "Message" -i "$ITERM_SESSION_ID"  # With session ID for focus-on-click
 claude-notifier setup    # Auto-configure Claude Code hooks
 ```
 
 ## Technical Notes
 
 - Requires macOS 11.0+
-- Uses only native frameworks: UserNotifications, Foundation
+- Uses native frameworks: AppKit, UserNotifications
 - Makefile uses `swiftc` directly (not full SPM build) for the app bundle
 - App is ad-hoc codesigned during build
+- Runs as LSUIElement (no dock icon)
+- Requires Automation permission for iTerm2 (prompted on first notification click)

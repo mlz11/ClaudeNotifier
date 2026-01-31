@@ -1,7 +1,22 @@
-import Foundation
+import AppKit
 import UserNotifications
 
-let semaphore = DispatchSemaphore(value: 0)
+// MARK: - Types
+
+struct NotificationConfig {
+    let title: String
+    let subtitle: String?
+    let body: String
+    let sessionId: String?
+}
+
+struct ParsedArguments {
+    let command: String?
+    let title: String
+    let subtitle: String?
+    let body: String?
+    let sessionId: String?
+}
 
 // MARK: - Embedded notify.sh script
 
@@ -57,8 +72,8 @@ case "$EVENT_TYPE" in
         ;;
 esac
 
-# Send notification with Claude icon
-"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE"
+# Send notification with Claude icon and session ID for focus-on-click
+"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$ITERM_SESSION_ID"
 """
 // swiftlint:enable line_length
 
@@ -137,86 +152,219 @@ func runSetup() {
     }
 
     print("\nSetup complete! Claude Code will now send notifications.")
+    print("Clicking a notification will focus the iTerm2 tab that triggered it.")
 }
 
-// MARK: - Notification
+// MARK: - iTerm2 Focus
 
-func showNotification(title: String, subtitle: String?, body: String) {
-    let center = UNUserNotificationCenter.current()
+func focusITermSession(_ sessionId: String) {
+    // The session ID from ITERM_SESSION_ID is in format "w0t0p0:UUID"
+    // We need the UUID part to match against iTerm2's session id
+    let targetId = sessionId.contains(":") ? String(sessionId.split(separator: ":").last ?? "") : sessionId
 
-    center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-        if granted {
-            let content = UNMutableNotificationContent()
-            content.title = title
-            if let sub = subtitle {
-                content.subtitle = sub
-            }
-            content.body = body
-            content.sound = .default
+    guard !targetId.isEmpty else { return }
 
-            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-            center.add(request) { error in
-                if let error = error {
-                    fputs("Error: \(error.localizedDescription)\n", stderr)
-                }
-                semaphore.signal()
-            }
+    let scriptSource = """
+    tell application "iTerm2"
+        activate
+        repeat with w in windows
+            tell w
+                repeat with t in tabs
+                    repeat with s in sessions of t
+                        if id of s is "\(targetId)" then
+                            select t
+                        end if
+                    end repeat
+                end repeat
+            end tell
+        end repeat
+    end tell
+    """
+
+    if let script = NSAppleScript(source: scriptSource) {
+        var error: NSDictionary?
+        script.executeAndReturnError(&error)
+    }
+}
+
+// MARK: - App Delegate
+
+class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+    var notificationConfig: NotificationConfig?
+
+    func applicationDidFinishLaunching(_: Notification) {
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+
+        // If we have a notification to show, show it
+        if let config = notificationConfig {
+            showNotification(
+                title: config.title,
+                subtitle: config.subtitle,
+                body: config.body,
+                sessionId: config.sessionId
+            )
         } else {
-            fputs("Notification permission denied\n", stderr)
-            semaphore.signal()
+            // Launched without notification config (e.g., from notification click)
+            // The delegate method will handle the notification response
+            // Give a brief moment for notification response to be delivered, then exit
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                NSApp.terminate(nil)
+            }
         }
     }
-}
 
-/// Parse arguments
-let args = CommandLine.arguments
+    func showNotification(title: String, subtitle: String?, body: String, sessionId: String?) {
+        let center = UNUserNotificationCenter.current()
 
-// Check for subcommands
-if args.count >= 2 {
-    switch args[1] {
-    case "setup":
-        runSetup()
-        exit(0)
-    case "-h", "--help", "help":
-        print("""
-        Usage: claude-notifier [command] [options]
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            if granted {
+                let content = UNMutableNotificationContent()
+                content.title = title
+                if let sub = subtitle {
+                    content.subtitle = sub
+                }
+                content.body = body
+                content.sound = .default
 
-        Commands:
-          setup           Set up Claude Code integration (installs hooks)
+                // Store session ID for focus-on-click
+                if let sid = sessionId, !sid.isEmpty {
+                    content.userInfo = ["sessionId": sid]
+                }
 
-        Options:
-          -m "message"    The notification body (required for notifications)
-          -t "title"      The notification title (default: "Claude")
-          -s "subtitle"   The notification subtitle (optional)
-          -h, --help      Show this help message
-        """)
-        exit(0)
-    default:
-        break
+                let request = UNNotificationRequest(
+                    identifier: UUID().uuidString,
+                    content: content,
+                    trigger: nil
+                )
+                center.add(request) { _ in
+                    DispatchQueue.main.async {
+                        NSApp.terminate(nil)
+                    }
+                }
+            } else {
+                fputs("Notification permission denied\n", stderr)
+                DispatchQueue.main.async {
+                    NSApp.terminate(nil)
+                }
+            }
+        }
+    }
+
+    /// Called when user clicks on notification
+    func userNotificationCenter(
+        _: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        if let sessionId = response.notification.request.content.userInfo["sessionId"] as? String {
+            focusITermSession(sessionId)
+        }
+        completionHandler()
+        DispatchQueue.main.async {
+            NSApp.terminate(nil)
+        }
+    }
+
+    /// Allow notifications to show even when app is in foreground
+    func userNotificationCenter(
+        _: UNUserNotificationCenter,
+        willPresent _: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
     }
 }
 
-var title = "Claude"
-var subtitle: String?
-var body = "Hello!"
+// MARK: - Argument Parsing
 
-var i = 1
-while i < args.count {
-    let arg = args[i]
-    if arg == "-t", i + 1 < args.count {
-        title = args[i + 1]
-        i += 2
-    } else if arg == "-s", i + 1 < args.count {
-        subtitle = args[i + 1]
-        i += 2
-    } else if arg == "-m", i + 1 < args.count {
-        body = args[i + 1]
-        i += 2
-    } else {
-        i += 1
+func parseArguments() -> ParsedArguments {
+    let args = CommandLine.arguments
+
+    // Check for subcommands
+    if args.count >= 2 {
+        switch args[1] {
+        case "setup":
+            return ParsedArguments(command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil)
+        case "-h", "--help", "help":
+            return ParsedArguments(command: "help", title: "", subtitle: nil, body: nil, sessionId: nil)
+        default:
+            break
+        }
     }
+
+    var title = "Claude"
+    var subtitle: String?
+    var body: String?
+    var sessionId: String?
+
+    var i = 1
+    while i < args.count {
+        let arg = args[i]
+        if arg == "-t", i + 1 < args.count {
+            title = args[i + 1]
+            i += 2
+        } else if arg == "-s", i + 1 < args.count {
+            subtitle = args[i + 1]
+            i += 2
+        } else if arg == "-m", i + 1 < args.count {
+            body = args[i + 1]
+            i += 2
+        } else if arg == "-i", i + 1 < args.count {
+            sessionId = args[i + 1]
+            i += 2
+        } else {
+            i += 1
+        }
+    }
+
+    return ParsedArguments(command: nil, title: title, subtitle: subtitle, body: body, sessionId: sessionId)
 }
 
-showNotification(title: title, subtitle: subtitle, body: body)
-semaphore.wait()
-exit(0)
+func showHelp() {
+    print("""
+    Usage: claude-notifier [command] [options]
+
+    Commands:
+      setup           Set up Claude Code integration (installs hooks)
+
+    Options:
+      -m "message"    The notification body (required for notifications)
+      -t "title"      The notification title (default: "Claude")
+      -s "subtitle"   The notification subtitle (optional)
+      -i "session"    iTerm2 session ID for focus-on-click (optional)
+      -h, --help      Show this help message
+    """)
+}
+
+// MARK: - Main
+
+let parsed = parseArguments()
+
+if parsed.command == "setup" {
+    runSetup()
+    exit(0)
+}
+
+if parsed.command == "help" {
+    showHelp()
+    exit(0)
+}
+
+// Create and configure the app
+let app = NSApplication.shared
+let delegate = AppDelegate()
+
+// Only set notification config if we have a message to show
+if let body = parsed.body {
+    delegate.notificationConfig = NotificationConfig(
+        title: parsed.title,
+        subtitle: parsed.subtitle,
+        body: body,
+        sessionId: parsed.sessionId
+    )
+}
+
+app.delegate = delegate
+app.setActivationPolicy(.accessory) // Run as background app (no dock icon)
+app.run()

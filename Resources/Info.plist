@@ -24,5 +24,7 @@
     <true/>
     <key>NSUserNotificationAlertStyle</key>
     <string>banner</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>ClaudeNotifier needs to control iTerm2 to focus the terminal tab when you click a notification.</string>
 </dict>
 </plist>
