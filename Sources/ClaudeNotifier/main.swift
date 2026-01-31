@@ -5,6 +5,7 @@ let semaphore = DispatchSemaphore(value: 0)
 
 // MARK: - Embedded notify.sh script
 
+// swiftlint:disable line_length
 let notifyScript = """
 #!/bin/bash
 # Claude Code notification script
@@ -59,6 +60,7 @@ esac
 # Send notification with Claude icon
 "$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE"
 """
+// swiftlint:enable line_length
 
 // MARK: - Setup Command
 

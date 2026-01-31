@@ -3,21 +3,12 @@
 --swiftversion 5.5
 --minversion 0.54
 
-# Inferred from existing code
+--indent 4
+--maxwidth 120
 --semicolons never
 --commas inline
 --wrapcollections before-first
-
-# Indentation
---indent 4
---tabwidth 4
---indentcase false
-
-# Wrapping
---maxwidth 150
 --wraparguments before-first
 --wrapparameters before-first
-
-# Other
 --self remove
 --stripunusedargs closure-only
