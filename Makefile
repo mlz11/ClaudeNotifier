@@ -5,7 +5,7 @@ INSTALL_DIR = /Applications
 BIN_DIR = $(HOME)/.local/bin
 CLI_NAME = claude-notifier
 
-.PHONY: all build install uninstall clean lint format
+.PHONY: all build install uninstall clean lint format setup
 
 all: build
 
@@ -52,3 +52,8 @@ lint:
 
 format:
 	@swiftformat Sources/
+
+setup:
+	@echo "Installing pre-commit hooks..."
+	@pre-commit install
+	@echo "Done! Hooks will run on each commit."

@@ -1,0 +1,37 @@
+# Pre-commit hooks for ClaudeNotifier
+# Install: pre-commit install && pre-commit install --hook-type commit-msg
+
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  # Conventional commits validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, test, chore, build, ci]
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-added-large-files
+
+  # Swift formatting and linting
+  - repo: local
+    hooks:
+      - id: swiftformat
+        name: SwiftFormat
+        entry: swiftformat
+        language: system
+        types: [swift]
+
+      - id: swiftlint
+        name: SwiftLint
+        entry: swiftlint lint --strict
+        language: system
+        types: [swift]

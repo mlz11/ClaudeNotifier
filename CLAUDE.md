@@ -15,6 +15,22 @@ make uninstall  # Remove app and CLI symlink
 make clean      # Remove build directory
 make lint       # Run SwiftLint
 make format     # Run SwiftFormat
+make setup      # Install pre-commit hooks
+```
+
+## Pre-commit Hooks
+
+Run `make setup` after cloning to install git hooks. On each commit:
+- **SwiftFormat** auto-formats staged Swift files
+- **SwiftLint** checks for violations (strict mode)
+- **Conventional commits** validates commit message format
+
+Commit messages must follow [Conventional Commits](https://conventionalcommits.org):
+```
+feat: add new feature
+fix: resolve bug
+docs: update readme
+chore: update dependencies
 ```
 
 ## Architecture
