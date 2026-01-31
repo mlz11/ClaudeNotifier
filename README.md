@@ -4,9 +4,17 @@ A simple macOS notification app that displays notifications with Claude's icon. 
 
 ## Installation
 
-### Quick Install
+### Homebrew (Recommended)
 
 ```bash
+brew install mlz11/tap/claude-notifier
+```
+
+### From Source
+
+```bash
+git clone https://github.com/mlz11/ClaudeNotifier.git
+cd ClaudeNotifier
 make install
 ```
 
@@ -18,14 +26,6 @@ If `~/.local/bin` is not in your PATH, add it:
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
-
-### Manual Build
-
-```bash
-make build
-```
-
-The app bundle will be created at `build/ClaudeNotifier.app`.
 
 ## Usage
 
