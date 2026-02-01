@@ -1,6 +1,13 @@
-# ClaudeNotifier
+<p align="center">
+  <img src="assets/icon.png" alt="ClaudeNotifier Icon" width="128" height="128">
+</p>
 
-A macOS notification app for Claude Code integration. Displays native notifications with Claude's icon and focuses the correct terminal tab when clicked.
+<h1 align="center">ClaudeNotifier</h1>
+
+<p align="center">
+  A macOS notification app for Claude Code integration.<br>
+  Displays native notifications with Claude's icon and focuses the correct terminal tab when clicked.
+</p>
 
 ## Features
 
