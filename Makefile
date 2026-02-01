@@ -9,11 +9,13 @@ CLI_NAME = claude-notifier
 
 all: build
 
+SOURCES = $(wildcard Sources/ClaudeNotifier/*.swift)
+
 build:
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@echo "Compiling $(APP_NAME)..."
-	@swiftc Sources/ClaudeNotifier/main.swift \
+	@swiftc $(SOURCES) \
 		-o $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME) \
 		-framework UserNotifications
 	@cp Resources/Info.plist $(APP_BUNDLE)/Contents/

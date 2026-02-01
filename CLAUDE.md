@@ -35,15 +35,27 @@ chore: update dependencies
 
 ## Architecture
 
-Single-file Swift application (`Sources/ClaudeNotifier/main.swift`) using AppKit and UserNotifications frameworks.
+Multi-file Swift application using AppKit and UserNotifications frameworks.
+
+**File structure:**
+```
+Sources/ClaudeNotifier/
+├── main.swift           # Entry point - parses args, configures and runs NSApplication
+├── Constants.swift      # Shared constants (paths, keys, defaults)
+├── Models.swift         # Data structures (NotificationConfig, ParsedArguments)
+├── AppDelegate.swift    # NSApplicationDelegate + UNUserNotificationCenterDelegate
+├── Setup.swift          # Setup command + embedded notify.sh script
+├── ArgumentParser.swift # CLI flag parsing and help text
+└── Utilities.swift      # Helpers (exitWithError, terminateApp, focusITermSession)
+```
 
 **Key components:**
-- **NotificationConfig/ParsedArguments** (lines 6-19): Data structures for notification and CLI argument handling
-- **Embedded notify.sh script** (lines 23-62): Smart wrapper that detects iTerm2 focus state via AppleScript to suppress notifications when user is viewing the active tab
-- **Setup command** (lines 65-156): Auto-configures `~/.claude/settings.json` hooks and installs notify.sh
-- **focusITermSession** (lines 160-188): Uses AppleScript to focus the iTerm2 tab matching a session ID
-- **AppDelegate** (lines 192-275): NSApplicationDelegate and UNUserNotificationCenterDelegate for notification display and click handling
-- **CLI parser** (lines 279-324): Custom argument parsing for `-t`, `-s`, `-m`, `-i` flags and `setup` subcommand
+- **Constants**: Centralized magic strings (`claudeDirectory`, `sessionIdKey`, etc.)
+- **Models**: `NotificationConfig` and `ParsedArguments` data structures
+- **AppDelegate**: Handles notification display, authorization, and click responses
+- **Setup**: Embedded `notify.sh` script + functions to configure `~/.claude/settings.json` hooks
+- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`help` subcommands
+- **Utilities**: `exitWithError()`, `terminateApp()`, `focusITermSession()` via AppleScript
 
 **Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus iTerm2 tab → exit
 
