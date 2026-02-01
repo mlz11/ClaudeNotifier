@@ -90,13 +90,17 @@ You can manage this in: **System Settings → Privacy & Security → Automation 
 
 ## FAQ
 
-### Why not use Anthropic's recommended terminal notification setup?
+<details>
+<summary><strong>Why not use Anthropic's recommended terminal notification setup?</strong></summary>
 
 Anthropic provides [official documentation](https://docs.anthropic.com/en/docs/claude-code/terminal-setup#iterm-2-system-notifications) for enabling iTerm2 system notifications. However, this method didn't work reliably for us—notifications simply never appeared on multiple machines, and colleagues experienced the same issue.
 
 ClaudeNotifier was built as a more reliable alternative that also adds extra features like click-to-focus and smart suppression.
 
-### Why isn't Warp terminal supported?
+</details>
+
+<details>
+<summary><strong>Why isn't Warp terminal supported?</strong></summary>
 
 Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
 - Detect which tab triggered the notification
@@ -109,7 +113,10 @@ The Warp team prefers URI schemes over AppleScript, but these don't yet support 
 - [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
 - [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
 
-### Why isn't Ghostty terminal supported?
+</details>
+
+<details>
+<summary><strong>Why isn't Ghostty terminal supported?</strong></summary>
 
 Ghostty currently lacks the APIs needed for full integration:
 - No `TERM_SESSION_ID` equivalent environment variable ([discussion](https://github.com/ghostty-org/ghostty/discussions/9084))
@@ -118,6 +125,8 @@ Ghostty currently lacks the APIs needed for full integration:
 Ghostty 1.2.0 added App Intents/Shortcuts support, but this doesn't include focusing specific tabs by ID.
 
 Once Ghostty adds AppleScript support and a session ID environment variable, we can add support.
+
+</details>
 
 ## License
 
