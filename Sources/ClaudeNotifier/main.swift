@@ -77,51 +77,61 @@ esac
 """
 // swiftlint:enable line_length
 
+// MARK: - Error Handling
+
+func exitWithError(_ message: String) -> Never {
+    fputs(message + "\n", stderr)
+    exit(1)
+}
+
 // MARK: - Setup Command
 
-func runSetup() {
+func ensureClaudeDirectoryExists() -> URL {
     let fileManager = FileManager.default
-    let homeDir = fileManager.homeDirectoryForCurrentUser
-    let claudeDir = homeDir.appendingPathComponent(".claude")
-    let notifyPath = claudeDir.appendingPathComponent("notify.sh")
-    let settingsPath = claudeDir.appendingPathComponent("settings.json")
+    let claudeDir = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(".claude")
 
-    // Create ~/.claude directory if needed
     if !fileManager.fileExists(atPath: claudeDir.path) {
         do {
             try fileManager.createDirectory(at: claudeDir, withIntermediateDirectories: true)
             print("Created \(claudeDir.path)")
         } catch {
-            fputs("Error creating \(claudeDir.path): \(error.localizedDescription)\n", stderr)
-            exit(1)
+            exitWithError("Error creating \(claudeDir.path): \(error.localizedDescription)")
         }
     }
 
-    // Write notify.sh
+    return claudeDir
+}
+
+func writeNotifyScript(to directory: URL) {
+    let notifyPath = directory.appendingPathComponent("notify.sh")
+
     do {
         try notifyScript.write(to: notifyPath, atomically: true, encoding: .utf8)
-        // Make executable
-        try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: notifyPath.path)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: notifyPath.path)
         print("Installed \(notifyPath.path)")
     } catch {
-        fputs("Error writing \(notifyPath.path): \(error.localizedDescription)\n", stderr)
-        exit(1)
+        exitWithError("Error writing \(notifyPath.path): \(error.localizedDescription)")
+    }
+}
+
+func loadSettings(from path: URL) -> [String: Any] {
+    guard FileManager.default.fileExists(atPath: path.path) else {
+        return [:]
     }
 
-    // Read or create settings.json
-    var settings: [String: Any] = [:]
-    if fileManager.fileExists(atPath: settingsPath.path) {
-        do {
-            let data = try Data(contentsOf: settingsPath)
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                settings = json
-            }
-        } catch {
-            fputs("Warning: Could not parse existing settings.json, will create new one\n", stderr)
+    do {
+        let data = try Data(contentsOf: path)
+        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            return json
         }
+    } catch {
+        fputs("Warning: Could not parse existing settings.json, will create new one\n", stderr)
     }
 
-    // Define the hooks we want to add
+    return [:]
+}
+
+func addNotificationHooks(to settings: inout [String: Any]) {
     let notificationHook: [String: Any] = [
         "matcher": "",
         "hooks": [
@@ -135,21 +145,31 @@ func runSetup() {
         ]
     ]
 
-    // Merge hooks into settings
     var hooks = settings["hooks"] as? [String: Any] ?? [:]
     hooks["Notification"] = [notificationHook]
     hooks["Stop"] = [stopHook]
     settings["hooks"] = hooks
+}
 
-    // Write settings.json
+func writeSettings(_ settings: [String: Any], to path: URL) {
     do {
         let data = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
-        try data.write(to: settingsPath)
-        print("Updated \(settingsPath.path)")
+        try data.write(to: path)
+        print("Updated \(path.path)")
     } catch {
-        fputs("Error writing \(settingsPath.path): \(error.localizedDescription)\n", stderr)
-        exit(1)
+        exitWithError("Error writing \(path.path): \(error.localizedDescription)")
     }
+}
+
+func runSetup() {
+    let claudeDir = ensureClaudeDirectoryExists()
+    let settingsPath = claudeDir.appendingPathComponent("settings.json")
+
+    writeNotifyScript(to: claudeDir)
+
+    var settings = loadSettings(from: settingsPath)
+    addNotificationHooks(to: &settings)
+    writeSettings(settings, to: settingsPath)
 
     print("\nSetup complete! Claude Code will now send notifications.")
     print("Clicking a notification will focus the iTerm2 tab that triggered it.")
