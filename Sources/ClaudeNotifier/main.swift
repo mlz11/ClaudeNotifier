@@ -308,6 +308,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
 // MARK: - Argument Parsing
 
+func flagValue(for flag: String, in args: [String]) -> String? {
+    guard let index = args.firstIndex(of: flag), index + 1 < args.count else { return nil }
+    return args[index + 1]
+}
+
 func parseArguments() -> ParsedArguments {
     let args = CommandLine.arguments
 
@@ -323,32 +328,13 @@ func parseArguments() -> ParsedArguments {
         }
     }
 
-    var title = Constants.defaultTitle
-    var subtitle: String?
-    var body: String?
-    var sessionId: String?
-
-    var i = 1
-    while i < args.count {
-        let arg = args[i]
-        if arg == "-t", i + 1 < args.count {
-            title = args[i + 1]
-            i += 2
-        } else if arg == "-s", i + 1 < args.count {
-            subtitle = args[i + 1]
-            i += 2
-        } else if arg == "-m", i + 1 < args.count {
-            body = args[i + 1]
-            i += 2
-        } else if arg == "-i", i + 1 < args.count {
-            sessionId = args[i + 1]
-            i += 2
-        } else {
-            i += 1
-        }
-    }
-
-    return ParsedArguments(command: nil, title: title, subtitle: subtitle, body: body, sessionId: sessionId)
+    return ParsedArguments(
+        command: nil,
+        title: flagValue(for: "-t", in: args) ?? Constants.defaultTitle,
+        subtitle: flagValue(for: "-s", in: args),
+        body: flagValue(for: "-m", in: args),
+        sessionId: flagValue(for: "-i", in: args)
+    )
 }
 
 func showHelp() {
