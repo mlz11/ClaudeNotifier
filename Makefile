@@ -5,13 +5,23 @@ INSTALL_DIR = /Applications
 BIN_DIR = $(HOME)/.local/bin
 CLI_NAME = claude-notifier
 
+GENERATED_SCRIPT = Sources/ClaudeNotifier/NotifyScript.generated.swift
+
 .PHONY: all build install uninstall clean lint format setup
 
 all: build
 
 SOURCES = $(wildcard Sources/ClaudeNotifier/*.swift)
 
-build:
+$(GENERATED_SCRIPT): Scripts/notify.sh
+	@echo "Generating NotifyScript.generated.swift..."
+	@echo '// Auto-generated from Scripts/notify.sh - do not edit directly' > $@
+	@echo '' >> $@
+	@echo 'let notifyScript = """' >> $@
+	@cat $< >> $@
+	@echo '"""' >> $@
+
+build: $(GENERATED_SCRIPT)
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@echo "Compiling $(APP_NAME)..."
@@ -47,6 +57,7 @@ uninstall:
 
 clean:
 	@rm -rf $(BUILD_DIR)
+	@rm -f $(GENERATED_SCRIPT)
 	@echo "Cleaned build directory"
 
 lint:

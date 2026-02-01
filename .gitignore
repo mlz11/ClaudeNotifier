@@ -2,3 +2,6 @@
 build/
 .build/
 .swiftpm/
+
+# Generated at build time
+*.generated.swift
