@@ -1,6 +1,16 @@
 import AppKit
 import UserNotifications
 
+// MARK: - Constants
+
+enum Constants {
+    static let defaultTitle = "Claude"
+    static let claudeDirectory = ".claude"
+    static let notifyScriptName = "notify.sh"
+    static let settingsFileName = "settings.json"
+    static let sessionIdKey = "sessionId"
+}
+
 // MARK: - Types
 
 struct NotificationConfig {
@@ -77,18 +87,26 @@ esac
 """
 // swiftlint:enable line_length
 
-// MARK: - Error Handling
+// MARK: - App Lifecycle Helpers
 
 func exitWithError(_ message: String) -> Never {
     fputs(message + "\n", stderr)
     exit(1)
 }
 
+func terminateApp(afterDelay delay: Double = 0) {
+    if delay > 0 {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { NSApp.terminate(nil) }
+    } else {
+        DispatchQueue.main.async { NSApp.terminate(nil) }
+    }
+}
+
 // MARK: - Setup Command
 
 func ensureClaudeDirectoryExists() -> URL {
     let fileManager = FileManager.default
-    let claudeDir = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(".claude")
+    let claudeDir = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(Constants.claudeDirectory)
 
     if !fileManager.fileExists(atPath: claudeDir.path) {
         do {
@@ -103,7 +121,7 @@ func ensureClaudeDirectoryExists() -> URL {
 }
 
 func writeNotifyScript(to directory: URL) {
-    let notifyPath = directory.appendingPathComponent("notify.sh")
+    let notifyPath = directory.appendingPathComponent(Constants.notifyScriptName)
 
     do {
         try notifyScript.write(to: notifyPath, atomically: true, encoding: .utf8)
@@ -163,7 +181,7 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
 
 func runSetup() {
     let claudeDir = ensureClaudeDirectoryExists()
-    let settingsPath = claudeDir.appendingPathComponent("settings.json")
+    let settingsPath = claudeDir.appendingPathComponent(Constants.settingsFileName)
 
     writeNotifyScript(to: claudeDir)
 
@@ -228,9 +246,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             // Launched without notification config (e.g., from notification click)
             // The delegate method will handle the notification response
             // Give a brief moment for notification response to be delivered, then exit
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                NSApp.terminate(nil)
-            }
+            terminateApp(afterDelay: 0.5)
         }
     }
 
@@ -249,7 +265,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
                 // Store session ID for focus-on-click
                 if let sid = sessionId, !sid.isEmpty {
-                    content.userInfo = ["sessionId": sid]
+                    content.userInfo = [Constants.sessionIdKey: sid]
                 }
 
                 let request = UNNotificationRequest(
@@ -258,15 +274,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                     trigger: nil
                 )
                 center.add(request) { _ in
-                    DispatchQueue.main.async {
-                        NSApp.terminate(nil)
-                    }
+                    terminateApp()
                 }
             } else {
                 fputs("Notification permission denied\n", stderr)
-                DispatchQueue.main.async {
-                    NSApp.terminate(nil)
-                }
+                terminateApp()
             }
         }
     }
@@ -277,13 +289,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let sessionId = response.notification.request.content.userInfo["sessionId"] as? String {
+        if let sessionId = response.notification.request.content.userInfo[Constants.sessionIdKey] as? String {
             focusITermSession(sessionId)
         }
         completionHandler()
-        DispatchQueue.main.async {
-            NSApp.terminate(nil)
-        }
+        terminateApp()
     }
 
     /// Allow notifications to show even when app is in foreground
@@ -313,7 +323,7 @@ func parseArguments() -> ParsedArguments {
         }
     }
 
-    var title = "Claude"
+    var title = Constants.defaultTitle
     var subtitle: String?
     var body: String?
     var sessionId: String?
