@@ -5,6 +5,7 @@ struct NotificationConfig {
     let subtitle: String?
     let body: String
     let sessionId: String?
+    let terminalType: String?
 }
 
 struct ParsedArguments {
@@ -13,4 +14,5 @@ struct ParsedArguments {
     let subtitle: String?
     let body: String?
     let sessionId: String?
+    let terminalType: String?
 }

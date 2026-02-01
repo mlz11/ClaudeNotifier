@@ -14,7 +14,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 title: config.title,
                 subtitle: config.subtitle,
                 body: config.body,
-                sessionId: config.sessionId
+                sessionId: config.sessionId,
+                terminalType: config.terminalType
             )
         } else {
             // Launched without notification config (e.g., from notification click)
@@ -24,7 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    func showNotification(title: String, subtitle: String?, body: String, sessionId: String?) {
+    func showNotification(title: String, subtitle: String?, body: String, sessionId: String?, terminalType: String?) {
         let center = UNUserNotificationCenter.current()
 
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -37,9 +38,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 content.body = body
                 content.sound = .default
 
-                // Store session ID for focus-on-click
+                // Store session ID and terminal type for focus-on-click
+                var userInfo: [String: String] = [:]
                 if let sid = sessionId, !sid.isEmpty {
-                    content.userInfo = [Constants.sessionIdKey: sid]
+                    userInfo[Constants.sessionIdKey] = sid
+                }
+                if let ttype = terminalType, !ttype.isEmpty {
+                    userInfo[Constants.terminalTypeKey] = ttype
+                }
+                if !userInfo.isEmpty {
+                    content.userInfo = userInfo
                 }
 
                 let request = UNNotificationRequest(
@@ -63,8 +71,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let sessionId = response.notification.request.content.userInfo[Constants.sessionIdKey] as? String {
-            focusITermSession(sessionId)
+        let userInfo = response.notification.request.content.userInfo
+        if let sessionId = userInfo[Constants.sessionIdKey] as? String {
+            let terminalTypeStr = userInfo[Constants.terminalTypeKey] as? String ?? ""
+            let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .iterm2
+            focusTerminalSession(sessionId: sessionId, terminalType: terminalType)
         }
         completionHandler()
         terminateApp()

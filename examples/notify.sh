@@ -4,21 +4,46 @@
 EVENT_TYPE="$1"
 NOTIFIER="claude-notifier"
 
-# Check if we're in the currently focused iTerm2 tab
+# Detect terminal type and set session info
+detect_terminal() {
+    if [ -n "$ITERM_SESSION_ID" ]; then
+        TERMINAL_TYPE="iterm2"
+        SESSION_ID="$ITERM_SESSION_ID"
+    elif [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
+        TERMINAL_TYPE="terminal"
+        SESSION_ID=$(tty)
+    else
+        TERMINAL_TYPE=""
+        SESSION_ID=""
+    fi
+}
+
+# Check if we're in the currently focused terminal tab
 should_notify() {
-    # Get our session ID (format: w0t0p0:UUID)
-    [ -z "$ITERM_SESSION_ID" ] && return 0  # Not in iTerm2, always notify
-    MY_SESSION="${ITERM_SESSION_ID#*:}"  # Extract UUID after colon
+    detect_terminal
 
-    # Check if iTerm2 is the frontmost app
-    FRONTMOST=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true' 2>/dev/null)
-    [ "$FRONTMOST" != "com.googlecode.iterm2" ] && return 0  # iTerm2 not focused, notify
+    case "$TERMINAL_TYPE" in
+        iterm2)
+            MY_SESSION="${ITERM_SESSION_ID#*:}"  # Extract UUID after colon
+            FRONTMOST=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true' 2>/dev/null)
+            [ "$FRONTMOST" != "com.googlecode.iterm2" ] && return 0
 
-    # Get the session ID of iTerm2's current session
-    CURRENT_SESSION=$(osascript -e 'tell application "iTerm2" to tell current session of current window to return id' 2>/dev/null)
+            CURRENT_SESSION=$(osascript -e 'tell application "iTerm2" to tell current session of current window to return id' 2>/dev/null)
+            [ "$MY_SESSION" = "$CURRENT_SESSION" ] && return 1
+            ;;
+        terminal)
+            MY_TTY=$(tty)
+            FRONTMOST=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true' 2>/dev/null)
+            [ "$FRONTMOST" != "com.apple.Terminal" ] && return 0
 
-    # If sessions match, user is looking at this tab - don't notify
-    [ "$MY_SESSION" = "$CURRENT_SESSION" ] && return 1
+            CURRENT_TTY=$(osascript -e 'tell application "Terminal" to return tty of selected tab of front window' 2>/dev/null)
+            [ "$MY_TTY" = "$CURRENT_TTY" ] && return 1
+            ;;
+        *)
+            # Unknown terminal, always notify
+            return 0
+            ;;
+    esac
 
     return 0  # Different tab, notify
 }
@@ -48,5 +73,8 @@ case "$EVENT_TYPE" in
         ;;
 esac
 
-# Send notification with Claude icon
-"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE"
+# Ensure terminal detection has run
+detect_terminal
+
+# Send notification with session info for focus-on-click
+"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE"

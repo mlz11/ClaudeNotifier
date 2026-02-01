@@ -24,7 +24,8 @@ if let body = parsed.body {
         title: parsed.title,
         subtitle: parsed.subtitle,
         body: body,
-        sessionId: parsed.sessionId
+        sessionId: parsed.sessionId,
+        terminalType: parsed.terminalType
     )
 }
 

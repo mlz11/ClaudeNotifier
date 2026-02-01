@@ -1,9 +1,41 @@
+import AppKit
 import Foundation
 
 // Note: `notifyScript` is defined in NotifyScript.generated.swift
 // Generated at build time from Scripts/notify.sh
 
 // MARK: - Setup Functions
+
+func requestTerminalPermissions() {
+    print("\nRequesting terminal automation permissions...")
+
+    let terminals: [(name: String, script: String)] = [
+        ("iTerm2", "tell application \"iTerm2\" to return name"),
+        ("Terminal.app", "tell application \"Terminal\" to return name")
+    ]
+
+    for terminal in terminals {
+        if let script = NSAppleScript(source: terminal.script) {
+            var error: NSDictionary?
+            script.executeAndReturnError(&error)
+
+            if let err = error {
+                let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
+                if errorNum == -1743 {
+                    // User denied permission
+                    print("  \(terminal.name): denied (can enable in System Settings > Privacy > Automation)")
+                } else if errorNum == -600 || errorNum == -128 {
+                    // App not running or user cancelled - permission may still be granted
+                    print("  \(terminal.name): skipped (app not running)")
+                } else if error != nil {
+                    print("  \(terminal.name): skipped")
+                }
+            } else {
+                print("  \(terminal.name): ✓")
+            }
+        }
+    }
+}
 
 func ensureClaudeDirectoryExists() -> URL {
     let fileManager = FileManager.default
@@ -90,6 +122,9 @@ func runSetup() {
     addNotificationHooks(to: &settings)
     writeSettings(settings, to: settingsPath)
 
+    requestTerminalPermissions()
+
     print("\nSetup complete! Claude Code will now send notifications.")
-    print("Clicking a notification will focus the iTerm2 tab that triggered it.")
+    print("Clicking a notification will focus the terminal tab that triggered it.")
+    print("Supported terminals: iTerm2, Terminal.app")
 }

@@ -6,4 +6,5 @@ enum Constants {
     static let notifyScriptName = "notify.sh"
     static let settingsFileName = "settings.json"
     static let sessionIdKey = "sessionId"
+    static let terminalTypeKey = "terminalType"
 }
