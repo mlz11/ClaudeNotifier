@@ -90,6 +90,12 @@ You can manage this in: **System Settings → Privacy & Security → Automation 
 
 ## FAQ
 
+### Why not use Anthropic's recommended terminal notification setup?
+
+Anthropic provides [official documentation](https://docs.anthropic.com/en/docs/claude-code/terminal-setup#iterm-2-system-notifications) for enabling iTerm2 system notifications. However, this method didn't work reliably for us—notifications simply never appeared on multiple machines, and colleagues experienced the same issue.
+
+ClaudeNotifier was built as a more reliable alternative that also adds extra features like click-to-focus and smart suppression.
+
 ### Why isn't Warp terminal supported?
 
 Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
