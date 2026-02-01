@@ -1,13 +1,14 @@
 # ClaudeNotifier
 
-A macOS notification app for Claude Code integration. Displays native notifications with Claude's icon and focuses the correct iTerm2 tab when clicked.
+A macOS notification app for Claude Code integration. Displays native notifications with Claude's icon and focuses the correct terminal tab when clicked.
 
 ## Features
 
 - Native macOS notifications with Claude's icon
 - Smart suppression when you're viewing the active Claude terminal tab
-- **Click-to-focus**: Clicking a notification switches to the iTerm2 tab that triggered it
+- **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
+- Supports iTerm2 and Terminal.app
 
 ## Installation
 
@@ -57,26 +58,53 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 - `-m "message"` - The notification body (required)
 - `-t "title"` - The notification title (default: "Claude")
 - `-s "subtitle"` - The notification subtitle (optional)
-- `-i "session"` - iTerm2 session ID for focus-on-click (optional, auto-set by notify.sh)
+- `-i "session"` - Session ID for focus-on-click (optional, auto-set by notify.sh)
+- `-T "type"` - Terminal type: `iterm2`, `terminal` (optional, auto-detected)
 
 ## How It Works
 
 The setup installs a smart notification script that:
-- Skips notifications if you're focused on the iTerm2 tab running Claude
-- Shows notifications when you're in a different app or different iTerm2 tab
+- Detects your terminal (iTerm2 or Terminal.app)
+- Skips notifications if you're focused on the terminal tab running Claude
+- Shows notifications when you're in a different app or different tab
 - Includes the current repo/directory name as a subtitle
-- Passes the iTerm2 session ID so clicking focuses the correct tab
+- Passes session info so clicking focuses the correct tab
 
 ## Permissions
 
-On first notification click, macOS will prompt for permission to control iTerm2. This is required for the click-to-focus feature to work.
+During setup, macOS will prompt for permission to control your terminal(s). This is required for the click-to-focus feature.
 
 You can manage this in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
 
 ## Requirements
 
 - macOS 11.0+
-- iTerm2 (for click-to-focus feature)
+- iTerm2 or Terminal.app
+
+## FAQ
+
+### Why isn't Warp terminal supported?
+
+Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
+- Detect which tab triggered the notification
+- Focus a specific tab when clicking a notification
+- Check if you're viewing the active tab (for smart suppression)
+
+The Warp team prefers URI schemes over AppleScript, but these don't yet support focusing specific tabs.
+
+**Relevant issues:**
+- [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
+- [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
+
+### Why isn't Ghostty terminal supported?
+
+Ghostty currently lacks the APIs needed for full integration:
+- No `TERM_SESSION_ID` equivalent environment variable ([discussion](https://github.com/ghostty-org/ghostty/discussions/9084))
+- AppleScript support is planned but not yet implemented ([discussion](https://github.com/ghostty-org/ghostty/discussions/2353))
+
+Ghostty 1.2.0 added App Intents/Shortcuts support, but this doesn't include focusing specific tabs by ID.
+
+Once Ghostty adds AppleScript support and a session ID environment variable, we can add support.
 
 ## License
 
