@@ -7,6 +7,19 @@ import UserNotifications
 
 // MARK: - Setup Functions
 
+func promptForConfigDirectory() -> URL {
+    let defaultPath = "~/.claude"
+    print("Claude config directory [\(defaultPath)]: ", terminator: "")
+    fflush(stdout)
+
+    if let input = readLine(), !input.isEmpty {
+        return URL(fileURLWithPath: (input as NSString).expandingTildeInPath)
+    }
+
+    return FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(Constants.claudeDirectory)
+}
+
 func requestNotificationPermissions() {
     print("\nRequesting notification permissions...")
 
@@ -58,9 +71,8 @@ func requestTerminalPermissions() {
     }
 }
 
-func ensureClaudeDirectoryExists() -> URL {
+func ensureClaudeDirectoryExists(_ claudeDir: URL) {
     let fileManager = FileManager.default
-    let claudeDir = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(Constants.claudeDirectory)
 
     if !fileManager.fileExists(atPath: claudeDir.path) {
         do {
@@ -70,8 +82,6 @@ func ensureClaudeDirectoryExists() -> URL {
             exitWithError("Error creating \(claudeDir.path): \(error.localizedDescription)")
         }
     }
-
-    return claudeDir
 }
 
 func writeNotifyScript(to directory: URL) {
@@ -103,17 +113,18 @@ func loadSettings(from path: URL) -> [String: Any] {
     return [:]
 }
 
-func addNotificationHooks(to settings: inout [String: Any]) {
+func addNotificationHooks(to settings: inout [String: Any], configDir: URL) {
+    let notifyScriptPath = configDir.path + "/" + Constants.notifyScriptName
     let notificationHook: [String: Any] = [
         "matcher": "",
         "hooks": [
-            ["type": "command", "command": "~/.claude/notify.sh input_needed"]
+            ["type": "command", "command": "\(notifyScriptPath) input_needed"]
         ]
     ]
     let stopHook: [String: Any] = [
         "matcher": "",
         "hooks": [
-            ["type": "command", "command": "~/.claude/notify.sh task_complete"]
+            ["type": "command", "command": "\(notifyScriptPath) task_complete"]
         ]
     ]
 
@@ -134,13 +145,14 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
 }
 
 func runSetup() {
-    let claudeDir = ensureClaudeDirectoryExists()
+    let claudeDir = promptForConfigDirectory()
+    ensureClaudeDirectoryExists(claudeDir)
     let settingsPath = claudeDir.appendingPathComponent(Constants.settingsFileName)
 
     writeNotifyScript(to: claudeDir)
 
     var settings = loadSettings(from: settingsPath)
-    addNotificationHooks(to: &settings)
+    addNotificationHooks(to: &settings, configDir: claudeDir)
     writeSettings(settings, to: settingsPath)
 
     requestNotificationPermissions()
