@@ -83,17 +83,19 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 - `-m "message"` - The notification body (required)
 - `-t "title"` - The notification title (default: "Claude")
 - `-s "subtitle"` - The notification subtitle (optional)
+- `-S "sound"` - Notification sound: `default`, `none`, or a sound name (optional)
+  - Examples: `Glass`, `Basso`, `Blow`, `Ping`, `Pop`, `Funk`, `Submarine`
 - `-i "session"` - Session ID for focus-on-click (optional, auto-set by notify.sh)
 - `-T "type"` - Terminal type: `iterm2`, `terminal` (optional, auto-detected)
 
 ## Permissions
 
-ClaudeNotifier requires two macOS permissions:
+ClaudeNotifier requires two macOS permissions, both prompted during `claude-notifier setup`:
 
-1. **Notifications** — Prompted when the first notification is sent. Required to display notifications.
+1. **Notifications** — Required to display notifications.
    - Manage in: **System Settings → Notifications → ClaudeNotifier**
 
-2. **Automation** — Prompted during `claude-notifier setup` (or on first notification click if skipped). Required for click-to-focus.
+2. **Automation** — Required for click-to-focus.
    - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
 
 ## Requirements
