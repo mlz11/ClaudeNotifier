@@ -1,10 +1,31 @@
 import AppKit
 import Foundation
+import UserNotifications
 
 // Note: `notifyScript` is defined in NotifyScript.generated.swift
 // Generated at build time from Scripts/notify.sh
 
 // MARK: - Setup Functions
+
+func requestNotificationPermissions() {
+    print("\nRequesting notification permissions...")
+
+    let semaphore = DispatchSemaphore(value: 0)
+    var granted = false
+
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { result, _ in
+        granted = result
+        semaphore.signal()
+    }
+
+    semaphore.wait()
+
+    if granted {
+        print("  Notifications: ✓")
+    } else {
+        print("  Notifications: denied (can enable in System Settings > Notifications)")
+    }
+}
 
 func requestTerminalPermissions() {
     print("\nRequesting terminal automation permissions...")
@@ -122,6 +143,7 @@ func runSetup() {
     addNotificationHooks(to: &settings)
     writeSettings(settings, to: settingsPath)
 
+    requestNotificationPermissions()
     requestTerminalPermissions()
 
     print("\nSetup complete! Claude Code will now send notifications.")
