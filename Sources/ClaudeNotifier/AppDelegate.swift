@@ -4,19 +4,26 @@ import UserNotifications
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     var notificationConfig: NotificationConfig?
 
+    /// Convert sound name string to UNNotificationSound
+    private func notificationSound(from soundName: String?) -> UNNotificationSound? {
+        guard let name = soundName else { return .default }
+        switch name.lowercased() {
+        case "default":
+            return .default
+        case "none", "":
+            return nil
+        default:
+            return UNNotificationSound(named: UNNotificationSoundName(rawValue: name))
+        }
+    }
+
     func applicationDidFinishLaunching(_: Notification) {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 
         // If we have a notification to show, show it
         if let config = notificationConfig {
-            showNotification(
-                title: config.title,
-                subtitle: config.subtitle,
-                body: config.body,
-                sessionId: config.sessionId,
-                terminalType: config.terminalType
-            )
+            showNotification(config)
         } else {
             // Launched without notification config (e.g., from notification click)
             // The delegate method will handle the notification response
@@ -25,26 +32,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    func showNotification(title: String, subtitle: String?, body: String, sessionId: String?, terminalType: String?) {
+    func showNotification(_ config: NotificationConfig) {
         let center = UNUserNotificationCenter.current()
 
         center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             if granted {
                 let content = UNMutableNotificationContent()
-                content.title = title
-                if let sub = subtitle {
-                    content.subtitle = sub
+                content.title = config.title
+                if let subtitle = config.subtitle {
+                    content.subtitle = subtitle
                 }
-                content.body = body
-                content.sound = .default
+                content.body = config.body
+                content.sound = self.notificationSound(from: config.sound)
 
                 // Store session ID and terminal type for focus-on-click
                 var userInfo: [String: String] = [:]
-                if let sid = sessionId, !sid.isEmpty {
-                    userInfo[Constants.sessionIdKey] = sid
+                if let sessionId = config.sessionId, !sessionId.isEmpty {
+                    userInfo[Constants.sessionIdKey] = sessionId
                 }
-                if let ttype = terminalType, !ttype.isEmpty {
-                    userInfo[Constants.terminalTypeKey] = ttype
+                if let terminalType = config.terminalType, !terminalType.isEmpty {
+                    userInfo[Constants.terminalTypeKey] = terminalType
                 }
                 if !userInfo.isEmpty {
                     content.userInfo = userInfo

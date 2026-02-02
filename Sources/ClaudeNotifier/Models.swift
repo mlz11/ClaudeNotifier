@@ -6,6 +6,7 @@ struct NotificationConfig {
     let body: String
     let sessionId: String?
     let terminalType: String?
+    let sound: String?
 }
 
 struct ParsedArguments {
@@ -15,4 +16,5 @@ struct ParsedArguments {
     let body: String?
     let sessionId: String?
     let terminalType: String?
+    let sound: String?
 }

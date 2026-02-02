@@ -13,11 +13,11 @@ func parseArguments() -> ParsedArguments {
         switch args[1] {
         case "setup":
             return ParsedArguments(
-                command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil
+                command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
             )
         case "-h", "--help", "help":
             return ParsedArguments(
-                command: "help", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil
+                command: "help", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
             )
         default:
             break
@@ -30,7 +30,8 @@ func parseArguments() -> ParsedArguments {
         subtitle: flagValue(for: "-s", in: args),
         body: flagValue(for: "-m", in: args),
         sessionId: flagValue(for: "-i", in: args),
-        terminalType: flagValue(for: "-T", in: args)
+        terminalType: flagValue(for: "-T", in: args),
+        sound: flagValue(for: "-S", in: args)
     )
 }
 
@@ -47,6 +48,8 @@ func showHelp() {
       -s "subtitle"   The notification subtitle (optional)
       -i "session"    Session ID for focus-on-click (optional)
       -T "type"       Terminal type: iterm2, terminal (optional)
+      -S "sound"      Notification sound: "default", "none", or a sound name (optional)
+                      Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
       -h, --help      Show this help message
     """)
 }

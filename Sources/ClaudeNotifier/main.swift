@@ -25,7 +25,8 @@ if let body = parsed.body {
         subtitle: parsed.subtitle,
         body: body,
         sessionId: parsed.sessionId,
-        terminalType: parsed.terminalType
+        terminalType: parsed.terminalType,
+        sound: parsed.sound
     )
 }
 
