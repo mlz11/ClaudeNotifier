@@ -88,9 +88,13 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 
 ## Permissions
 
-During setup, macOS will prompt for permission to control your terminal(s). This is required for the click-to-focus feature.
+ClaudeNotifier requires two macOS permissions:
 
-You can manage this in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
+1. **Notifications** — Prompted when the first notification is sent. Required to display notifications.
+   - Manage in: **System Settings → Notifications → ClaudeNotifier**
+
+2. **Automation** — Prompted during `claude-notifier setup` (or on first notification click if skipped). Required for click-to-focus.
+   - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
 
 ## Requirements
 
