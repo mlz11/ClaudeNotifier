@@ -28,17 +28,21 @@ Anthropic's [recommended terminal notification setup](https://docs.anthropic.com
 - Smart suppression when you're viewing the active Claude terminal tab
 - **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
-- Supports iTerm2 and Terminal.app
+- Supports [iTerm2](https://iterm2.com/) and [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac)
 
 ## 📦 Installation
 
-### Homebrew (Recommended)
+<details open>
+<summary><strong>Homebrew (Recommended)</strong></summary>
 
 ```bash
 brew install mlz11/tap/claude-notifier
 ```
 
-### From Source
+</details>
+
+<details>
+<summary><strong>From Source</strong></summary>
 
 ```bash
 git clone https://github.com/mlz11/ClaudeNotifier.git
@@ -54,6 +58,8 @@ If `~/.local/bin` is not in your PATH, add it:
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
+
+</details>
 
 ## 🚀 Usage
 
