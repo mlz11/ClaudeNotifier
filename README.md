@@ -68,9 +68,11 @@ source ~/.zshrc
 claude-notifier setup
 ```
 
+You'll be prompted for the Claude config directory (press Enter for default `~/.claude`).
+
 This automatically:
-- Installs the notification script to `~/.claude/notify.sh`
-- Adds hooks to `~/.claude/settings.json`
+- Installs the notification script to your config directory
+- Adds hooks to `settings.json`
 
 ### Sending Notifications
 
