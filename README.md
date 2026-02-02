@@ -9,7 +9,20 @@
   Displays native notifications with Claude's icon and focuses the correct terminal tab when clicked.
 </p>
 
-## Features
+<p align="center">
+  <a href="#why-claudenotifier">Why?</a> •
+  <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#how-it-works">How It Works</a> •
+  <a href="#faq">FAQ</a>
+</p>
+
+## Why ClaudeNotifier?
+
+Anthropic's [recommended terminal notification setup](https://docs.anthropic.com/en/docs/claude-code/terminal-setup#iterm-2-system-notifications) doesn't work reliably—notifications often never appear. ClaudeNotifier provides a more reliable alternative with extra features like click-to-focus and smart suppression.
+
+## ✨ Features
 
 - Native macOS notifications with Claude's icon
 - Smart suppression when you're viewing the active Claude terminal tab
@@ -17,7 +30,7 @@
 - Includes repo/directory name as subtitle
 - Supports iTerm2 and Terminal.app
 
-## Installation
+## 📦 Installation
 
 ### Homebrew (Recommended)
 
@@ -42,7 +55,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-## Usage
+## 🚀 Usage
 
 ### Quick Setup for Claude Code
 
@@ -88,16 +101,7 @@ You can manage this in: **System Settings → Privacy & Security → Automation 
 - macOS 11.0+
 - iTerm2 or Terminal.app
 
-## FAQ
-
-<details>
-<summary><strong>Why not use Anthropic's recommended terminal notification setup?</strong></summary>
-
-Anthropic provides [official documentation](https://docs.anthropic.com/en/docs/claude-code/terminal-setup#iterm-2-system-notifications) for enabling iTerm2 system notifications. However, this method didn't work reliably for us—notifications simply never appeared on multiple machines, and colleagues experienced the same issue.
-
-ClaudeNotifier was built as a more reliable alternative that also adds extra features like click-to-focus and smart suppression.
-
-</details>
+## ❓ FAQ
 
 <details>
 <summary><strong>Why isn't Warp terminal supported?</strong></summary>
@@ -127,7 +131,3 @@ Ghostty 1.2.0 added App Intents/Shortcuts support, but this doesn't include focu
 Once Ghostty adds AppleScript support and a session ID environment variable, we can add support.
 
 </details>
-
-## License
-
-MIT
