@@ -4,6 +4,32 @@
 EVENT_TYPE="$1"
 NOTIFIER="claude-notifier"
 
+# Get Terminal.app's tab TTY by walking up the process tree
+# This handles cases where the user runs a nested terminal (tmux, qterm, etc.)
+get_terminal_app_tty() {
+    local pid=$$
+    local current_tty
+    local parent_tty
+
+    current_tty=$(ps -p $pid -o tty= 2>/dev/null | tr -d ' ')
+
+    # Walk up the process tree looking for the original TTY
+    while [ -n "$pid" ] && [ "$pid" != "1" ]; do
+        parent_tty=$(ps -p $pid -o tty= 2>/dev/null | tr -d ' ')
+        if [ -n "$parent_tty" ] && [ "$parent_tty" != "??" ]; then
+            current_tty="$parent_tty"
+        fi
+        pid=$(ps -p $pid -o ppid= 2>/dev/null | tr -d ' ')
+    done
+
+    # Return the TTY with /dev/ prefix
+    if [ -n "$current_tty" ] && [ "$current_tty" != "??" ]; then
+        echo "/dev/$current_tty"
+    else
+        tty  # Fallback to current tty
+    fi
+}
+
 # Detect terminal type and set session info
 detect_terminal() {
     if [ -n "$ITERM_SESSION_ID" ]; then
@@ -11,7 +37,7 @@ detect_terminal() {
         SESSION_ID="$ITERM_SESSION_ID"
     elif [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
         TERMINAL_TYPE="terminal"
-        SESSION_ID=$(tty)
+        SESSION_ID=$(get_terminal_app_tty)
     else
         TERMINAL_TYPE=""
         SESSION_ID=""
@@ -32,7 +58,7 @@ should_notify() {
             [ "$MY_SESSION" = "$CURRENT_SESSION" ] && return 1
             ;;
         terminal)
-            MY_TTY=$(tty)
+            MY_TTY=$(get_terminal_app_tty)
             FRONTMOST=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true' 2>/dev/null)
             [ "$FRONTMOST" != "com.apple.Terminal" ] && return 0
 
