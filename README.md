@@ -14,7 +14,6 @@
   <a href="#features">Features</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
-  <a href="#how-it-works">How It Works</a> •
   <a href="#faq">FAQ</a>
 </p>
 
@@ -86,15 +85,6 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 - `-s "subtitle"` - The notification subtitle (optional)
 - `-i "session"` - Session ID for focus-on-click (optional, auto-set by notify.sh)
 - `-T "type"` - Terminal type: `iterm2`, `terminal` (optional, auto-detected)
-
-## How It Works
-
-The setup installs a smart notification script that:
-- Detects your terminal (iTerm2 or Terminal.app)
-- Skips notifications if you're focused on the terminal tab running Claude
-- Shows notifications when you're in a different app or different tab
-- Includes the current repo/directory name as a subtitle
-- Passes session info so clicking focuses the correct tab
 
 ## Permissions
 
