@@ -1,8 +1,12 @@
 import Foundation
 
-func flagValue(for flag: String, in args: [String]) -> String? {
-    guard let index = args.firstIndex(of: flag), index + 1 < args.count else { return nil }
-    return args[index + 1]
+func flagValue(for flags: [String], in args: [String]) -> String? {
+    for flag in flags {
+        if let index = args.firstIndex(of: flag), index + 1 < args.count {
+            return args[index + 1]
+        }
+    }
+    return nil
 }
 
 func parseArguments() -> ParsedArguments {
@@ -26,12 +30,12 @@ func parseArguments() -> ParsedArguments {
 
     return ParsedArguments(
         command: nil,
-        title: flagValue(for: "-t", in: args) ?? Constants.defaultTitle,
-        subtitle: flagValue(for: "-s", in: args),
-        body: flagValue(for: "-m", in: args),
-        sessionId: flagValue(for: "-i", in: args),
-        terminalType: flagValue(for: "-T", in: args),
-        sound: flagValue(for: "-S", in: args)
+        title: flagValue(for: ["-t", "--title"], in: args) ?? Constants.defaultTitle,
+        subtitle: flagValue(for: ["-s", "--subtitle"], in: args),
+        body: flagValue(for: ["-m", "--message"], in: args),
+        sessionId: flagValue(for: ["-i", "--session-id"], in: args),
+        terminalType: flagValue(for: ["-T", "--terminal"], in: args),
+        sound: flagValue(for: ["-S", "--sound"], in: args)
     )
 }
 
@@ -40,16 +44,16 @@ func showHelp() {
     Usage: claude-notifier [command] [options]
 
     Commands:
-      setup           Set up Claude Code integration (installs hooks)
+      setup                       Set up Claude Code integration (installs hooks)
 
     Options:
-      -m "message"    The notification body (required for notifications)
-      -t "title"      The notification title (default: "Claude")
-      -s "subtitle"   The notification subtitle (optional)
-      -i "session"    Session ID for focus-on-click (optional)
-      -T "type"       Terminal type: iterm2, terminal (optional)
-      -S "sound"      Notification sound: "default", "none", or a sound name (optional)
-                      Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
-      -h, --help      Show this help message
+      -m, --message "text"        The notification body (required for notifications)
+      -t, --title "text"          The notification title (default: "Claude")
+      -s, --subtitle "text"       The notification subtitle (optional)
+      -i, --session-id "id"       Session ID for focus-on-click (optional)
+      -T, --terminal "type"       Terminal type: iterm2, terminal (optional)
+      -S, --sound "sound"         Notification sound: "default", "none", or a sound name
+                                  Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
+      -h, --help                  Show this help message
     """)
 }
