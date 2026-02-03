@@ -49,7 +49,9 @@ cd ClaudeNotifier
 make install
 ```
 
-This builds the app, installs it to `/Applications/ClaudeNotifier.app`, and creates a `claude-notifier` CLI command in `~/.local/bin`.
+You'll be prompted for the install directory (press Enter for default `/Applications`).
+
+This builds the app, installs it to the chosen directory, and creates a `claude-notifier` CLI command in `~/.local/bin`.
 
 If `~/.local/bin` is not in your PATH, add it:
 
