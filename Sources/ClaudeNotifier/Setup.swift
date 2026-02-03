@@ -23,32 +23,80 @@ func promptForConfigDirectory() -> URL {
 func requestNotificationPermissions() {
     print("\nRequesting notification permissions...")
 
+    let center = UNUserNotificationCenter.current()
     let semaphore = DispatchSemaphore(value: 0)
-    var granted = false
+    var currentStatus: UNAuthorizationStatus = .notDetermined
 
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { result, _ in
+    // Check current status first
+    center.getNotificationSettings { settings in
+        currentStatus = settings.authorizationStatus
+        semaphore.signal()
+    }
+    semaphore.wait()
+
+    switch currentStatus {
+    case .authorized, .provisional:
+        print("  Notifications: ✓")
+        return
+    case .denied:
+        print("  Notifications: denied")
+        print("    → Open System Settings > Notifications > ClaudeNotifier to enable")
+        return
+    case .notDetermined:
+        break // Will request below
+    @unknown default:
+        break
+    }
+
+    // Request authorization for first-time setup
+    var granted = false
+    center.requestAuthorization(options: [.alert, .sound, .badge]) { result, _ in
         granted = result
         semaphore.signal()
     }
-
     semaphore.wait()
 
     if granted {
         print("  Notifications: ✓")
     } else {
-        print("  Notifications: denied (can enable in System Settings > Notifications)")
+        print("  Notifications: denied")
+        print("    → Open System Settings > Notifications > ClaudeNotifier to enable")
     }
+}
+
+private struct TerminalInfo {
+    let name: String
+    let bundleId: String
+    let script: String
 }
 
 func requestTerminalPermissions() {
     print("\nRequesting terminal automation permissions...")
+    print("  (You may see permission dialogs - please click OK to allow)")
 
-    let terminals: [(name: String, script: String)] = [
-        ("iTerm2", "tell application \"iTerm2\" to return name"),
-        ("Terminal.app", "tell application \"Terminal\" to return name")
+    let terminals = [
+        TerminalInfo(
+            name: "iTerm2",
+            bundleId: "com.googlecode.iterm2",
+            script: "tell application \"iTerm2\" to return name"
+        ),
+        TerminalInfo(
+            name: "Terminal.app",
+            bundleId: "com.apple.Terminal",
+            script: "tell application \"Terminal\" to return name"
+        )
     ]
 
     for terminal in terminals {
+        // Check if app is running first
+        let runningApps = NSWorkspace.shared.runningApplications
+        let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
+
+        if !isRunning {
+            print("  \(terminal.name): skipped (not running)")
+            continue
+        }
+
         if let script = NSAppleScript(source: terminal.script) {
             var error: NSDictionary?
             script.executeAndReturnError(&error)
@@ -56,13 +104,15 @@ func requestTerminalPermissions() {
             if let err = error {
                 let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
                 if errorNum == -1743 {
-                    // User denied permission
-                    print("  \(terminal.name): denied (can enable in System Settings > Privacy > Automation)")
-                } else if errorNum == -600 || errorNum == -128 {
-                    // App not running or user cancelled - permission may still be granted
-                    print("  \(terminal.name): skipped (app not running)")
-                } else if error != nil {
-                    print("  \(terminal.name): skipped")
+                    print("  \(terminal.name): denied")
+                    print("    → Open System Settings > Privacy & Security > Automation")
+                    print("    → Enable ClaudeNotifier → \(terminal.name)")
+                } else if errorNum == -1728 {
+                    // Reference error - app responded but no windows/expected state
+                    print("  \(terminal.name): ✓")
+                } else {
+                    let errorMsg = err[NSAppleScript.errorMessage] as? String ?? "unknown error"
+                    print("  \(terminal.name): error (\(errorMsg))")
                 }
             } else {
                 print("  \(terminal.name): ✓")
