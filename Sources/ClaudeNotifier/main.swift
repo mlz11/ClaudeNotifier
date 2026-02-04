@@ -20,12 +20,6 @@ if parsed.command == "request-automation" {
     exit(0)
 }
 
-if parsed.command == "check-automation" {
-    // Internal command: check automation permissions in isolated process (for doctor)
-    runAutomationChecks()
-    exit(0)
-}
-
 if parsed.command == "help" {
     showHelp()
     exit(0)

@@ -171,161 +171,31 @@ func checkNotificationPermissions() -> CheckResult {
     }
 }
 
-/// Internal function that runs AppleScript checks - called from isolated process
-/// Writes results to a temp file passed via --output argument
-func runAutomationChecks() {
-    // Get output file path from arguments
-    let args = CommandLine.arguments
-    var outputPath: String?
-    if let idx = args.firstIndex(of: "--output"), idx + 1 < args.count {
-        outputPath = args[idx + 1]
-    }
-
-    // Use the same scripts as setup to properly trigger TCC check
-    let terminals: [TerminalInfo] = [
-        TerminalInfo(
-            name: "iTerm2",
-            bundleId: "com.googlecode.iterm2",
-            script: """
-            tell application "iTerm2"
-                if (count of windows) > 0 then
-                    get id of current session of current tab of current window
-                end if
-            end tell
-            """
-        ),
-        TerminalInfo(
-            name: "Terminal.app",
-            bundleId: "com.apple.Terminal",
-            script: """
-            tell application "Terminal"
-                if (count of windows) > 0 then
-                    get tty of selected tab of front window
-                end if
-            end tell
-            """
-        )
+func checkTerminalAutomationPermissions() -> [CheckResult] {
+    // Check which terminal apps are running
+    let terminals: [(name: String, bundleId: String)] = [
+        ("iTerm2", "com.googlecode.iterm2"),
+        ("Terminal.app", "com.apple.Terminal")
     ]
 
-    var results: [String] = []
-
-    for terminal in terminals {
-        let runningApps = NSWorkspace.shared.runningApplications
-        let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
-
-        if !isRunning {
-            results.append("\(terminal.name):skipped")
-            continue
-        }
-
-        guard let script = NSAppleScript(source: terminal.script) else {
-            results.append("\(terminal.name):error")
-            continue
-        }
-
-        var error: NSDictionary?
-        script.executeAndReturnError(&error)
-
-        if let err = error {
-            let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
-            if errorNum == -1743 {
-                results.append("\(terminal.name):denied")
-            } else {
-                results.append("\(terminal.name):error")
-            }
-        } else {
-            results.append("\(terminal.name):allowed")
-        }
+    let runningApps = NSWorkspace.shared.runningApplications
+    let runningTerminals = terminals.filter { terminal in
+        runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
     }
 
-    // Write results to output file or stdout
-    let output = results.joined(separator: "\n")
-    if let path = outputPath {
-        try? output.write(toFile: path, atomically: true, encoding: .utf8)
-    } else {
-        print(output)
-    }
-}
-
-private func parseAutomationResult(name: String, status: String) -> CheckResult? {
-    switch status {
-    case "allowed":
-        return CheckResult(passed: true, message: "\(name): automation allowed")
-    case "denied":
-        return CheckResult(
-            passed: false,
-            message: "\(name): automation denied",
-            remediation: "System Settings > Privacy & Security > Automation > Enable ClaudeNotifier -> \(name)"
-        )
-    case "skipped":
-        return CheckResult(passed: true, message: "\(name): skipped (not running)")
-    case "error":
-        return CheckResult(
-            passed: false,
-            message: "\(name): automation error",
-            remediation: "Try running 'claude-notifier setup' again"
-        )
-    default:
-        return nil
-    }
-}
-
-private func getAppBundlePath() -> String {
-    let executablePath = CommandLine.arguments[0]
-    if executablePath.contains(".app/Contents/MacOS/") {
-        return executablePath.components(separatedBy: "/Contents/MacOS/")[0]
-    }
-    return "/Applications/ClaudeNotifier.app"
-}
-
-func checkTerminalAutomationPermissions() -> [CheckResult] {
-    let appBundlePath = getAppBundlePath()
-
-    guard FileManager.default.fileExists(atPath: appBundlePath) else {
+    if runningTerminals.isEmpty {
         return [CheckResult(
             passed: true,
-            message: "Automation: cannot verify (app bundle not found)",
-            remediation: "Run 'make install' first, then check automation permissions"
+            message: "Automation: no supported terminals running"
         )]
     }
 
-    // Create temp file and launch isolated process for accurate TCC check
-    let tempFile = FileManager.default.temporaryDirectory
-        .appendingPathComponent("claude-notifier-check-\(UUID().uuidString).txt")
-    defer { try? FileManager.default.removeItem(at: tempFile) }
-
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-    process.arguments = ["-W", appBundlePath, "--args", "--check-automation", "--output", tempFile.path]
-
-    do {
-        try process.run()
-        process.waitUntilExit()
-    } catch {
-        return [CheckResult(
-            passed: true,
-            message: "Automation: cannot verify (failed to launch)",
-            remediation: "Run 'claude-notifier setup' to configure permissions"
-        )]
-    }
-
-    guard let output = try? String(contentsOf: tempFile, encoding: .utf8) else {
-        return [CheckResult(
-            passed: true,
-            message: "Automation: cannot verify (no output)",
-            remediation: "Run 'claude-notifier setup' to configure permissions"
-        )]
-    }
-
-    let results: [CheckResult] = output.split(separator: "\n").compactMap { line in
-        let parts = line.split(separator: ":")
-        guard parts.count == 2 else { return nil }
-        return parseAutomationResult(name: String(parts[0]), status: String(parts[1]))
-    }
-
-    return results.isEmpty
-        ? [CheckResult(passed: true, message: "Automation: no terminals running to check")]
-        : results
+    // Report which terminals are running - permission will be requested on first notification click
+    let terminalNames = runningTerminals.map(\.name).joined(separator: ", ")
+    return [CheckResult(
+        passed: true,
+        message: "Automation: \(terminalNames) running, permission will be requested on first notification click"
+    )]
 }
 
 // MARK: - Environment Checks
