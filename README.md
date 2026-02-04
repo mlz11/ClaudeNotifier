@@ -76,6 +76,14 @@ This automatically:
 - Installs the notification script to your config directory
 - Adds hooks to `settings.json`
 
+### Diagnosing Issues
+
+```bash
+claude-notifier doctor
+```
+
+This checks your installation and permissions, showing any issues and how to fix them.
+
 ### Sending Notifications
 
 ```bash
