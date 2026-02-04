@@ -10,6 +10,7 @@ CLI_SYMLINK="$HOME/.local/bin/claude-notifier"
 APP_BUNDLE="/Applications/ClaudeNotifier.app"
 NOTIF_PLIST="$HOME/Library/Group Containers/group.com.apple.usernoted/Library/Preferences/group.com.apple.usernoted.plist"
 BUNDLE_ID="com.claude.notifier"
+BREW_PACKAGE_NAME="claude-notifier"
 
 usage() {
     cat <<EOF
@@ -29,6 +30,11 @@ EOF
     exit 1
 }
 
+# Check if installed via Homebrew formula (brew tap)
+is_brew_installed() {
+    command -v brew &>/dev/null && brew list --formula "$BREW_PACKAGE_NAME" &>/dev/null
+}
+
 # Output JSON status of what's installed
 cmd_check() {
     local settings_exists="false"
@@ -39,6 +45,7 @@ cmd_check() {
     local app_exists="false"
     local app_path=""
     local notif_exists="false"
+    local brew_installed="false"
 
     [[ -f "$SETTINGS_FILE" ]] && settings_exists="true"
 
@@ -57,6 +64,16 @@ cmd_check() {
         # Extract app path from symlink target
         if [[ "$cli_target" == *"/ClaudeNotifier.app/"* ]]; then
             app_path="${cli_target%/Contents/MacOS/ClaudeNotifier}"
+        fi
+    fi
+
+    # Check if installed via Homebrew
+    if is_brew_installed; then
+        brew_installed="true"
+        app_exists="true"
+        # Get the actual app path from brew
+        if [[ -z "$app_path" ]]; then
+            app_path="$APP_BUNDLE"
         fi
     fi
 
@@ -84,6 +101,7 @@ cmd_check() {
   "cli_target": "$cli_target",
   "app_exists": $app_exists,
   "app_path": "$app_path",
+  "brew_installed": $brew_installed,
   "notif_exists": $notif_exists
 }
 EOF
@@ -152,6 +170,14 @@ cmd_remove_cli() {
 }
 
 cmd_remove_app() {
+    # Check if installed via Homebrew first
+    if is_brew_installed; then
+        echo "Uninstalling via Homebrew..."
+        brew uninstall "$BREW_PACKAGE_NAME"
+        echo "Uninstalled $BREW_PACKAGE_NAME via Homebrew"
+        return 0
+    fi
+
     local target_app=""
 
     # Try to detect from symlink first
