@@ -65,12 +65,6 @@ func requestNotificationPermissions() -> Bool {
     }
 }
 
-private struct TerminalInfo {
-    let name: String
-    let bundleId: String
-    let script: String
-}
-
 func requestTerminalPermissions() {
     print("\nRequesting terminal automation permissions...")
     print("  (You may see permission dialogs - please click OK to allow)")

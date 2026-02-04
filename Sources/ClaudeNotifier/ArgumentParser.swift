@@ -19,10 +19,20 @@ func parseArguments() -> ParsedArguments {
             return ParsedArguments(
                 command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
             )
+        case "doctor":
+            return ParsedArguments(
+                command: "doctor", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
+            )
         case "--request-automation":
             // Internal command: request automation permissions (launched via `open`)
             return ParsedArguments(
                 command: "request-automation", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil,
+                sound: nil
+            )
+        case "--check-automation":
+            // Internal command: check automation permissions in isolated process (for doctor)
+            return ParsedArguments(
+                command: "check-automation", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil,
                 sound: nil
             )
         case "-h", "--help", "help":
@@ -51,6 +61,7 @@ func showHelp() {
 
     Commands:
       setup                       Set up Claude Code integration (installs hooks)
+      doctor                      Diagnose installation and permission issues
 
     Options:
       -m, --message "text"        The notification body (required for notifications)

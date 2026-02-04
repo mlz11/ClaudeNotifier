@@ -9,9 +9,20 @@ if parsed.command == "setup" {
     exit(0)
 }
 
+if parsed.command == "doctor" {
+    runDoctor()
+    exit(0)
+}
+
 if parsed.command == "request-automation" {
     // Internal command: run permission request in isolated process
     requestTerminalPermissions()
+    exit(0)
+}
+
+if parsed.command == "check-automation" {
+    // Internal command: check automation permissions in isolated process (for doctor)
+    runAutomationChecks()
     exit(0)
 }
 

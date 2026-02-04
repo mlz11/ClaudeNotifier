@@ -18,3 +18,9 @@ struct ParsedArguments {
     let terminalType: String?
     let sound: String?
 }
+
+struct TerminalInfo {
+    let name: String
+    let bundleId: String
+    let script: String
+}
