@@ -20,7 +20,8 @@ func promptForConfigDirectory() -> URL {
         .appendingPathComponent(Constants.claudeDirectory)
 }
 
-func requestNotificationPermissions() {
+/// Returns true if notifications are authorized, false if denied
+func requestNotificationPermissions() -> Bool {
     print("\nRequesting notification permissions...")
 
     let center = UNUserNotificationCenter.current()
@@ -37,11 +38,10 @@ func requestNotificationPermissions() {
     switch currentStatus {
     case .authorized, .provisional:
         print("  Notifications: ✓")
-        return
+        return true
     case .denied:
         print("  Notifications: denied")
-        print("    → Open System Settings > Notifications > ClaudeNotifier to enable")
-        return
+        return false
     case .notDetermined:
         break // Will request below
     @unknown default:
@@ -58,9 +58,10 @@ func requestNotificationPermissions() {
 
     if granted {
         print("  Notifications: ✓")
+        return true
     } else {
         print("  Notifications: denied")
-        print("    → Open System Settings > Notifications > ClaudeNotifier to enable")
+        return false
     }
 }
 
@@ -205,7 +206,17 @@ func runSetup() {
     addNotificationHooks(to: &settings, configDir: claudeDir)
     writeSettings(settings, to: settingsPath)
 
-    requestNotificationPermissions()
+    let notificationsGranted = requestNotificationPermissions()
+
+    if !notificationsGranted {
+        print("\nSetup incomplete: notification permission is required.")
+        print("Please enable notifications for ClaudeNotifier:")
+        print("  1. Open System Settings > Notifications > ClaudeNotifier")
+        print("  2. Enable \"Allow Notifications\"")
+        print("  3. Run 'claude-notifier setup' again")
+        exit(1)
+    }
+
     requestTerminalPermissions()
 
     print("\nSetup complete! Claude Code will now send notifications.")
