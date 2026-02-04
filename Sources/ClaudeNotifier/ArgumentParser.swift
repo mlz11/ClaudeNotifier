@@ -19,6 +19,12 @@ func parseArguments() -> ParsedArguments {
             return ParsedArguments(
                 command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
             )
+        case "--request-automation":
+            // Internal command: request automation permissions (launched via `open`)
+            return ParsedArguments(
+                command: "request-automation", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil,
+                sound: nil
+            )
         case "-h", "--help", "help":
             return ParsedArguments(
                 command: "help", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil

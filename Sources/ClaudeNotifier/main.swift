@@ -9,6 +9,12 @@ if parsed.command == "setup" {
     exit(0)
 }
 
+if parsed.command == "request-automation" {
+    // Internal command: run permission request in isolated process
+    requestTerminalPermissions()
+    exit(0)
+}
+
 if parsed.command == "help" {
     showHelp()
     exit(0)

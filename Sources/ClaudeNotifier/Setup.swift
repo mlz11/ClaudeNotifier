@@ -75,16 +75,29 @@ func requestTerminalPermissions() {
     print("\nRequesting terminal automation permissions...")
     print("  (You may see permission dialogs - please click OK to allow)")
 
+    // Access windows/tabs to trigger the same permission as focusITermSession
     let terminals = [
         TerminalInfo(
             name: "iTerm2",
             bundleId: "com.googlecode.iterm2",
-            script: "tell application \"iTerm2\" to return name"
+            script: """
+            tell application "iTerm2"
+                if (count of windows) > 0 then
+                    get id of current session of current tab of current window
+                end if
+            end tell
+            """
         ),
         TerminalInfo(
             name: "Terminal.app",
             bundleId: "com.apple.Terminal",
-            script: "tell application \"Terminal\" to return name"
+            script: """
+            tell application "Terminal"
+                if (count of windows) > 0 then
+                    get tty of selected tab of front window
+                end if
+            end tell
+            """
         )
     ]
 
@@ -98,6 +111,7 @@ func requestTerminalPermissions() {
             continue
         }
 
+        // Execute AppleScript - this will trigger permission dialog if needed
         if let script = NSAppleScript(source: terminal.script) {
             var error: NSDictionary?
             script.executeAndReturnError(&error)
@@ -108,11 +122,8 @@ func requestTerminalPermissions() {
                     print("  \(terminal.name): denied")
                     print("    → Open System Settings > Privacy & Security > Automation")
                     print("    → Enable ClaudeNotifier → \(terminal.name)")
-                } else if errorNum == -1728 {
-                    // Reference error - app responded but no windows/expected state
-                    print("  \(terminal.name): ✓")
                 } else {
-                    let errorMsg = err[NSAppleScript.errorMessage] as? String ?? "unknown error"
+                    let errorMsg = err[NSAppleScript.errorMessage] as? String ?? "unknown"
                     print("  \(terminal.name): error (\(errorMsg))")
                 }
             } else {
@@ -195,6 +206,83 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
     }
 }
 
+/// Launch automation permission request in isolated process via `open`
+/// This is necessary because apps launched from terminal inherit the terminal's context
+/// and may bypass TCC permission checks
+private func launchAutomationPermissionRequest() {
+    // Find the app bundle path from the executable path
+    let executablePath = CommandLine.arguments[0]
+    let appBundlePath: String
+
+    if executablePath.contains(".app/Contents/MacOS/") {
+        // Running from app bundle
+        appBundlePath = executablePath.components(separatedBy: "/Contents/MacOS/")[0]
+    } else {
+        // Fallback to default location
+        appBundlePath = "/Applications/ClaudeNotifier.app"
+    }
+
+    guard FileManager.default.fileExists(atPath: appBundlePath) else {
+        // App not installed, run directly (won't get proper permissions but better than nothing)
+        requestTerminalPermissions()
+        return
+    }
+
+    print("\nRequesting terminal automation permissions...")
+    print("  (You may see permission dialogs - please click OK to allow)")
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+    process.arguments = ["-W", appBundlePath, "--args", "--request-automation"]
+
+    do {
+        try process.run()
+        process.waitUntilExit()
+    } catch {
+        // Fallback to direct execution
+        requestTerminalPermissions()
+        return
+    }
+
+    // Verify permissions by checking if we can now execute AppleScript
+    verifyTerminalPermissions()
+}
+
+/// Verify terminal permissions after the isolated process requested them
+private func verifyTerminalPermissions() {
+    let terminals: [(name: String, bundleId: String)] = [
+        ("iTerm2", "com.googlecode.iterm2"),
+        ("Terminal.app", "com.apple.Terminal")
+    ]
+
+    for terminal in terminals {
+        let runningApps = NSWorkspace.shared.runningApplications
+        let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
+
+        if !isRunning {
+            print("  \(terminal.name): skipped (not running)")
+            continue
+        }
+
+        // Permission was just requested in isolated process, so this should now work
+        // or return -1743 if user denied
+        let script = NSAppleScript(source: "tell application \"\(terminal.name)\" to return name")
+        var error: NSDictionary?
+        script?.executeAndReturnError(&error)
+
+        if let err = error {
+            let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
+            if errorNum == -1743 {
+                print("  \(terminal.name): denied")
+            } else {
+                print("  \(terminal.name): ✓")
+            }
+        } else {
+            print("  \(terminal.name): ✓")
+        }
+    }
+}
+
 func runSetup() {
     let claudeDir = promptForConfigDirectory()
     ensureClaudeDirectoryExists(claudeDir)
@@ -217,7 +305,8 @@ func runSetup() {
         exit(1)
     }
 
-    requestTerminalPermissions()
+    // Launch permission request in isolated process to properly trigger TCC dialogs
+    launchAutomationPermissionRequest()
 
     print("\nSetup complete! Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
