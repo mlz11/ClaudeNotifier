@@ -45,6 +45,7 @@ Sources/ClaudeNotifier/
 ├── Models.swift         # Data structures (NotificationConfig, ParsedArguments)
 ├── AppDelegate.swift    # NSApplicationDelegate + UNUserNotificationCenterDelegate
 ├── Setup.swift          # Setup command + embedded notify.sh script
+├── Doctor.swift         # Doctor command - diagnoses installation and permission issues
 ├── ArgumentParser.swift # CLI flag parsing and help text
 └── Utilities.swift      # Helpers (exitWithError, terminateApp, focusITermSession)
 ```
@@ -54,7 +55,8 @@ Sources/ClaudeNotifier/
 - **Models**: `NotificationConfig` and `ParsedArguments` data structures
 - **AppDelegate**: Handles notification display, authorization, and click responses
 - **Setup**: Embedded `notify.sh` script + functions to configure `~/.claude/settings.json` hooks
-- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`help` subcommands
+- **Doctor**: Checks installation, hooks, permissions, and PATH configuration
+- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`help` subcommands
 - **Utilities**: `exitWithError()`, `terminateApp()`, `focusITermSession()` via AppleScript
 
 **Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus iTerm2 tab → exit
@@ -65,6 +67,7 @@ Sources/ClaudeNotifier/
 claude-notifier -m "Message" -t "Title" -s "Subtitle"
 claude-notifier -m "Message" -i "$ITERM_SESSION_ID"  # With session ID for focus-on-click
 claude-notifier setup    # Auto-configure Claude Code hooks
+claude-notifier doctor   # Diagnose installation and permission issues
 ```
 
 ## Technical Notes
