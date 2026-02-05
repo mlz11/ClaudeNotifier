@@ -87,6 +87,15 @@ claude-notifier doctor
 
 This checks your installation and permissions, showing any issues and how to fix them.
 
+### Customizing the Icon
+
+```bash
+claude-notifier icon          # List available variants
+claude-notifier icon blue     # Switch to blue
+claude-notifier icon green    # Switch to green
+claude-notifier icon --reset  # Reset to default (brown)
+```
+
 ### Sending Notifications
 
 ```bash

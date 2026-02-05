@@ -23,6 +23,10 @@ func parseArguments() -> ParsedArguments {
             return ParsedArguments(
                 command: "doctor", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
             )
+        case "icon":
+            return ParsedArguments(
+                command: "icon", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
+            )
         case "--request-automation":
             // Internal command: request automation permissions (launched via `open`)
             return ParsedArguments(
@@ -56,6 +60,7 @@ func showHelp() {
     Commands:
       setup                       Set up Claude Code integration (installs hooks)
       doctor                      Diagnose installation and permission issues
+      icon [variant]              Change app icon color (brown, blue, green)
 
     Options:
       -m, --message "text"        The notification body (required for notifications)

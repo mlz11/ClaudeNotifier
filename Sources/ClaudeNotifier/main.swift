@@ -14,6 +14,11 @@ if parsed.command == "doctor" {
     exit(0)
 }
 
+if parsed.command == "icon" {
+    runIconCommand(args: CommandLine.arguments)
+    exit(0)
+}
+
 if parsed.command == "request-automation" {
     // Internal command: run permission request in isolated process
     requestTerminalPermissions()

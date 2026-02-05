@@ -7,7 +7,7 @@ CLI_NAME = claude-notifier
 
 GENERATED_SCRIPT = Sources/ClaudeNotifier/NotifyScript.generated.swift
 
-.PHONY: all build install uninstall clean lint format setup
+.PHONY: all build install uninstall clean lint format setup icons
 
 all: build
 
@@ -30,8 +30,18 @@ build: $(GENERATED_SCRIPT)
 		-framework UserNotifications
 	@cp Resources/Info.plist $(APP_BUNDLE)/Contents/
 	@cp Resources/AppIcon.icns $(APP_BUNDLE)/Contents/Resources/
+	@for icns in Resources/AppIcon-*.icns; do \
+		if [ -f "$$icns" ]; then \
+			cp "$$icns" $(APP_BUNDLE)/Contents/Resources/; \
+		fi; \
+	done
 	@codesign --force --deep --sign - $(APP_BUNDLE)
 	@echo "Built $(APP_BUNDLE)"
+
+icons:
+	@echo "Generating icon variants..."
+	@./Scripts/generate-icon.sh --all
+	@echo "Icon variants generated in Resources/"
 
 install: build
 	@read -p "Install directory [$(INSTALL_DIR)]: " input_dir; \

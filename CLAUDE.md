@@ -13,6 +13,7 @@ make build      # Compile, bundle as .app, and codesign to build/ClaudeNotifier.
 make install    # Build + install to /Applications + create CLI at ~/.local/bin/claude-notifier
 make uninstall  # Remove app and CLI symlink
 make clean      # Remove build directory
+make icons      # Generate icon variants from assets/icon.svg (requires librsvg)
 make lint       # Run SwiftLint
 make format     # Run SwiftFormat
 make setup      # Install pre-commit hooks
@@ -46,6 +47,7 @@ Sources/ClaudeNotifier/
 ├── AppDelegate.swift    # NSApplicationDelegate + UNUserNotificationCenterDelegate
 ├── Setup.swift          # Setup command + embedded notify.sh script
 ├── Doctor.swift         # Doctor command - diagnoses installation and permission issues
+├── Icon.swift           # Icon command - switch between icon color variants
 ├── ArgumentParser.swift # CLI flag parsing and help text
 └── Utilities.swift      # Helpers (exitWithError, terminateApp, focusITermSession)
 ```
@@ -56,7 +58,8 @@ Sources/ClaudeNotifier/
 - **AppDelegate**: Handles notification display, authorization, and click responses
 - **Setup**: Embedded `notify.sh` script + functions to configure `~/.claude/settings.json` hooks
 - **Doctor**: Checks installation, hooks, permissions, and PATH configuration
-- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`help` subcommands
+- **Icon**: Switches between icon color variants (brown, blue, green)
+- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`icon`/`help` subcommands
 - **Utilities**: `exitWithError()`, `terminateApp()`, `focusITermSession()` via AppleScript
 
 **Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus iTerm2 tab → exit
@@ -66,8 +69,10 @@ Sources/ClaudeNotifier/
 ```bash
 claude-notifier -m "Message" -t "Title" -s "Subtitle"
 claude-notifier -m "Message" -i "$ITERM_SESSION_ID"  # With session ID for focus-on-click
-claude-notifier setup    # Auto-configure Claude Code hooks
-claude-notifier doctor   # Diagnose installation and permission issues
+claude-notifier setup         # Auto-configure Claude Code hooks
+claude-notifier doctor        # Diagnose installation and permission issues
+claude-notifier icon          # List available icon variants
+claude-notifier icon blue     # Switch to blue icon variant
 ```
 
 ## Technical Notes
