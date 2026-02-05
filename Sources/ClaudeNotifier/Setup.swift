@@ -205,9 +205,38 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
 /// and may bypass TCC permission checks
 private func launchAutomationPermissionRequest() {
     // Find the app bundle path from the executable path
-    // Resolve symlinks to handle Homebrew installations where CLI is a symlink
+    // Handle multiple scenarios:
+    // 1. Direct execution: ./build/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier
+    // 2. Symlink execution: ~/.local/bin/claude-notifier -> /Applications/...
+    // 3. Homebrew: claude-notifier (just command name, need to find via which)
     let executablePath = CommandLine.arguments[0]
-    let resolvedPath = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath().path
+    var resolvedPath: String
+
+    if executablePath.contains("/") {
+        // Path contains directory separator, resolve it directly
+        resolvedPath = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath().path
+    } else {
+        // Just a command name (e.g., "claude-notifier"), find it via PATH
+        let which = Process()
+        which.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+        which.arguments = [executablePath]
+        let pipe = Pipe()
+        which.standardOutput = pipe
+        do {
+            try which.run()
+            which.waitUntilExit()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let pathString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !pathString.isEmpty {
+                resolvedPath = URL(fileURLWithPath: pathString).resolvingSymlinksInPath().path
+            } else {
+                resolvedPath = executablePath
+            }
+        } catch {
+            resolvedPath = executablePath
+        }
+    }
+
     let appBundlePath: String
 
     if resolvedPath.contains(".app/Contents/MacOS/") {
