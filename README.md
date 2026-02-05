@@ -91,7 +91,7 @@ This checks your installation and permissions, showing any issues and how to fix
 
 | brown (default) | blue | green |
 |:---:|:---:|:---:|
-| ![brown](assets/previews/brown.png) | ![blue](assets/previews/blue.png) | ![green](assets/previews/green.png) |
+| <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
 
 ```bash
 claude-notifier icon          # List available variants
