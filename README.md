@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <img src="https://github.com/user-attachments/assets/aa092883-0b44-4dec-8d1e-63fe0048c7fb" alt="ClaudeNotifier Demo" width="600">
+</p>
+
+<p align="center">
   <a href="#why-claudenotifier">Why?</a> •
   <a href="#features">Features</a> •
   <a href="#installation">Installation</a> •
