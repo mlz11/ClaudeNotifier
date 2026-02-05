@@ -6,7 +6,7 @@
 
 <p align="center">
   A macOS notification app for Claude Code integration.<br>
-  Displays native notifications with Claude's icon and focuses the correct terminal tab when clicked.
+  Displays native notifications and focuses the correct terminal tab when clicked.
 </p>
 
 <p align="center">
