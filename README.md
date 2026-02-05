@@ -89,6 +89,10 @@ This checks your installation and permissions, showing any issues and how to fix
 
 ### Customizing the Icon
 
+| brown (default) | blue | green |
+|:---:|:---:|:---:|
+| ![brown](assets/previews/brown.png) | ![blue](assets/previews/blue.png) | ![green](assets/previews/green.png) |
+
 ```bash
 claude-notifier icon          # List available variants
 claude-notifier icon blue     # Switch to blue
