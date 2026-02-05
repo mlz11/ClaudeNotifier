@@ -64,7 +64,21 @@ git push
 git push origin vX.Y.Z
 ```
 
-### 5. Get tarball sha256
+### 5. Create GitHub Release
+
+Create a GitHub Release from the tag with changelog content:
+
+```bash
+gh release create vX.Y.Z --title "vX.Y.Z" --notes "## Added
+- ...
+
+## Fixed
+- ..."
+```
+
+Use the changelog entries for the release notes.
+
+### 6. Get tarball sha256
 
 Wait a moment for GitHub to generate the tarball, then:
 
@@ -72,13 +86,13 @@ Wait a moment for GitHub to generate the tarball, then:
 curl -sL https://github.com/mlz11/ClaudeNotifier/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256
 ```
 
-### 6. Update homebrew formula
+### 7. Update homebrew formula
 
 Edit `/Users/zraqs/dev/homebrew-tap/Formula/claude-notifier.rb`:
 - Update `url` to new version tag
 - Update `sha256` to new hash
 
-### 7. Push homebrew tap
+### 8. Push homebrew tap
 
 ```bash
 cd /Users/zraqs/dev/homebrew-tap
@@ -87,11 +101,12 @@ git commit -m "claude-notifier X.Y.Z"
 git push
 ```
 
-### 8. Report summary
+### 9. Report summary
 
 Tell the user:
 - New version number
 - What was included (features, fixes)
+- GitHub Release URL
 - That homebrew tap is updated
 - Upgrade command: `brew upgrade claude-notifier`
 
