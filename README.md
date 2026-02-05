@@ -27,8 +27,7 @@ Anthropic's [recommended terminal notification setup](https://code.claude.com/do
 
 ## ✨ Features
 
-- Native macOS notifications with Claude's icon
-- Smart suppression when you're viewing the active Claude terminal tab
+- Native macOS notifications
 - **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
 - Supports [iTerm2](https://iterm2.com/) and [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac)
