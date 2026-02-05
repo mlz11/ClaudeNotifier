@@ -205,12 +205,14 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
 /// and may bypass TCC permission checks
 private func launchAutomationPermissionRequest() {
     // Find the app bundle path from the executable path
+    // Resolve symlinks to handle Homebrew installations where CLI is a symlink
     let executablePath = CommandLine.arguments[0]
+    let resolvedPath = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath().path
     let appBundlePath: String
 
-    if executablePath.contains(".app/Contents/MacOS/") {
-        // Running from app bundle
-        appBundlePath = executablePath.components(separatedBy: "/Contents/MacOS/")[0]
+    if resolvedPath.contains(".app/Contents/MacOS/") {
+        // Running from app bundle (directly or via symlink)
+        appBundlePath = resolvedPath.components(separatedBy: "/Contents/MacOS/")[0]
     } else {
         // Fallback to default location
         appBundlePath = "/Applications/ClaudeNotifier.app"
