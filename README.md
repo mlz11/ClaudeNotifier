@@ -94,9 +94,14 @@ claude-notifier icon          # List available variants
 claude-notifier icon blue     # Switch to blue
 claude-notifier icon --reset  # Reset to default (brown)
 ```
+
+<div align="center">
+
 | brown (default) | blue | green |
 |:---:|:---:|:---:|
 | <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
+
+</div>
 
 ### Sending Notifications
 
