@@ -89,32 +89,20 @@ This checks your installation and permissions, showing any issues and how to fix
 
 ### Customizing the Icon
 
-| brown (default) | blue | green |
-|:---:|:---:|:---:|
-| <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
-
 ```bash
 claude-notifier icon          # List available variants
 claude-notifier icon blue     # Switch to blue
-claude-notifier icon green    # Switch to green
 claude-notifier icon --reset  # Reset to default (brown)
 ```
+| brown (default) | blue | green |
+|:---:|:---:|:---:|
+| <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
 
 ### Sending Notifications
 
 ```bash
 claude-notifier -m "Message" -t "Title" -s "Subtitle"
 ```
-
-### Options
-
-- `-m "message"` - The notification body (required)
-- `-t "title"` - The notification title (default: "Claude")
-- `-s "subtitle"` - The notification subtitle (optional)
-- `-S "sound"` - Notification sound: `default`, `none`, or a sound name (optional)
-  - Examples: `Glass`, `Basso`, `Blow`, `Ping`, `Pop`, `Funk`, `Submarine`
-- `-i "session"` - Session ID for focus-on-click (optional, auto-set by notify.sh)
-- `-T "type"` - Terminal type: `iterm2`, `terminal` (optional, auto-detected)
 
 ## Permissions
 
