@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/aa092883-0b44-4dec-8d1e-63fe0048c7fb" alt="ClaudeNotifier Demo" width="600">
+  <img src="https://github.com/user-attachments/assets/dd8e3cb0-a369-4ff8-baa4-5dbc3e3dff7a" alt="ClaudeNotifier Demo" width="600">
 </p>
 
 <p align="center">
