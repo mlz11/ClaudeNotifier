@@ -45,7 +45,7 @@ func runIconCommand(args: [String]) {
 
     // Try to parse as variant name
     guard let variant = IconVariant(rawValue: subArgs[0].lowercased()) else {
-        print("Error: Unknown variant '\(subArgs[0])'")
+        print(error("Error: Unknown variant '\(subArgs[0])'"))
         print("")
         listVariants()
         exit(1)
@@ -57,14 +57,14 @@ func runIconCommand(args: [String]) {
 func listVariants() {
     let currentVariant = getCurrentVariant()
 
-    print("Available icon variants:")
+    print(info("Available icon variants:"))
     for variant in IconVariant.allCases {
-        let current = (variant == currentVariant) ? " (current)" : ""
-        let defaultMark = (variant == IconVariant.defaultVariant && current.isEmpty) ? " (default)" : ""
+        let current = (variant == currentVariant) ? success(" (current)") : ""
+        let defaultMark = (variant == IconVariant.defaultVariant && current.isEmpty) ? hint(" (default)") : ""
         print("  \(variant.rawValue)\(defaultMark)\(current)")
     }
     print("")
-    print("Usage: claude-notifier icon <variant>")
+    print(hint("Usage: claude-notifier icon <variant>"))
 }
 
 func showIconHelp() {
@@ -123,8 +123,8 @@ func filesAreIdentical(_ file1: URL, _ file2: URL) -> Bool {
 
 func setVariant(_ variant: IconVariant) {
     guard let appPath = getInstalledAppPath() else {
-        print("Error: ClaudeNotifier.app not found")
-        print("Run 'make install' first to install the app")
+        print(error("Error: ClaudeNotifier.app not found"))
+        print(warning("Run 'make install' first to install the app"))
         exit(1)
     }
 
@@ -134,9 +134,9 @@ func setVariant(_ variant: IconVariant) {
 
     // Check if variant exists
     guard FileManager.default.fileExists(atPath: variantPath.path) else {
-        print("Error: Variant icon not found: \(variant.filename)")
+        print(error("Error: Variant icon not found: \(variant.filename)"))
         print("The app may have been built without icon variants.")
-        print("Run 'make icons && make install' to regenerate.")
+        print(warning("Run 'make icons && make install' to regenerate."))
         exit(1)
     }
 
@@ -146,28 +146,28 @@ func setVariant(_ variant: IconVariant) {
             try FileManager.default.removeItem(at: targetPath)
         }
         try FileManager.default.copyItem(at: variantPath, to: targetPath)
-    } catch {
-        print("Error: Failed to copy icon: \(error.localizedDescription)")
+    } catch let copyError {
+        print(error("Error: Failed to copy icon: \(copyError.localizedDescription)"))
         exit(1)
     }
 
     // Re-codesign the app
     let codesignResult = runProcess("/usr/bin/codesign", ["--force", "--deep", "--sign", "-", appPath.path])
     if codesignResult != 0 {
-        print("Warning: Codesigning failed, app may not launch correctly")
+        print(warning("Warning: Codesigning failed, app may not launch correctly"))
     }
 
     // Touch the app to update Finder
     _ = runProcess("/usr/bin/touch", [appPath.path])
 
-    print("Icon changed to: \(variant.rawValue)")
+    print(success("Icon changed to: \(variant.rawValue)"))
 
     // Refresh Notification Center icon cache
     _ = runProcess("/usr/bin/killall", ["NotificationCenter"])
     _ = runProcess("/usr/bin/killall", ["usernoted"])
 
-    print("Notification icon updated.")
-    print("Finder icon will refresh automatically, or run: killall Finder")
+    print(success("Notification icon updated."))
+    print(hint("Finder icon will refresh automatically, or run: killall Finder"))
 }
 
 func getInstalledAppPath() -> URL? {

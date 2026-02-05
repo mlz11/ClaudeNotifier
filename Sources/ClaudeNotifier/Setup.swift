@@ -9,7 +9,7 @@ import UserNotifications
 
 func promptForConfigDirectory() -> URL {
     let defaultPath = "~/.claude"
-    print("Claude config directory [\(defaultPath)]: ", terminator: "")
+    print("Claude config directory [\(hint(defaultPath))]: ", terminator: "")
     fflush(stdout)
 
     if let input = readLine(), !input.isEmpty {
@@ -22,7 +22,7 @@ func promptForConfigDirectory() -> URL {
 
 /// Returns true if notifications are authorized, false if denied
 func requestNotificationPermissions() -> Bool {
-    print("\nRequesting notification permissions...")
+    print("\n\(info("Requesting notification permissions..."))")
 
     let center = UNUserNotificationCenter.current()
     let semaphore = DispatchSemaphore(value: 0)
@@ -37,10 +37,10 @@ func requestNotificationPermissions() -> Bool {
 
     switch currentStatus {
     case .authorized, .provisional:
-        print("  Notifications: ✓")
+        print("  \(success("Notifications: ✓"))")
         return true
     case .denied:
-        print("  Notifications: denied")
+        print("  \(error("Notifications: denied"))")
         return false
     case .notDetermined:
         break // Will request below
@@ -57,17 +57,17 @@ func requestNotificationPermissions() -> Bool {
     semaphore.wait()
 
     if granted {
-        print("  Notifications: ✓")
+        print("  \(success("Notifications: ✓"))")
         return true
     } else {
-        print("  Notifications: denied")
+        print("  \(error("Notifications: denied"))")
         return false
     }
 }
 
 func requestTerminalPermissions() {
-    print("\nRequesting terminal automation permissions...")
-    print("  (You may see permission dialogs - please click OK to allow)")
+    print("\n\(info("Requesting terminal automation permissions..."))")
+    print("  \(hint("(You may see permission dialogs - please click OK to allow)"))")
 
     // Access windows/tabs to trigger the same permission as focusITermSession
     let terminals = [
@@ -101,27 +101,27 @@ func requestTerminalPermissions() {
         let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
 
         if !isRunning {
-            print("  \(terminal.name): skipped (not running)")
+            print("  \(hint("\(terminal.name): skipped (not running)"))")
             continue
         }
 
         // Execute AppleScript - this will trigger permission dialog if needed
         if let script = NSAppleScript(source: terminal.script) {
-            var error: NSDictionary?
-            script.executeAndReturnError(&error)
+            var errorDict: NSDictionary?
+            script.executeAndReturnError(&errorDict)
 
-            if let err = error {
+            if let err = errorDict {
                 let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
                 if errorNum == -1743 {
-                    print("  \(terminal.name): denied")
-                    print("    → Open System Settings > Privacy & Security > Automation")
-                    print("    → Enable ClaudeNotifier → \(terminal.name)")
+                    print("  \(error("\(terminal.name): denied"))")
+                    print("    \(warning("→ Open System Settings > Privacy & Security > Automation"))")
+                    print("    \(warning("→ Enable ClaudeNotifier → \(terminal.name)"))")
                 } else {
                     let errorMsg = err[NSAppleScript.errorMessage] as? String ?? "unknown"
-                    print("  \(terminal.name): error (\(errorMsg))")
+                    print("  \(error("\(terminal.name): error (\(errorMsg))"))")
                 }
             } else {
-                print("  \(terminal.name): ✓")
+                print("  \(success("\(terminal.name): ✓"))")
             }
         }
     }
@@ -133,7 +133,7 @@ func ensureClaudeDirectoryExists(_ claudeDir: URL) {
     if !fileManager.fileExists(atPath: claudeDir.path) {
         do {
             try fileManager.createDirectory(at: claudeDir, withIntermediateDirectories: true)
-            print("Created \(claudeDir.path)")
+            print(success("Created \(claudeDir.path)"))
         } catch {
             exitWithError("Error creating \(claudeDir.path): \(error.localizedDescription)")
         }
@@ -146,7 +146,7 @@ func writeNotifyScript(to directory: URL) {
     do {
         try notifyScript.write(to: notifyPath, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: notifyPath.path)
-        print("Installed \(notifyPath.path)")
+        print(success("Installed \(notifyPath.path)"))
     } catch {
         exitWithError("Error writing \(notifyPath.path): \(error.localizedDescription)")
     }
@@ -194,7 +194,7 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
     do {
         let data = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
         try data.write(to: path)
-        print("Updated \(path.path)")
+        print(success("Updated \(path.path)"))
     } catch {
         exitWithError("Error writing \(path.path): \(error.localizedDescription)")
     }
@@ -253,8 +253,8 @@ private func launchAutomationPermissionRequest() {
         return
     }
 
-    print("\nRequesting terminal automation permissions...")
-    print("  (You may see permission dialogs - please click OK to allow)")
+    print("\n\(info("Requesting terminal automation permissions..."))")
+    print("  \(hint("(You may see permission dialogs - please click OK to allow)"))")
 
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
@@ -285,25 +285,25 @@ private func verifyTerminalPermissions() {
         let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
 
         if !isRunning {
-            print("  \(terminal.name): skipped (not running)")
+            print("  \(hint("\(terminal.name): skipped (not running)"))")
             continue
         }
 
         // Permission was just requested in isolated process, so this should now work
         // or return -1743 if user denied
         let script = NSAppleScript(source: "tell application \"\(terminal.name)\" to return name")
-        var error: NSDictionary?
-        script?.executeAndReturnError(&error)
+        var errorDict: NSDictionary?
+        script?.executeAndReturnError(&errorDict)
 
-        if let err = error {
+        if let err = errorDict {
             let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
             if errorNum == -1743 {
-                print("  \(terminal.name): denied")
+                print("  \(error("\(terminal.name): denied"))")
             } else {
-                print("  \(terminal.name): ✓")
+                print("  \(success("\(terminal.name): ✓"))")
             }
         } else {
-            print("  \(terminal.name): ✓")
+            print("  \(success("\(terminal.name): ✓"))")
         }
     }
 }
@@ -322,18 +322,18 @@ func runSetup() {
     let notificationsGranted = requestNotificationPermissions()
 
     if !notificationsGranted {
-        print("\nSetup incomplete: notification permission is required.")
-        print("Please enable notifications for ClaudeNotifier:")
+        print("\n\(errorBold("Setup incomplete: notification permission is required."))")
+        print(warning("Please enable notifications for ClaudeNotifier:"))
         print("  1. Open System Settings > Notifications > ClaudeNotifier")
         print("  2. Enable \"Allow Notifications\"")
-        print("  3. Run 'claude-notifier setup' again")
+        print("  3. Run '\(info("claude-notifier setup"))' again")
         exit(1)
     }
 
     // Launch permission request in isolated process to properly trigger TCC dialogs
     launchAutomationPermissionRequest()
 
-    print("\nSetup complete! Claude Code will now send notifications.")
+    print("\n\(successBold("Setup complete!")) Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
-    print("Supported terminals: iTerm2, Terminal.app")
+    print(hint("Supported terminals: iTerm2, Terminal.app"))
 }

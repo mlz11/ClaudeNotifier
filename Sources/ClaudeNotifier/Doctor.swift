@@ -229,7 +229,7 @@ func checkPATHConfiguration() -> CheckResult {
 // MARK: - Main Doctor Command
 
 func runDoctor() {
-    print("ClaudeNotifier Diagnostics\n")
+    print("\(header("ClaudeNotifier Diagnostics"))\n")
 
     var issues = 0
 
@@ -246,12 +246,12 @@ func runDoctor() {
     // Problem-focused output
     for result in checks {
         if result.passed {
-            print("  ✓ \(result.message)")
+            print("  \(success("✓")) \(result.message)")
         } else {
-            print("  ✗ \(result.message)")
+            print("  \(error("✗")) \(result.message)")
             if let remediation = result.remediation {
                 for line in remediation.split(separator: "\n") {
-                    print("    → \(line)")
+                    print("    \(warning("→ \(line)"))")
                 }
             }
             issues += 1
@@ -261,10 +261,10 @@ func runDoctor() {
     // Summary
     print("")
     if issues == 0 {
-        print("All checks passed! ClaudeNotifier is properly configured.")
+        print(successBold("All checks passed!") + " ClaudeNotifier is properly configured.")
     } else {
-        print("\(issues) issue\(issues == 1 ? "" : "s") found.")
-        print("Run 'claude-notifier setup' to fix configuration issues.")
+        print(errorBold("\(issues) issue\(issues == 1 ? "" : "s") found."))
+        print("Run '\(info("claude-notifier setup"))' to fix configuration issues.")
         exit(1)
     }
 }
