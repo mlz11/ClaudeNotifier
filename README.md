@@ -92,7 +92,7 @@ This checks your installation and permissions, showing any issues and how to fix
 ```bash
 claude-notifier icon          # List available variants
 claude-notifier icon blue     # Switch to blue
-claude-notifier icon --reset  # Reset to default (brown)
+claude-notifier icon --default  # Reset to default (brown)
 ```
 
 <div align="center">

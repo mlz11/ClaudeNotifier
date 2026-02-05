@@ -38,7 +38,7 @@ func runIconCommand(args: [String]) {
         return
     }
 
-    if subArgs.first == "--reset" || subArgs.first == "-r" {
+    if subArgs.first == "--default" || subArgs.first == "-d" {
         setVariant(IconVariant.defaultVariant)
         return
     }
@@ -80,13 +80,13 @@ func showIconHelp() {
 
     Options:
       --list, -l   List available variants
-      --reset, -r  Reset to default (brown)
+      --default, -d  Reset to default (brown)
       --help, -h   Show this help
 
     Examples:
       claude-notifier icon           # List variants
       claude-notifier icon blue      # Switch to blue
-      claude-notifier icon --reset   # Reset to default
+      claude-notifier icon --default   # Reset to default
     """)
 }
 
