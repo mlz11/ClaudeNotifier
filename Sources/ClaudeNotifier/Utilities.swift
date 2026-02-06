@@ -78,10 +78,55 @@ private func sanitizeForAppleScript(_ value: String) -> String {
         .replacingOccurrences(of: "\"", with: "\\\"")
 }
 
-enum TerminalType: String {
+enum TerminalType: String, CaseIterable {
     case iterm2
     case terminal
     case unknown
+
+    var displayName: String {
+        switch self {
+        case .iterm2: return "iTerm2"
+        case .terminal: return "Terminal.app"
+        case .unknown: return "Unknown"
+        }
+    }
+
+    var bundleId: String? {
+        switch self {
+        case .iterm2: return "com.googlecode.iterm2"
+        case .terminal: return "com.apple.Terminal"
+        case .unknown: return nil
+        }
+    }
+
+    /// AppleScript to probe terminal permissions during setup
+    var permissionCheckScript: String? {
+        switch self {
+        case .iterm2:
+            return """
+            tell application "iTerm2"
+                if (count of windows) > 0 then
+                    get id of current session of current tab of current window
+                end if
+            end tell
+            """
+        case .terminal:
+            return """
+            tell application "Terminal"
+                if (count of windows) > 0 then
+                    get tty of selected tab of front window
+                end if
+            end tell
+            """
+        case .unknown:
+            return nil
+        }
+    }
+
+    /// All known (non-unknown) terminal types
+    static var supported: [TerminalType] {
+        allCases.filter { $0 != .unknown }
+    }
 }
 
 func focusTerminalSession(sessionId: String, terminalType: TerminalType) {

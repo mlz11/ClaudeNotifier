@@ -173,14 +173,10 @@ func checkNotificationPermissions() -> CheckResult {
 
 func checkTerminalAutomationPermissions() -> [CheckResult] {
     // Check which terminal apps are running
-    let terminals: [(name: String, bundleId: String)] = [
-        ("iTerm2", "com.googlecode.iterm2"),
-        ("Terminal.app", "com.apple.Terminal")
-    ]
-
     let runningApps = NSWorkspace.shared.runningApplications
-    let runningTerminals = terminals.filter { terminal in
-        runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
+    let runningTerminals = TerminalType.supported.filter { terminal in
+        guard let bundleId = terminal.bundleId else { return false }
+        return runningApps.contains { $0.bundleIdentifier == bundleId }
     }
 
     if runningTerminals.isEmpty {
@@ -191,7 +187,7 @@ func checkTerminalAutomationPermissions() -> [CheckResult] {
     }
 
     // Report which terminals are running - permission will be requested on first notification click
-    let terminalNames = runningTerminals.map(\.name).joined(separator: ", ")
+    let terminalNames = runningTerminals.map(\.displayName).joined(separator: ", ")
     return [CheckResult(
         passed: true,
         message: "Automation: \(terminalNames) running, permission will be requested on first notification click"

@@ -70,58 +70,38 @@ func requestTerminalPermissions() {
     print("  \(hint("(You may see permission dialogs - please click OK to allow)"))")
 
     // Access windows/tabs to trigger the same permission as focusITermSession
-    let terminals = [
-        TerminalInfo(
-            name: "iTerm2",
-            bundleId: "com.googlecode.iterm2",
-            script: """
-            tell application "iTerm2"
-                if (count of windows) > 0 then
-                    get id of current session of current tab of current window
-                end if
-            end tell
-            """
-        ),
-        TerminalInfo(
-            name: "Terminal.app",
-            bundleId: "com.apple.Terminal",
-            script: """
-            tell application "Terminal"
-                if (count of windows) > 0 then
-                    get tty of selected tab of front window
-                end if
-            end tell
-            """
-        )
-    ]
+    let runningApps = NSWorkspace.shared.runningApplications
 
-    for terminal in terminals {
+    for terminal in TerminalType.supported {
+        guard let bundleId = terminal.bundleId,
+              let script = terminal.permissionCheckScript
+        else { continue }
+
         // Check if app is running first
-        let runningApps = NSWorkspace.shared.runningApplications
-        let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
+        let isRunning = runningApps.contains { $0.bundleIdentifier == bundleId }
 
         if !isRunning {
-            print("  \(hint("\(terminal.name): skipped (not running)"))")
+            print("  \(hint("\(terminal.displayName): skipped (not running)"))")
             continue
         }
 
         // Execute AppleScript - this will trigger permission dialog if needed
-        if let script = NSAppleScript(source: terminal.script) {
+        if let appleScript = NSAppleScript(source: script) {
             var errorDict: NSDictionary?
-            script.executeAndReturnError(&errorDict)
+            appleScript.executeAndReturnError(&errorDict)
 
             if let err = errorDict {
                 let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
                 if errorNum == -1743 {
-                    print("  \(error("\(terminal.name): denied"))")
+                    print("  \(error("\(terminal.displayName): denied"))")
                     print("    \(warning("→ Open System Settings > Privacy & Security > Automation"))")
-                    print("    \(warning("→ Enable ClaudeNotifier → \(terminal.name)"))")
+                    print("    \(warning("→ Enable ClaudeNotifier → \(terminal.displayName)"))")
                 } else {
                     let errorMsg = err[NSAppleScript.errorMessage] as? String ?? "unknown"
-                    print("  \(error("\(terminal.name): error (\(errorMsg))"))")
+                    print("  \(error("\(terminal.displayName): error (\(errorMsg))"))")
                 }
             } else {
-                print("  \(success("\(terminal.name): ✓"))")
+                print("  \(success("\(terminal.displayName): ✓"))")
             }
         }
     }
@@ -275,35 +255,33 @@ private func launchAutomationPermissionRequest() {
 
 /// Verify terminal permissions after the isolated process requested them
 private func verifyTerminalPermissions() {
-    let terminals: [(name: String, bundleId: String)] = [
-        ("iTerm2", "com.googlecode.iterm2"),
-        ("Terminal.app", "com.apple.Terminal")
-    ]
+    let runningApps = NSWorkspace.shared.runningApplications
 
-    for terminal in terminals {
-        let runningApps = NSWorkspace.shared.runningApplications
-        let isRunning = runningApps.contains { $0.bundleIdentifier == terminal.bundleId }
+    for terminal in TerminalType.supported {
+        guard let bundleId = terminal.bundleId else { continue }
+
+        let isRunning = runningApps.contains { $0.bundleIdentifier == bundleId }
 
         if !isRunning {
-            print("  \(hint("\(terminal.name): skipped (not running)"))")
+            print("  \(hint("\(terminal.displayName): skipped (not running)"))")
             continue
         }
 
         // Permission was just requested in isolated process, so this should now work
         // or return -1743 if user denied
-        let script = NSAppleScript(source: "tell application \"\(terminal.name)\" to return name")
+        let script = NSAppleScript(source: "tell application \"\(terminal.displayName)\" to return name")
         var errorDict: NSDictionary?
         script?.executeAndReturnError(&errorDict)
 
         if let err = errorDict {
             let errorNum = err[NSAppleScript.errorNumber] as? Int ?? 0
             if errorNum == -1743 {
-                print("  \(error("\(terminal.name): denied"))")
+                print("  \(error("\(terminal.displayName): denied"))")
             } else {
-                print("  \(success("\(terminal.name): ✓"))")
+                print("  \(success("\(terminal.displayName): ✓"))")
             }
         } else {
-            print("  \(success("\(terminal.name): ✓"))")
+            print("  \(success("\(terminal.displayName): ✓"))")
         }
     }
 }
