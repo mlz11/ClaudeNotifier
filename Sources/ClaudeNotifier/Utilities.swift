@@ -68,6 +68,26 @@ func terminateApp(afterDelay delay: Double = 0) {
     }
 }
 
+// MARK: - App Bundle Resolution
+
+func getInstalledAppPath() -> URL? {
+    let cliSymlink = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(".local/bin/claude-notifier")
+
+    guard let target = try? FileManager.default.destinationOfSymbolicLink(atPath: cliSymlink.path) else {
+        return nil
+    }
+
+    // Extract app path from symlink target
+    // Target looks like: /Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier
+    if let range = target.range(of: "/Contents/MacOS/") {
+        let appPath = String(target[..<range.lowerBound])
+        return URL(fileURLWithPath: appPath)
+    }
+
+    return nil
+}
+
 // MARK: - Terminal Focus
 
 /// Escape a string for safe interpolation into AppleScript string literals.

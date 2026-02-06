@@ -170,24 +170,6 @@ func setVariant(_ variant: IconVariant) {
     print(hint("Finder icon will refresh automatically, or run: killall Finder"))
 }
 
-func getInstalledAppPath() -> URL? {
-    let cliSymlink = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(".local/bin/claude-notifier")
-
-    guard let target = try? FileManager.default.destinationOfSymbolicLink(atPath: cliSymlink.path) else {
-        return nil
-    }
-
-    // Extract app path from symlink target
-    // Target looks like: /Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier
-    if let range = target.range(of: "/Contents/MacOS/") {
-        let appPath = String(target[..<range.lowerBound])
-        return URL(fileURLWithPath: appPath)
-    }
-
-    return nil
-}
-
 func runProcess(_ path: String, _ arguments: [String]) -> Int32 {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: path)

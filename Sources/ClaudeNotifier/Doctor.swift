@@ -42,12 +42,9 @@ func checkAppInstallation() -> CheckResult {
         )
     }
 
-    // Extract app path from symlink target to verify app bundle
-    if target.contains("/ClaudeNotifier.app/") {
-        if let range = target.range(of: "/Contents/MacOS/") {
-            let appPath = String(target[..<range.lowerBound])
-            return CheckResult(passed: true, message: "App installed at \(appPath)")
-        }
+    // Use shared utility to extract app bundle path
+    if let appPath = getInstalledAppPath() {
+        return CheckResult(passed: true, message: "App installed at \(appPath.path)")
     }
 
     return CheckResult(passed: true, message: "CLI symlink: valid")
