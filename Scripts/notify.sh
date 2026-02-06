@@ -4,6 +4,17 @@
 EVENT_TYPE="$1"
 NOTIFIER="claude-notifier"
 
+# Read hook input from stdin (Claude Code passes JSON with notification_type)
+# Skip idle_prompt — user was already notified when input was first needed
+if [ ! -t 0 ]; then
+    HOOK_INPUT=$(cat)
+    case "$HOOK_INPUT" in
+        *'"idle_prompt"'*)
+            exit 0
+            ;;
+    esac
+fi
+
 # Get Terminal.app's tab TTY by walking up the process tree
 # This handles cases where the user runs a nested terminal (tmux, qterm, etc.)
 get_terminal_app_tty() {
