@@ -78,6 +78,8 @@ gh release create vX.Y.Z --title "vX.Y.Z" --notes "## Added
 
 Use the changelog entries for the release notes.
 
+A GitHub Actions workflow (`.github/workflows/release.yml`) will automatically build and attach `ClaudeNotifier.zip` (containing the `.app` bundle) to the release.
+
 ### 6. Get tarball sha256
 
 Wait a moment for GitHub to generate the tarball, then:
@@ -109,6 +111,7 @@ Tell the user:
 - GitHub Release URL
 - That homebrew tap is updated
 - Upgrade command: `brew upgrade claude-notifier`
+- That the `.app` zip will be attached to the release automatically by CI
 
 ## Notes
 
