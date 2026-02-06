@@ -218,7 +218,7 @@ cmd_reset_notif() {
             echo "Removed notification permissions"
             return 0
         fi
-        ((index++))
+        index=$((index + 1))
     done
 
     echo "No notification permissions found"
