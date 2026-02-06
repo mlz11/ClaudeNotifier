@@ -16,27 +16,16 @@ func parseArguments() -> ParsedArguments {
     if args.count >= 2 {
         switch args[1] {
         case "setup":
-            return ParsedArguments(
-                command: "setup", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
-            )
+            return .command("setup")
         case "doctor":
-            return ParsedArguments(
-                command: "doctor", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
-            )
+            return .command("doctor")
         case "icon":
-            return ParsedArguments(
-                command: "icon", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
-            )
+            return .command("icon")
         case "--request-automation":
             // Internal command: request automation permissions (launched via `open`)
-            return ParsedArguments(
-                command: "request-automation", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil,
-                sound: nil
-            )
+            return .command("request-automation")
         case "-h", "--help", "help":
-            return ParsedArguments(
-                command: "help", title: "", subtitle: nil, body: nil, sessionId: nil, terminalType: nil, sound: nil
-            )
+            return .command("help")
         default:
             break
         }

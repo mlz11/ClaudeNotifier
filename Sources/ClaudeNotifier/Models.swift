@@ -17,4 +17,16 @@ struct ParsedArguments {
     let sessionId: String?
     let terminalType: String?
     let sound: String?
+
+    static func command(_ name: String) -> ParsedArguments {
+        ParsedArguments(
+            command: name,
+            title: "",
+            subtitle: nil,
+            body: nil,
+            sessionId: nil,
+            terminalType: nil,
+            sound: nil
+        )
+    }
 }
