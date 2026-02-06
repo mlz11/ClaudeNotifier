@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-02-06
+
+### Fixed
+
+- Suppress duplicate "awaiting input" notifications caused by idle_prompt hook events
+
 ## [1.4.0] - 2026-02-06
 
 ### Added
@@ -87,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.4.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.1
 [1.4.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.0
 [1.3.2]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.3.2
 [1.3.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.3.1
