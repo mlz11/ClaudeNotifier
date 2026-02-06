@@ -70,6 +70,14 @@ func terminateApp(afterDelay delay: Double = 0) {
 
 // MARK: - Terminal Focus
 
+/// Escape a string for safe interpolation into AppleScript string literals.
+/// Prevents injection by escaping backslashes and double-quotes.
+private func sanitizeForAppleScript(_ value: String) -> String {
+    value
+        .replacingOccurrences(of: "\\", with: "\\\\")
+        .replacingOccurrences(of: "\"", with: "\\\"")
+}
+
 enum TerminalType: String {
     case iterm2
     case terminal
@@ -94,6 +102,7 @@ func focusITermSession(_ sessionId: String) {
 
     guard !targetId.isEmpty else { return }
 
+    let safeId = sanitizeForAppleScript(targetId)
     let scriptSource = """
     tell application "iTerm2"
         activate
@@ -101,7 +110,7 @@ func focusITermSession(_ sessionId: String) {
             tell w
                 repeat with t in tabs
                     repeat with s in sessions of t
-                        if id of s is "\(targetId)" then
+                        if id of s is "\(safeId)" then
                             select t
                         end if
                     end repeat
@@ -120,12 +129,13 @@ func focusITermSession(_ sessionId: String) {
 func focusAppleTerminalSession(_ tty: String) {
     guard !tty.isEmpty else { return }
 
+    let safeTty = sanitizeForAppleScript(tty)
     let scriptSource = """
     tell application "Terminal"
         activate
         repeat with w in windows
             repeat with t in tabs of w
-                if tty of t is "\(tty)" then
+                if tty of t is "\(safeTty)" then
                     set selected tab of w to t
                     set frontmost of w to true
                 end if
