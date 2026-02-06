@@ -13,7 +13,7 @@ enum IconVariant: String, CaseIterable {
         "AppIcon-\(rawValue).icns"
     }
 
-    var description: String {
+    var displayName: String {
         switch self {
         case .brown: return "brown (default)"
         case .blue: return "blue"
