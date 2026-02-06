@@ -4,30 +4,24 @@ import AppKit
 
 let parsed = parseArguments()
 
-if parsed.command == "setup" {
+switch parsed.command {
+case "setup":
     runSetup()
     exit(0)
-}
-
-if parsed.command == "doctor" {
+case "doctor":
     runDoctor()
     exit(0)
-}
-
-if parsed.command == "icon" {
+case "icon":
     runIconCommand(args: CommandLine.arguments)
     exit(0)
-}
-
-if parsed.command == "request-automation" {
-    // Internal command: run permission request in isolated process
+case "request-automation":
     requestTerminalPermissions()
     exit(0)
-}
-
-if parsed.command == "help" {
+case "help":
     showHelp()
     exit(0)
+default:
+    break
 }
 
 // Create and configure the app
