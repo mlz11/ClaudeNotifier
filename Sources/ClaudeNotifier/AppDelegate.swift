@@ -81,7 +81,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let userInfo = response.notification.request.content.userInfo
         if let sessionId = userInfo[Constants.sessionIdKey] as? String {
             let terminalTypeStr = userInfo[Constants.terminalTypeKey] as? String ?? ""
-            let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .iterm2
+            let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .unknown
             focusTerminalSession(sessionId: sessionId, terminalType: terminalType)
         }
         completionHandler()
