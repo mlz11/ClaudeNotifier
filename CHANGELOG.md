@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-02-07
+
+### Added
+
+- Colored output for `make install`
+- GitHub Actions workflow to attach `.app` zip to releases
+
+### Fixed
+
+- Command injection via `eval` in `make install` — replaced with safe tilde expansion
+- Corrupted `settings.json` on interrupted write — now uses atomic write
+- Warn user when `setup` replaces existing hooks
+- Redundant terminal detection call in notify.sh
+- Reject known flags as flag values in argument parser
+- Safety timeout to prevent orphaned background processes
+- Warn on valid but non-dictionary JSON in settings.json
+- Default to unknown terminal type instead of assuming iTerm2
+- Prevent reset script from exiting on first plist iteration
+- Sanitize AppleScript string interpolation to prevent injection
+
+### Changed
+
+- Unified terminal definitions into TerminalType enum
+- Extracted shared app bundle path resolution into Utilities
+- Simplified command dispatch and argument models
+
 ## [1.4.1] - 2026-02-06
 
 ### Fixed
@@ -93,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.5.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.5.0
 [1.4.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.1
 [1.4.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.0
 [1.3.2]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.3.2
