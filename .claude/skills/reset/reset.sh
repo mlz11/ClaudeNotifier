@@ -233,14 +233,18 @@ cmd_reset_sysevents() {
     # Reset automation permissions for supported terminals so System Events
     # permission is re-prompted on next setup. Note: this resets ALL automation
     # permissions for each terminal, not just System Events.
+    # Only iTerm2 and Terminal.app use AppleScript for focus-on-click.
+    # IDE editors (VS Code, Cursor, Windsurf, Zed) use Launch Services instead.
     local terminals=(
         "com.googlecode.iterm2"
         "com.apple.Terminal"
-        "com.microsoft.VSCode"
     )
     for bundle in "${terminals[@]}"; do
-        tccutil reset AppleEvents "$bundle" 2>&1 | head -1
-        echo "Reset automation permissions for $bundle"
+        if tccutil reset AppleEvents "$bundle" 2>&1 | head -1 | grep -q "Successfully"; then
+            echo "Reset automation permissions for $bundle"
+        else
+            echo "Skipped $bundle (not registered)"
+        fi
     done
 }
 

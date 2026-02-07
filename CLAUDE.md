@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ClaudeNotifier is a macOS notification app for Claude Code integration. It displays native macOS notifications with Claude's icon, with smart suppression when the user is actively viewing the Claude terminal tab. Clicking a notification focuses the iTerm2 tab that triggered it.
+ClaudeNotifier is a macOS notification app for Claude Code integration. It displays native macOS notifications with Claude's icon, with smart suppression when the user is actively viewing the Claude terminal tab. Clicking a notification focuses the terminal that triggered it.
 
 ## Build Commands
 
@@ -49,7 +49,7 @@ Sources/ClaudeNotifier/
 ├── Doctor.swift         # Doctor command - diagnoses installation and permission issues
 ├── Icon.swift           # Icon command - switch between icon color variants
 ├── ArgumentParser.swift # CLI flag parsing and help text
-└── Utilities.swift      # Helpers (exitWithError, terminateApp, focusITermSession)
+└── Utilities.swift      # Helpers (exitWithError, terminateApp, focusTerminalSession)
 ```
 
 **Key components:**
@@ -60,9 +60,9 @@ Sources/ClaudeNotifier/
 - **Doctor**: Checks installation, hooks, permissions, and PATH configuration
 - **Icon**: Switches between icon color variants (brown, blue, green)
 - **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`icon`/`help` subcommands
-- **Utilities**: `exitWithError()`, `terminateApp()`, `focusITermSession()` via AppleScript
+- **Utilities**: `exitWithError()`, `terminateApp()`, `focusTerminalSession()`, `TerminalType` enum
 
-**Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus iTerm2 tab → exit
+**Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus terminal → exit
 
 ## CLI Usage
 
@@ -82,4 +82,5 @@ claude-notifier icon blue     # Switch to blue icon variant
 - Makefile uses `swiftc` directly (not full SPM build) for the app bundle
 - App is ad-hoc codesigned during build
 - Runs as LSUIElement (no dock icon)
-- Requires Automation permission for iTerm2 (prompted on first notification click)
+- Requires Automation permission for iTerm2 and Terminal.app (prompted on first notification click)
+- IDE editors (VS Code, Cursor, Windsurf, Zed) use Launch Services for focus — no Automation permission needed

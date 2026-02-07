@@ -102,6 +102,9 @@ enum TerminalType: String, CaseIterable {
     case iterm2
     case terminal
     case vscode
+    case cursor
+    case windsurf
+    case zed
     case unknown
 
     var displayName: String {
@@ -109,7 +112,21 @@ enum TerminalType: String, CaseIterable {
         case .iterm2: return "iTerm2"
         case .terminal: return "Terminal.app"
         case .vscode: return "VS Code"
+        case .cursor: return "Cursor"
+        case .windsurf: return "Windsurf"
+        case .zed: return "Zed"
         case .unknown: return "Unknown"
+        }
+    }
+
+    /// The name used to address this app in AppleScript `tell application` blocks.
+    /// Only relevant for terminals that use AppleScript (iTerm2, Terminal.app).
+    var appleScriptName: String {
+        switch self {
+        case .iterm2: return "iTerm2"
+        case .terminal: return "Terminal"
+        case .vscode: return "Visual Studio Code"
+        case .cursor, .windsurf, .zed, .unknown: return displayName
         }
     }
 
@@ -118,11 +135,16 @@ enum TerminalType: String, CaseIterable {
         case .iterm2: return "com.googlecode.iterm2"
         case .terminal: return "com.apple.Terminal"
         case .vscode: return "com.microsoft.VSCode"
+        case .cursor: return "com.todesktop.230313mzl4w4u92"
+        case .windsurf: return "com.exafunction.windsurf"
+        case .zed: return "dev.zed.Zed"
         case .unknown: return nil
         }
     }
 
-    /// AppleScript to probe terminal permissions during setup
+    /// AppleScript to probe terminal permissions during setup.
+    /// Only terminals that use AppleScript for focus-on-click need this.
+    /// IDE editors (VS Code, Cursor, Windsurf, Zed) use `open -b` instead.
     var permissionCheckScript: String? {
         switch self {
         case .iterm2:
@@ -141,15 +163,7 @@ enum TerminalType: String, CaseIterable {
                 end if
             end tell
             """
-        case .vscode:
-            return """
-            tell application "Visual Studio Code"
-                if (count of windows) > 0 then
-                    get name of front window
-                end if
-            end tell
-            """
-        case .unknown:
+        case .vscode, .cursor, .windsurf, .zed, .unknown:
             return nil
         }
     }
@@ -166,8 +180,8 @@ func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
         focusITermSession(sessionId)
     case .terminal:
         focusAppleTerminalSession(sessionId)
-    case .vscode:
-        focusVSCode()
+    case .vscode, .cursor, .windsurf, .zed:
+        focusAppLevel(terminalType)
     case .unknown:
         break
     }
@@ -228,15 +242,15 @@ func focusAppleTerminalSession(_ tty: String) {
     }
 }
 
-func focusVSCode() {
-    let scriptSource = """
-    tell application "Visual Studio Code"
-        activate
-    end tell
-    """
+func focusAppLevel(_ terminalType: TerminalType) {
+    guard let bundleId = terminalType.bundleId else { return }
 
-    if let script = NSAppleScript(source: scriptSource) {
-        var error: NSDictionary?
-        script.executeAndReturnError(&error)
-    }
+    // Use `open -b` (Launch Services) instead of AppleScript — requires no
+    // Automation permission and works with all apps including non-native ones
+    // like Zed that don't respond to AppleScript's `activate` command.
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+    process.arguments = ["-b", bundleId]
+    try? process.run()
+    process.waitUntilExit()
 }

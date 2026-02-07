@@ -280,6 +280,9 @@ private func verifyTerminalPermissions() {
     for terminal in TerminalType.supported {
         guard let bundleId = terminal.bundleId else { continue }
 
+        // Only terminals that use AppleScript need Automation permission
+        guard terminal.permissionCheckScript != nil else { continue }
+
         let isRunning = runningApps.contains { $0.bundleIdentifier == bundleId }
 
         if !isRunning {
@@ -289,7 +292,7 @@ private func verifyTerminalPermissions() {
 
         // Permission was just requested in isolated process, so this should now work
         // or return -1743 if user denied
-        let script = NSAppleScript(source: "tell application \"\(terminal.displayName)\" to return name")
+        let script = NSAppleScript(source: "tell application \"\(terminal.appleScriptName)\" to return name")
         var errorDict: NSDictionary?
         script?.executeAndReturnError(&errorDict)
 
@@ -369,5 +372,5 @@ func runSetup() {
 
     print("\n\(successBold("Setup complete!")) Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
-    print(hint("Supported terminals: iTerm2, Terminal.app, VS Code"))
+    print(hint("Supported terminals: iTerm2, Terminal.app, VS Code, Cursor, Windsurf, Zed"))
 }
