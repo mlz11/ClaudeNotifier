@@ -1,6 +1,8 @@
 import Foundation
 
 enum Constants {
+    // Generated at build time from VERSION file (see Makefile)
+    static let version = generatedVersion
     static let defaultTitle = "Claude"
     static let claudeDirectory = ".claude"
     static let notifyScriptName = "notify.sh"

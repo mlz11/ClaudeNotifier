@@ -27,7 +27,15 @@ Determine version bump based on conventional commits:
 - `fix:` commits only → **patch** bump (1.2.0 → 1.2.1)
 - `BREAKING CHANGE:` or `!:` → **major** bump (1.2.0 → 2.0.0)
 
-### 2. Update CHANGELOG.md
+### 2. Update VERSION file
+
+Write the new version number (without `v` prefix) to the `VERSION` file in the repo root:
+
+```bash
+echo "X.Y.Z" > VERSION
+```
+
+### 3. Update CHANGELOG.md
 
 Follow [Keep a Changelog](https://keepachangelog.com/) format:
 
@@ -49,14 +57,14 @@ Add the version link at the bottom:
 [X.Y.Z]: https://github.com/mlz11/ClaudeNotifier/releases/tag/vX.Y.Z
 ```
 
-### 3. Commit changelog
+### 4. Commit version and changelog
 
 ```bash
-git add CHANGELOG.md
+git add VERSION CHANGELOG.md
 git commit -m "chore: update changelog for vX.Y.Z"
 ```
 
-### 4. Tag and push
+### 5. Tag and push
 
 ```bash
 git tag vX.Y.Z
@@ -64,7 +72,7 @@ git push
 git push origin vX.Y.Z
 ```
 
-### 5. Create GitHub Release
+### 6. Create GitHub Release
 
 Create a GitHub Release from the tag with changelog content:
 
@@ -80,7 +88,7 @@ Use the changelog entries for the release notes.
 
 A GitHub Actions workflow (`.github/workflows/release.yml`) will automatically build and attach `ClaudeNotifier.zip` (containing the `.app` bundle) to the release.
 
-### 6. Get tarball sha256
+### 7. Get tarball sha256
 
 Wait a moment for GitHub to generate the tarball, then:
 
@@ -88,13 +96,13 @@ Wait a moment for GitHub to generate the tarball, then:
 curl -sL https://github.com/mlz11/ClaudeNotifier/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256
 ```
 
-### 7. Update homebrew formula
+### 8. Update homebrew formula
 
 Edit `/Users/zraqs/dev/homebrew-tap/Formula/claude-notifier.rb`:
 - Update `url` to new version tag
 - Update `sha256` to new hash
 
-### 8. Push homebrew tap
+### 9. Push homebrew tap
 
 ```bash
 cd /Users/zraqs/dev/homebrew-tap
@@ -103,7 +111,7 @@ git commit -m "claude-notifier X.Y.Z"
 git push
 ```
 
-### 9. Report summary
+### 10. Report summary
 
 Tell the user:
 - New version number

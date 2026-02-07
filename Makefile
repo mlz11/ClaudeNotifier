@@ -6,6 +6,7 @@ BIN_DIR = $(HOME)/.local/bin
 CLI_NAME = claude-notifier
 
 GENERATED_SCRIPT = Sources/ClaudeNotifier/NotifyScript.generated.swift
+GENERATED_VERSION = Sources/ClaudeNotifier/Version.generated.swift
 
 .PHONY: all build install uninstall clean lint format setup icons
 
@@ -21,7 +22,14 @@ $(GENERATED_SCRIPT): Scripts/notify.sh
 	@cat $< >> $@
 	@echo '"""' >> $@
 
-build: $(GENERATED_SCRIPT)
+$(GENERATED_VERSION): VERSION
+	@echo "Generating Version.generated.swift..."
+	@VERSION=$$(cat VERSION | tr -d '[:space:]'); \
+	echo "// Auto-generated from VERSION file - do not edit directly" > $@; \
+	echo "" >> $@; \
+	echo "let generatedVersion = \"$$VERSION\"" >> $@
+
+build: $(GENERATED_SCRIPT) $(GENERATED_VERSION)
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS
 	@mkdir -p $(APP_BUNDLE)/Contents/Resources
 	@echo "Compiling $(APP_NAME)..."
@@ -78,7 +86,7 @@ uninstall:
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	@rm -f $(GENERATED_SCRIPT)
+	@rm -f $(GENERATED_SCRIPT) $(GENERATED_VERSION)
 	@echo "Cleaned build directory"
 
 lint:
