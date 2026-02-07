@@ -1,20 +1,10 @@
 import Foundation
 
-private let knownFlags: Set<String> = [
-    "-m", "--message",
-    "-t", "--title",
-    "-s", "--subtitle",
-    "-i", "--session-id",
-    "-T", "--terminal",
-    "-S", "--sound",
-    "-h", "--help"
-]
-
 func flagValue(for flags: [String], in args: [String]) -> String? {
     for flag in flags {
         if let index = args.firstIndex(of: flag), index + 1 < args.count {
             let value = args[index + 1]
-            if knownFlags.contains(value) {
+            if value.hasPrefix("-") {
                 fputs("Warning: flag '\(flag)' is missing its value (followed by '\(value)')\n", stderr)
                 return nil
             }
