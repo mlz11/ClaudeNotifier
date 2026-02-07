@@ -26,5 +26,18 @@ What actually happened. Include any error messages or unexpected output.
 - Terminal: <!-- iTerm2 / other -->
 - ClaudeNotifier version: <!-- claude-notifier --version, if available -->
 
+**Doctor output**
+<!-- Paste the output of: claude-notifier doctor -->
+```
+
+```
+
+**Logs**
+<!-- Paste the output of: claude-notifier logs -->
+<!-- If the output is long, attach as a file or paste the last ~50 lines -->
+```
+
+```
+
 **Additional context**
-Any other details, screenshots, or logs. Output of `claude-notifier doctor` is helpful.
+Any other details or screenshots.
