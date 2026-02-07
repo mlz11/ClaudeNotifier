@@ -110,8 +110,5 @@ case "$EVENT_TYPE" in
         ;;
 esac
 
-# Ensure terminal detection has run
-detect_terminal
-
 # Send notification with session info for focus-on-click
 "$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S default
