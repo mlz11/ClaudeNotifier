@@ -221,8 +221,33 @@ func checkPATHConfiguration() -> CheckResult {
 
 // MARK: - Main Doctor Command
 
+func printStatusHeader() {
+    // Version
+    let versionLine = "ClaudeNotifier \(info("v\(Constants.version)"))"
+
+    // App location (resolve from running binary)
+    let appLocation = Bundle.main.bundlePath
+
+    // Icon variant
+    let iconLabel: String
+    if let variant = getCurrentVariant() {
+        iconLabel = variant == IconVariant.defaultVariant
+            ? "\(variant.rawValue) \(hint("(default)"))"
+            : variant.rawValue
+    } else {
+        iconLabel = hint("unknown")
+    }
+
+    print(versionLine)
+    print("  App:  \(appLocation)")
+    print("  Icon: \(iconLabel)")
+    print("")
+}
+
 func runDoctor() {
-    print("\(header("ClaudeNotifier Diagnostics"))\n")
+    printStatusHeader()
+    print(header("Diagnostics"))
+    print("")
 
     var issues = 0
 
