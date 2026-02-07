@@ -56,6 +56,7 @@ func errorBold(_ text: String) -> String {
 // MARK: - App Lifecycle
 
 func exitWithError(_ message: String) -> Never {
+    Logger.error("Fatal: \(message)")
     fputs(message + "\n", stderr)
     exit(1)
 }
@@ -181,6 +182,10 @@ enum TerminalType: String, CaseIterable {
 }
 
 func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
+    Logger
+        .debug(
+            "Focusing terminal: type=\(terminalType.displayName), sessionId=\(sessionId.isEmpty ? "none" : sessionId)"
+        )
     switch terminalType {
     case .iterm2:
         focusITermSession(sessionId)
@@ -194,6 +199,7 @@ func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
 }
 
 func focusITermSession(_ sessionId: String) {
+    Logger.debug("Focusing iTerm2 session: \(sessionId)")
     // The session ID from ITERM_SESSION_ID is in format "w0t0p0:UUID"
     // We need the UUID part to match against iTerm2's session id
     let targetId = sessionId.contains(":") ? String(sessionId.split(separator: ":").last ?? "") : sessionId
@@ -221,10 +227,14 @@ func focusITermSession(_ sessionId: String) {
     if let script = NSAppleScript(source: scriptSource) {
         var error: NSDictionary?
         script.executeAndReturnError(&error)
+        if let error = error {
+            Logger.warning("iTerm2 AppleScript error: \(error)")
+        }
     }
 }
 
 func focusAppleTerminalSession(_ tty: String) {
+    Logger.debug("Focusing Terminal.app session: \(tty)")
     guard !tty.isEmpty else { return }
 
     let safeTty = sanitizeForAppleScript(tty)
@@ -245,11 +255,15 @@ func focusAppleTerminalSession(_ tty: String) {
     if let script = NSAppleScript(source: scriptSource) {
         var error: NSDictionary?
         script.executeAndReturnError(&error)
+        if let error = error {
+            Logger.warning("Terminal.app AppleScript error: \(error)")
+        }
     }
 }
 
 func focusAppLevel(_ terminalType: TerminalType) {
     guard let bundleId = terminalType.bundleId else { return }
+    Logger.debug("Focusing app: \(terminalType.displayName) (\(bundleId))")
 
     // Use `open -b` (Launch Services) instead of AppleScript — requires no
     // Automation permission and works with all apps including non-native ones

@@ -126,8 +126,10 @@ func writeNotifyScript(to directory: URL) {
     do {
         try notifyScript.write(to: notifyPath, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: notifyPath.path)
+        Logger.info("Installed notify script: \(notifyPath.path)")
         print(success("Installed \(notifyPath.path)"))
     } catch {
+        Logger.error("Failed to write notify script: \(error.localizedDescription)")
         exitWithError("Error writing \(notifyPath.path): \(error.localizedDescription)")
     }
 }
@@ -194,8 +196,10 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
     do {
         let data = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
         try data.write(to: path, options: .atomic)
+        Logger.info("Updated settings: \(path.path)")
         print(success("Updated \(path.path)"))
     } catch {
+        Logger.error("Failed to write settings: \(error.localizedDescription)")
         exitWithError("Error writing \(path.path): \(error.localizedDescription)")
     }
 }
@@ -344,6 +348,7 @@ func requestSystemEventsPermission() {
 }
 
 func runSetup() {
+    Logger.info("Starting setup")
     let claudeDir = promptForConfigDirectory()
     ensureClaudeDirectoryExists(claudeDir)
     let settingsPath = claudeDir.appendingPathComponent(Constants.settingsFileName)
@@ -370,6 +375,7 @@ func runSetup() {
     // Launch permission request in isolated process to properly trigger TCC dialogs
     launchAutomationPermissionRequest()
 
+    Logger.info("Setup complete")
     print("\n\(successBold("Setup complete!")) Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
     print(hint("Supported terminals: iTerm2, Terminal.app, VS Code, Cursor, Windsurf, Zed, Ghostty"))

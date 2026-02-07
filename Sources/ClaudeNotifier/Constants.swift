@@ -9,4 +9,5 @@ enum Constants {
     static let settingsFileName = "settings.json"
     static let sessionIdKey = "sessionId"
     static let terminalTypeKey = "terminalType"
+    static let logFileName = "claude-notifier.log"
 }

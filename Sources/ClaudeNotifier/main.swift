@@ -4,6 +4,8 @@ import AppKit
 
 let parsed = parseArguments()
 
+Logger.info("Launched with args: \(CommandLine.arguments.dropFirst().joined(separator: " "))")
+
 switch parsed.command {
 case "setup":
     runSetup()
@@ -13,6 +15,9 @@ case "doctor":
     exit(0)
 case "icon":
     runIconCommand(args: CommandLine.arguments)
+    exit(0)
+case "logs":
+    runLogsCommand(args: CommandLine.arguments)
     exit(0)
 case "request-automation":
     requestTerminalPermissions()
@@ -33,6 +38,10 @@ let delegate = AppDelegate()
 
 // Only set notification config if we have a message to show
 if let body = parsed.body {
+    Logger
+        .debug(
+            "Notification config: title=\(parsed.title), subtitle=\(parsed.subtitle ?? "nil"), terminal=\(parsed.terminalType ?? "nil"), sound=\(parsed.sound ?? "default")"
+        )
     delegate.notificationConfig = NotificationConfig(
         title: parsed.title,
         subtitle: parsed.subtitle,

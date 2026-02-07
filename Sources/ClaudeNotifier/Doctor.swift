@@ -245,6 +245,7 @@ func printStatusHeader() {
 }
 
 func runDoctor() {
+    Logger.info("Running doctor diagnostics")
     printStatusHeader()
     print(header("Diagnostics"))
     print("")
@@ -279,10 +280,13 @@ func runDoctor() {
     // Summary
     print("")
     if issues == 0 {
+        Logger.info("Doctor: all checks passed")
         print(successBold("All checks passed!") + " ClaudeNotifier is properly configured.")
     } else {
+        Logger.warning("Doctor: \(issues) issue(s) found")
         print(errorBold("\(issues) issue\(issues == 1 ? "" : "s") found."))
         print("Run '\(info("claude-notifier setup"))' to fix configuration issues.")
+        print("Logs: \(hint(Logger.logFilePath.path))")
         exit(1)
     }
 }

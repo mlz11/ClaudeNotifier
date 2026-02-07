@@ -160,6 +160,7 @@ func setVariant(_ variant: IconVariant) {
     // Touch the app to update Finder
     _ = runProcess("/usr/bin/touch", [appPath.path])
 
+    Logger.info("Icon changed to: \(variant.rawValue)")
     print(success("Icon changed to: \(variant.rawValue)"))
 
     // Refresh Notification Center icon cache

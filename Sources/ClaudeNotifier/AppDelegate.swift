@@ -35,8 +35,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     func showNotification(_ config: NotificationConfig) {
         let center = UNUserNotificationCenter.current()
 
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                Logger.error("Notification authorization error: \(error.localizedDescription)")
+            }
             if granted {
+                Logger.info("Notification authorization granted")
                 let content = UNMutableNotificationContent()
                 content.title = config.title
                 if let subtitle = config.subtitle {
@@ -63,12 +67,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                     content: content,
                     trigger: nil
                 )
-                center.add(request) { _ in
+                center.add(request) { addError in
+                    if let addError = addError {
+                        Logger.error("Failed to deliver notification: \(addError.localizedDescription)")
+                    } else {
+                        Logger.info("Notification delivered")
+                    }
                     terminateApp()
                 }
                 // Safety net: terminate even if completion handler never fires
                 terminateApp(afterDelay: 10.0)
             } else {
+                Logger.warning("Notification permission denied")
                 fputs("Notification permission denied\n", stderr)
                 terminateApp()
             }
@@ -85,6 +95,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let terminalTypeStr = userInfo[Constants.terminalTypeKey] as? String ?? ""
         let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .unknown
         let sessionId = userInfo[Constants.sessionIdKey] as? String ?? ""
+        Logger
+            .info(
+                "Notification clicked: terminal=\(terminalType.displayName), sessionId=\(sessionId.isEmpty ? "none" : sessionId)"
+            )
         focusTerminalSession(sessionId: sessionId, terminalType: terminalType)
         completionHandler()
         terminateApp()
