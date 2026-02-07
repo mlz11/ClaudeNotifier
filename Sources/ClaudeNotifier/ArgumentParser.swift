@@ -29,6 +29,8 @@ func parseArguments() -> ParsedArguments {
         case "--request-automation":
             // Internal command: request automation permissions (launched via `open`)
             return .command("request-automation")
+        case "-v", "--version":
+            return .command("version")
         case "-h", "--help", "help":
             return .command("help")
         default:
@@ -64,6 +66,7 @@ func showHelp() {
       -T, --terminal "type"       Terminal type: iterm2, terminal (optional)
       -S, --sound "sound"         Notification sound: "default", "none", or a sound name
                                   Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
+      -v, --version               Show version
       -h, --help                  Show this help message
     """)
 }

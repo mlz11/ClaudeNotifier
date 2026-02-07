@@ -17,6 +17,9 @@ case "icon":
 case "request-automation":
     requestTerminalPermissions()
     exit(0)
+case "version":
+    print("ClaudeNotifier \(Constants.version)")
+    exit(0)
 case "help":
     showHelp()
     exit(0)
