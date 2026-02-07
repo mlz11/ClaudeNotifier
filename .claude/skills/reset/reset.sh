@@ -9,7 +9,7 @@ NOTIFY_SCRIPT="$HOME/.claude/notify.sh"
 CLI_SYMLINK="$HOME/.local/bin/claude-notifier"
 APP_BUNDLE="/Applications/ClaudeNotifier.app"
 NOTIF_PLIST="$HOME/Library/Group Containers/group.com.apple.usernoted/Library/Preferences/group.com.apple.usernoted.plist"
-BUNDLE_ID="com.claude.notifier"
+BUNDLE_ID="com.mlz11.claude-notifier"
 BREW_PACKAGE_NAME="claude-notifier"
 
 usage() {

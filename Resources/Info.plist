@@ -9,7 +9,7 @@
     <key>CFBundleIconName</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>com.claude.notifier</string>
+    <string>com.mlz11.claude-notifier</string>
     <key>CFBundleName</key>
     <string>ClaudeNotifier</string>
     <key>CFBundlePackageType</key>
