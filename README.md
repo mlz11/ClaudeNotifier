@@ -111,7 +111,7 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 
 ## Permissions
 
-ClaudeNotifier requires two macOS permissions, both prompted during `claude-notifier setup`:
+ClaudeNotifier requires three macOS permissions, prompted during `claude-notifier setup`:
 
 1. **Notifications** — Required to display notifications.
    - Manage in: **System Settings → Notifications → ClaudeNotifier**
