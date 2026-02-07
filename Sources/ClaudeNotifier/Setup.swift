@@ -166,9 +166,28 @@ func addNotificationHooks(to settings: inout [String: Any], configDir: URL) {
     ]
 
     var hooks = settings["hooks"] as? [String: Any] ?? [:]
+
+    warnIfExistingHooks(hooks, key: "Notification")
+    warnIfExistingHooks(hooks, key: "Stop")
+
     hooks["Notification"] = [notificationHook]
     hooks["Stop"] = [stopHook]
     settings["hooks"] = hooks
+}
+
+/// Warn the user if existing hooks will be overwritten
+private func warnIfExistingHooks(_ hooks: [String: Any], key: String) {
+    guard let existing = hooks[key] as? [[String: Any]], !existing.isEmpty else { return }
+
+    print(warning("Existing \(key) hooks will be replaced:"))
+    for entry in existing {
+        if let innerHooks = entry["hooks"] as? [[String: Any]] {
+            for hook in innerHooks {
+                let command = hook["command"] as? String ?? "unknown"
+                print("  \(warning("→ \(command)"))")
+            }
+        }
+    }
 }
 
 func writeSettings(_ settings: [String: Any], to path: URL) {
