@@ -119,6 +119,9 @@ ClaudeNotifier requires two macOS permissions, both prompted during `claude-noti
 2. **Automation** — Required for click-to-focus.
    - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
 
+3. **System Events** (VS Code only) — Required for smart suppression. The notification script checks the frontmost app via System Events, and macOS attributes this to the terminal that runs it. iTerm2 and Terminal.app typically have this permission already, but VS Code users will be prompted to allow **"Visual Studio Code" → "System Events"** on first use.
+   - Manage in: **System Settings → Privacy & Security → Automation → Visual Studio Code**
+
 ## Requirements
 
 - macOS 11.0+
