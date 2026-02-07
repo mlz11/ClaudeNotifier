@@ -65,6 +65,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 center.add(request) { _ in
                     terminateApp()
                 }
+                // Safety net: terminate even if completion handler never fires
+                terminateApp(afterDelay: 10.0)
             } else {
                 fputs("Notification permission denied\n", stderr)
                 terminateApp()
