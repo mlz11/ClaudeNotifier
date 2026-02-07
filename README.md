@@ -27,9 +27,9 @@ Anthropic's [recommended terminal notification setup](https://code.claude.com/do
 
 Most other notification setups rely on `terminal-notifier` or `osascript` one-liners. ClaudeNotifier takes a different approach:
 
-- 📦 **Zero dependencies**: Nothing to `brew install` first. Just install and run `claude-notifier setup`.
+- 📦 **Zero dependencies**: Just install and run `claude-notifier setup`.
 - 🎯 **Click-to-focus the exact tab**: Other tools open the app at best. ClaudeNotifier focuses the specific terminal tab or iTerm2 session that triggered the notification.
-- 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're never interrupted mid-thought.
+- 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're not interrupted mid-thought.
 - 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/).
 - 🩺 **Built-in diagnostics**: `claude-notifier doctor` checks your installation, hooks, permissions, and PATH so you can fix issues without guesswork.
 - 💅🏻 **A pretty icon**: Look, someone spent way too long on it. Might as well enjoy it.
