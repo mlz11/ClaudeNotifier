@@ -21,16 +21,18 @@
   <a href="#faq">FAQ</a>
 </p>
 
-## Why ClaudeNotifier?
+## ✨ Why ClaudeNotifier?
 
 Anthropic's [recommended terminal notification setup](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications) only works for iTerm2 users (also I could never make it work on my machine). ClaudeNotifier provides a reliable alternative that supports multiple terminals and editors, with extra features like click-to-focus and smart suppression.
 
-## ✨ Features
+Most other notification setups rely on `terminal-notifier` or `osascript` one-liners. ClaudeNotifier takes a different approach:
 
-- Native macOS notifications
-- **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
-- Includes repo/directory name as subtitle
-- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/)
+- 📦 **Zero dependencies**: Nothing to `brew install` first. Just install and run `claude-notifier setup`.
+- 🎯 **Click-to-focus the exact tab**: Other tools open the app at best. ClaudeNotifier focuses the specific terminal tab or iTerm2 session that triggered the notification.
+- 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're never interrupted mid-thought.
+- 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/).
+- 🩺 **Built-in diagnostics**: `claude-notifier doctor` checks your installation, hooks, permissions, and PATH so you can fix issues without guesswork.
+- 💅🏻 **A pretty icon**: Look, someone spent way too long on it. Might as well enjoy it.
 
 ## 📦 Installation
 
@@ -79,6 +81,21 @@ This automatically:
 
 - Installs the notification script to your config directory
 - Adds hooks to `settings.json`
+- Prompts for required macOS permissions
+
+  <details>
+  <summary>🔐 <em>Permissions details</em></summary>
+
+  1. **Notifications**: Required to display notifications.
+     - Manage in: **System Settings → Notifications → ClaudeNotifier**
+
+  2. **Automation**: Required for click-to-focus.
+     - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
+
+  3. **System Events**: Required for smart suppression. Most terminals (like iTerm2) typically have this permission already, but others (like VS Code) may prompt you to allow it to control System Events on first use.
+     - Manage in: **System Settings → Privacy & Security → Automation → [Your terminal or IDE]**
+
+  </details>
 
 ### Diagnosing Issues
 
@@ -103,25 +120,6 @@ claude-notifier icon --default  # Reset to default (brown)
 | <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
 
 </div>
-
-### Sending Notifications
-
-```bash
-claude-notifier -m "Message" -t "Title" -s "Subtitle"
-```
-
-## Permissions
-
-ClaudeNotifier requires three macOS permissions, prompted during `claude-notifier setup`:
-
-1. **Notifications**: Required to display notifications.
-   - Manage in: **System Settings → Notifications → ClaudeNotifier**
-
-2. **Automation**: Required for click-to-focus.
-   - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
-
-3. **System Events**: Required for smart suppression. Most terminals (like iTerm2) typically have this permission already, but others (like VS Code) may prompt you to allow it to control System Events on first use.
-   - Manage in: **System Settings → Privacy & Security → Automation → [Your terminal or IDE]**
 
 ## Requirements
 
