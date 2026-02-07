@@ -60,6 +60,9 @@ detect_terminal() {
     elif [ "$TERM_PROGRAM" = "zed" ]; then
         TERMINAL_TYPE="zed"
         SESSION_ID=""
+    elif [ "$TERM_PROGRAM" = "ghostty" ]; then
+        TERMINAL_TYPE="ghostty"
+        SESSION_ID=""
     elif [ "$TERM_PROGRAM" = "vscode" ]; then
         # Differentiate VS Code forks by their bundle identifier
         case "$__CFBundleIdentifier" in
@@ -116,6 +119,9 @@ should_notify() {
             ;;
         zed)
             is_app_frontmost "dev.zed.Zed" && return 1
+            ;;
+        ghostty)
+            is_app_frontmost "com.mitchellh.ghostty" && return 1
             ;;
         *)
             # Unknown terminal, always notify

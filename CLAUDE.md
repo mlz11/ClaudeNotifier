@@ -75,6 +75,10 @@ claude-notifier icon          # List available icon variants
 claude-notifier icon blue     # Switch to blue icon variant
 ```
 
+## Writing Style
+
+- Never use em dashes (`—`) or spaced hyphens (` - `) as punctuation. Use commas, colons, or parentheses instead.
+
 ## Technical Notes
 
 - Requires macOS 11.0+

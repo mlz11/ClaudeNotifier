@@ -30,7 +30,7 @@ Anthropic's [recommended terminal notification setup](https://code.claude.com/do
 - Native macOS notifications
 - **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
-- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/)
+- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/)
 
 ## 📦 Installation
 
@@ -114,31 +114,44 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 
 ClaudeNotifier requires three macOS permissions, prompted during `claude-notifier setup`:
 
-1. **Notifications** — Required to display notifications.
+1. **Notifications**: Required to display notifications.
    - Manage in: **System Settings → Notifications → ClaudeNotifier**
 
-2. **Automation** — Required for click-to-focus.
+2. **Automation**: Required for click-to-focus.
    - Manage in: **System Settings → Privacy & Security → Automation → ClaudeNotifier**
 
-3. **System Events** — Required for smart suppression. Most terminals (like iTerm2) typically have this permission already, but others (like VS Code) may prompt you to allow it to control System Events on first use.
+3. **System Events**: Required for smart suppression. Most terminals (like iTerm2) typically have this permission already, but others (like VS Code) may prompt you to allow it to control System Events on first use.
    - Manage in: **System Settings → Privacy & Security → Automation → [Your terminal or IDE]**
 
 ## Requirements
 
 - macOS 11.0+
-- iTerm2, Terminal.app, VS Code, VSCodium, Cursor, Windsurf, or Zed
+- iTerm2, Terminal.app, VS Code, VSCodium, Cursor, Windsurf, Zed, or Ghostty
 
 ## ❓ FAQ
 
 <details>
-<summary><strong>What are the limitations of VS Code, VSCodium, Cursor, Windsurf, and Zed support?</strong></summary>
+<summary><strong>Why aren't all terminals fully supported like iTerm2?</strong></summary>
 
-These editors work differently from iTerm2 and Terminal.app due to platform limitations:
+Full support (tab-specific focus and suppression) requires two things from the terminal: AppleScript integration and a session ID environment variable. Currently only iTerm2 and Terminal.app provide both.
 
-- **App-level suppression only**: Notifications are suppressed whenever the editor is the frontmost app, even if you're in the editor rather than the terminal panel. These editors don't expose which panel is focused via AppleScript or environment variables.
-- **No tab-specific focus**: Clicking a notification brings the editor to the foreground but cannot focus a specific terminal instance. These editors don't provide a terminal session ID environment variable (unlike iTerm2's `ITERM_SESSION_ID`).
+#### IDE editors (VS Code, VSCodium, Cursor, Windsurf, Zed)
 
-These are upstream limitations in the editors' macOS integration — not something ClaudeNotifier can work around without companion extensions.
+These editors have **app-level support only**:
+
+- **App-level suppression**: Notifications are suppressed whenever the editor is frontmost, even if you're in the editor rather than the terminal panel. These editors don't expose which panel is focused via AppleScript or environment variables.
+- **No tab-specific focus**: Clicking a notification brings the editor to the foreground but cannot focus a specific terminal instance.
+
+These are upstream limitations, not something ClaudeNotifier can work around without companion extensions.
+
+#### Ghostty
+
+Ghostty also has **app-level support only**, for different reasons (it lacks the APIs needed for full integration):
+
+- No session ID environment variable ([discussion](https://github.com/ghostty-org/ghostty/discussions/9084))
+- AppleScript support is planned but not yet implemented ([discussion](https://github.com/ghostty-org/ghostty/discussions/2353))
+
+Once Ghostty adds both, we can upgrade to full support with tab-specific focus and suppression.
 
 </details>
 
@@ -157,19 +170,5 @@ The Warp team prefers URI schemes over AppleScript, but these don't yet support 
 
 - [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
 - [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
-
-</details>
-
-<details>
-<summary><strong>Why isn't Ghostty terminal supported?</strong></summary>
-
-Ghostty currently lacks the APIs needed for full integration:
-
-- No `TERM_SESSION_ID` equivalent environment variable ([discussion](https://github.com/ghostty-org/ghostty/discussions/9084))
-- AppleScript support is planned but not yet implemented ([discussion](https://github.com/ghostty-org/ghostty/discussions/2353))
-
-Ghostty 1.2.0 added App Intents/Shortcuts support, but this doesn't include focusing specific tabs by ID.
-
-Once Ghostty adds AppleScript support and a session ID environment variable, we can add support.
 
 </details>

@@ -106,6 +106,7 @@ enum TerminalType: String, CaseIterable {
     case cursor
     case windsurf
     case zed
+    case ghostty
     case unknown
 
     var displayName: String {
@@ -117,6 +118,7 @@ enum TerminalType: String, CaseIterable {
         case .cursor: return "Cursor"
         case .windsurf: return "Windsurf"
         case .zed: return "Zed"
+        case .ghostty: return "Ghostty"
         case .unknown: return "Unknown"
         }
     }
@@ -128,7 +130,7 @@ enum TerminalType: String, CaseIterable {
         case .iterm2: return "iTerm2"
         case .terminal: return "Terminal"
         case .vscode: return "Visual Studio Code"
-        case .vscodium, .cursor, .windsurf, .zed, .unknown: return displayName
+        case .vscodium, .cursor, .windsurf, .zed, .ghostty, .unknown: return displayName
         }
     }
 
@@ -141,6 +143,7 @@ enum TerminalType: String, CaseIterable {
         case .cursor: return "com.todesktop.230313mzl4w4u92"
         case .windsurf: return "com.exafunction.windsurf"
         case .zed: return "dev.zed.Zed"
+        case .ghostty: return "com.mitchellh.ghostty"
         case .unknown: return nil
         }
     }
@@ -166,7 +169,7 @@ enum TerminalType: String, CaseIterable {
                 end if
             end tell
             """
-        case .vscode, .vscodium, .cursor, .windsurf, .zed, .unknown:
+        case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty, .unknown:
             return nil
         }
     }
@@ -183,7 +186,7 @@ func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
         focusITermSession(sessionId)
     case .terminal:
         focusAppleTerminalSession(sessionId)
-    case .vscode, .vscodium, .cursor, .windsurf, .zed:
+    case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty:
         focusAppLevel(terminalType)
     case .unknown:
         break
