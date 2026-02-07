@@ -30,7 +30,7 @@ Anthropic's [recommended terminal notification setup](https://code.claude.com/do
 - Native macOS notifications
 - **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
-- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [VS Code](https://code.visualstudio.com/), [Cursor](https://www.cursor.com/), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/)
+- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [VS Code](https://code.visualstudio.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/)
 
 ## 📦 Installation
 
