@@ -46,7 +46,7 @@ icons:
 install: build
 	@read -p "Install directory [$(INSTALL_DIR)]: " input_dir; \
 	dir=$${input_dir:-$(INSTALL_DIR)}; \
-	dir=$$(eval echo "$$dir"); \
+	case "$$dir" in ~/*) dir="$$HOME$${dir#\~}";; ~) dir="$$HOME";; esac; \
 	printf "\n\033[1;36mInstalling to $$dir...\033[0m\n"; \
 	rm -rf "$$dir/$(APP_NAME).app"; \
 	mkdir -p "$$dir"; \
