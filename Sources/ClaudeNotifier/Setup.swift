@@ -193,7 +193,7 @@ private func warnIfExistingHooks(_ hooks: [String: Any], key: String) {
 func writeSettings(_ settings: [String: Any], to path: URL) {
     do {
         let data = try JSONSerialization.data(withJSONObject: settings, options: [.prettyPrinted, .sortedKeys])
-        try data.write(to: path)
+        try data.write(to: path, options: .atomic)
         print(success("Updated \(path.path)"))
     } catch {
         exitWithError("Error writing \(path.path): \(error.localizedDescription)")
