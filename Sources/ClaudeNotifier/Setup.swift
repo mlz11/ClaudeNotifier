@@ -142,6 +142,7 @@ func loadSettings(from path: URL) -> [String: Any] {
         if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
             return json
         }
+        fputs("Warning: settings.json is not a JSON object, will create new one\n", stderr)
     } catch {
         fputs("Warning: Could not parse existing settings.json, will create new one\n", stderr)
     }
