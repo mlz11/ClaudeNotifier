@@ -47,20 +47,21 @@ install: build
 	@read -p "Install directory [$(INSTALL_DIR)]: " input_dir; \
 	dir=$${input_dir:-$(INSTALL_DIR)}; \
 	dir=$$(eval echo "$$dir"); \
-	echo "Installing to $$dir..."; \
+	printf "\n\033[1;36mInstalling to $$dir...\033[0m\n"; \
 	rm -rf "$$dir/$(APP_NAME).app"; \
 	mkdir -p "$$dir"; \
 	cp -r $(APP_BUNDLE) "$$dir/"; \
-	echo "Creating CLI symlink..."; \
+	printf "\033[32mInstalled $$dir/$(APP_NAME).app\033[0m\n"; \
+	printf "\033[1;36mCreating CLI symlink...\033[0m\n"; \
 	mkdir -p $(BIN_DIR); \
 	ln -sf "$$dir/$(APP_NAME).app/Contents/MacOS/$(APP_NAME)" $(BIN_DIR)/$(CLI_NAME); \
-	echo "Installed to $$dir/$(APP_NAME).app"; \
-	echo "CLI available as: $(CLI_NAME)"; \
+	printf "\033[32mLinked $(BIN_DIR)/$(CLI_NAME)\033[0m\n"; \
+	printf "\n\033[1;32mInstall complete!\033[0m CLI available as: \033[1;36m$(CLI_NAME)\033[0m\n"; \
 	if ! echo "$$PATH" | grep -q "$(BIN_DIR)"; then \
 		echo ""; \
-		echo "NOTE: $(BIN_DIR) is not in your PATH."; \
-		echo "Add it with:"; \
-		echo "  echo 'export PATH=\"\$$HOME/.local/bin:\$$PATH\"' >> ~/.zshrc && source ~/.zshrc"; \
+		printf "\033[33mNOTE: $(BIN_DIR) is not in your PATH.\033[0m\n"; \
+		printf "\033[33mAdd it with:\033[0m\n"; \
+		printf "  \033[2mecho 'export PATH=\"\$$HOME/.local/bin:\$$PATH\"' >> ~/.zshrc && source ~/.zshrc\033[0m\n"; \
 	fi
 
 uninstall:
