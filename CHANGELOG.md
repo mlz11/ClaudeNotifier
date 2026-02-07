@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-02-07
+
+### Added
+
+- Cursor, Windsurf, and Zed editor support (detection, suppression, focus-on-click)
+- VS Code integrated terminal support (detection, suppression, focus-on-click)
+- System Events permission check during setup
+- Group notifications by repo using thread identifiers
+- `--version` flag and build-time version from VERSION file
+- Status header to doctor command
+
+### Changed
+
+- Use Launch Services (`open -b`) instead of AppleScript for IDE editor focus — no Automation permission needed
+- Differentiate Cursor/Windsurf from VS Code via `__CFBundleIdentifier` env var
+- Only request Automation permission for iTerm2 and Terminal.app during setup
+
+### Fixed
+
+- `verifyTerminalPermissions` using display name instead of AppleScript name for VS Code
+- Windsurf bundle ID corrected to `com.exafunction.windsurf`
+- Reset script tolerates unregistered bundle IDs instead of aborting
+
 ## [1.5.0] - 2026-02-07
 
 ### Added
@@ -119,6 +142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.6.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.6.0
 [1.5.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.5.0
 [1.4.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.1
 [1.4.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.4.0
