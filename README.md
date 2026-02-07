@@ -23,7 +23,7 @@
 
 ## Why ClaudeNotifier?
 
-Anthropic's [recommended terminal notification setup](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications) doesn't work reliably—notifications often never appear. ClaudeNotifier provides a more reliable alternative with extra features like click-to-focus and smart suppression.
+Anthropic's [recommended terminal notification setup](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications) doesn't work reliably (notifications never appeared). ClaudeNotifier provides a reliable alternative with extra features like click-to-focus and smart suppression.
 
 ## ✨ Features
 
