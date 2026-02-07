@@ -63,7 +63,7 @@ func showHelp() {
       -t, --title "text"          The notification title (default: "Claude")
       -s, --subtitle "text"       The notification subtitle (optional)
       -i, --session-id "id"       Session ID for focus-on-click (optional)
-      -T, --terminal "type"       Terminal type: iterm2, terminal, vscode, cursor, windsurf, zed
+      -T, --terminal "type"       Terminal type: iterm2, terminal, vscode, vscodium, cursor, windsurf, zed
       -S, --sound "sound"         Notification sound: "default", "none", or a sound name
                                   Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
       -v, --version               Show version

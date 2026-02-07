@@ -66,6 +66,9 @@ detect_terminal() {
             com.todesktop.230313mzl4w4u92)
                 TERMINAL_TYPE="cursor"
                 ;;
+            com.vscodium)
+                TERMINAL_TYPE="vscodium"
+                ;;
             com.exafunction.windsurf)
                 TERMINAL_TYPE="windsurf"
                 ;;
@@ -101,6 +104,9 @@ should_notify() {
             ;;
         vscode)
             is_app_frontmost "com.microsoft.VSCode" && return 1
+            ;;
+        vscodium)
+            is_app_frontmost "com.vscodium" && return 1
             ;;
         cursor)
             is_app_frontmost "com.todesktop.230313mzl4w4u92" && return 1

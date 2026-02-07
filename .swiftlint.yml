@@ -3,6 +3,9 @@
 included:
   - Sources
 
+excluded:
+  - "**/*.generated.swift"
+
 disabled_rules:
   - trailing_whitespace
 

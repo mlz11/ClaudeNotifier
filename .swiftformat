@@ -12,3 +12,4 @@
 --wrapparameters before-first
 --self remove
 --stripunusedargs closure-only
+--exclude **/*.generated.swift
