@@ -25,6 +25,7 @@ Commands:
   remove-app      Remove app bundle
   reset-notif     Reset notification permissions
   reset-auto      Reset automation permissions
+  reset-sysevents Reset terminal System Events permissions
   all             Run all removal steps (no confirmation)
 EOF
     exit 1
@@ -228,6 +229,21 @@ cmd_reset_auto() {
     tccutil reset AppleEvents "$BUNDLE_ID" 2>&1 | head -1
 }
 
+cmd_reset_sysevents() {
+    # Reset automation permissions for supported terminals so System Events
+    # permission is re-prompted on next setup. Note: this resets ALL automation
+    # permissions for each terminal, not just System Events.
+    local terminals=(
+        "com.googlecode.iterm2"
+        "com.apple.Terminal"
+        "com.microsoft.VSCode"
+    )
+    for bundle in "${terminals[@]}"; do
+        tccutil reset AppleEvents "$bundle" 2>&1 | head -1
+        echo "Reset automation permissions for $bundle"
+    done
+}
+
 cmd_all() {
     echo "=== Backup ==="
     cmd_backup
@@ -250,6 +266,9 @@ cmd_all() {
     echo "=== Reset Automation ==="
     cmd_reset_auto
     echo ""
+    echo "=== Reset System Events ==="
+    cmd_reset_sysevents
+    echo ""
     echo "=== Done ==="
 }
 
@@ -264,6 +283,7 @@ case "$1" in
     remove-app)   cmd_remove_app ;;
     reset-notif)  cmd_reset_notif ;;
     reset-auto)   cmd_reset_auto ;;
+    reset-sysevents) cmd_reset_sysevents ;;
     all)          cmd_all ;;
     *)            usage ;;
 esac

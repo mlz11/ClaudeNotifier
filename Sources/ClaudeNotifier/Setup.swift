@@ -306,6 +306,40 @@ private func verifyTerminalPermissions() {
     }
 }
 
+/// Request System Events permission by spawning osascript as a child process.
+/// macOS attributes TCC permissions to the responsible GUI app (the terminal),
+/// so this triggers the correct "Terminal → System Events" permission prompt.
+func requestSystemEventsPermission() {
+    print("\n\(info("Checking System Events permission..."))")
+    print("  \(hint("(Required for smart notification suppression)"))")
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+    process.arguments = [
+        "-e",
+        "tell application \"System Events\" to get bundle identifier of first process whose frontmost is true"
+    ]
+    process.standardOutput = FileHandle.nullDevice
+    process.standardError = FileHandle.nullDevice
+
+    do {
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus == 0 {
+            print("  \(success("System Events: ✓"))")
+            print("  \(hint("Note: this only covers the current terminal. Other terminals (e.g. VS Code)"))")
+            print("  \(hint("will prompt for System Events permission on first notification."))")
+        } else {
+            print("  \(error("System Events: denied"))")
+            print("    \(warning("→ Open System Settings > Privacy & Security > Automation"))")
+            print("    \(warning("→ Enable your terminal → System Events"))")
+        }
+    } catch let err {
+        print("  \(error("System Events: could not check (\(err.localizedDescription))"))")
+    }
+}
+
 func runSetup() {
     let claudeDir = promptForConfigDirectory()
     ensureClaudeDirectoryExists(claudeDir)
@@ -327,6 +361,8 @@ func runSetup() {
         print("  3. Run '\(info("claude-notifier setup"))' again")
         exit(1)
     }
+
+    requestSystemEventsPermission()
 
     // Launch permission request in isolated process to properly trigger TCC dialogs
     launchAutomationPermissionRequest()
