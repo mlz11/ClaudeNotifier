@@ -30,7 +30,7 @@ Anthropic's [recommended terminal notification setup](https://code.claude.com/do
 - Native macOS notifications
 - **Click-to-focus**: Clicking a notification switches to the terminal tab that triggered it
 - Includes repo/directory name as subtitle
-- Supports [iTerm2](https://iterm2.com/) and [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac)
+- Supports [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), and [VS Code](https://code.visualstudio.com/)
 
 ## 📦 Installation
 
@@ -122,9 +122,22 @@ ClaudeNotifier requires two macOS permissions, both prompted during `claude-noti
 ## Requirements
 
 - macOS 11.0+
-- iTerm2 or Terminal.app
+- iTerm2, Terminal.app, or VS Code
 
 ## ❓ FAQ
+
+<details>
+<summary><strong>What are the limitations of VS Code support?</strong></summary>
+
+VS Code support works differently from iTerm2 and Terminal.app due to platform limitations:
+
+- **App-level suppression only**: Notifications are suppressed whenever VS Code is the frontmost app, even if you're in the editor rather than the terminal panel. VS Code doesn't expose which panel is focused via AppleScript or environment variables.
+- **No tab-specific focus**: Clicking a notification brings VS Code to the foreground but cannot focus a specific terminal instance. VS Code doesn't provide a terminal session ID environment variable (unlike iTerm2's `ITERM_SESSION_ID`).
+- **VS Code forks**: Cursor and other VS Code forks are not yet supported. They use different bundle identifiers and may set different environment variables.
+
+These are upstream limitations in VS Code's macOS integration — not something ClaudeNotifier can work around without a companion VS Code extension.
+
+</details>
 
 <details>
 <summary><strong>Why isn't Warp terminal supported?</strong></summary>

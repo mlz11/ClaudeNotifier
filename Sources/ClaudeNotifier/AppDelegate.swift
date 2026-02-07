@@ -82,11 +82,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        if let sessionId = userInfo[Constants.sessionIdKey] as? String {
-            let terminalTypeStr = userInfo[Constants.terminalTypeKey] as? String ?? ""
-            let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .unknown
-            focusTerminalSession(sessionId: sessionId, terminalType: terminalType)
-        }
+        let terminalTypeStr = userInfo[Constants.terminalTypeKey] as? String ?? ""
+        let terminalType = TerminalType(rawValue: terminalTypeStr) ?? .unknown
+        let sessionId = userInfo[Constants.sessionIdKey] as? String ?? ""
+        focusTerminalSession(sessionId: sessionId, terminalType: terminalType)
         completionHandler()
         terminateApp()
     }

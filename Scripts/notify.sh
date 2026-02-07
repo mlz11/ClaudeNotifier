@@ -49,6 +49,9 @@ detect_terminal() {
     elif [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
         TERMINAL_TYPE="terminal"
         SESSION_ID=$(get_terminal_app_tty)
+    elif [ "$TERM_PROGRAM" = "vscode" ]; then
+        TERMINAL_TYPE="vscode"
+        SESSION_ID=""
     else
         TERMINAL_TYPE=""
         SESSION_ID=""
@@ -75,6 +78,10 @@ should_notify() {
 
             CURRENT_TTY=$(osascript -e 'tell application "Terminal" to return tty of selected tab of front window' 2>/dev/null)
             [ "$MY_TTY" = "$CURRENT_TTY" ] && return 1
+            ;;
+        vscode)
+            FRONTMOST=$(osascript -e 'tell application "System Events" to get bundle identifier of first process whose frontmost is true' 2>/dev/null)
+            [ "$FRONTMOST" = "com.microsoft.VSCode" ] && return 1
             ;;
         *)
             # Unknown terminal, always notify

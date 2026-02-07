@@ -101,12 +101,14 @@ private func sanitizeForAppleScript(_ value: String) -> String {
 enum TerminalType: String, CaseIterable {
     case iterm2
     case terminal
+    case vscode
     case unknown
 
     var displayName: String {
         switch self {
         case .iterm2: return "iTerm2"
         case .terminal: return "Terminal.app"
+        case .vscode: return "VS Code"
         case .unknown: return "Unknown"
         }
     }
@@ -115,6 +117,7 @@ enum TerminalType: String, CaseIterable {
         switch self {
         case .iterm2: return "com.googlecode.iterm2"
         case .terminal: return "com.apple.Terminal"
+        case .vscode: return "com.microsoft.VSCode"
         case .unknown: return nil
         }
     }
@@ -138,6 +141,14 @@ enum TerminalType: String, CaseIterable {
                 end if
             end tell
             """
+        case .vscode:
+            return """
+            tell application "Visual Studio Code"
+                if (count of windows) > 0 then
+                    get name of front window
+                end if
+            end tell
+            """
         case .unknown:
             return nil
         }
@@ -155,6 +166,8 @@ func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
         focusITermSession(sessionId)
     case .terminal:
         focusAppleTerminalSession(sessionId)
+    case .vscode:
+        focusVSCode()
     case .unknown:
         break
     }
@@ -206,6 +219,19 @@ func focusAppleTerminalSession(_ tty: String) {
                 end if
             end repeat
         end repeat
+    end tell
+    """
+
+    if let script = NSAppleScript(source: scriptSource) {
+        var error: NSDictionary?
+        script.executeAndReturnError(&error)
+    }
+}
+
+func focusVSCode() {
+    let scriptSource = """
+    tell application "Visual Studio Code"
+        activate
     end tell
     """
 
