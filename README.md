@@ -23,7 +23,7 @@
 
 ## Why ClaudeNotifier?
 
-Anthropic's [recommended terminal notification setup](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications) doesn't work reliably (notifications never appeared). ClaudeNotifier provides a reliable alternative with extra features like click-to-focus and smart suppression.
+Anthropic's [recommended terminal notification setup](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications) only works for iTerm2 users (also I could never make it work on my machine). ClaudeNotifier provides a reliable alternative that supports multiple terminals and editors, with extra features like click-to-focus and smart suppression.
 
 ## ✨ Features
 
@@ -76,6 +76,7 @@ claude-notifier setup
 You'll be prompted for the Claude config directory (press Enter for default `~/.claude`).
 
 This automatically:
+
 - Installs the notification script to your config directory
 - Adds hooks to `settings.json`
 
@@ -97,8 +98,8 @@ claude-notifier icon --default  # Reset to default (brown)
 
 <div align="center">
 
-| brown (default) | blue | green |
-|:---:|:---:|:---:|
+|                 brown (default)                  |                      blue                       |                      green                       |
+| :----------------------------------------------: | :---------------------------------------------: | :----------------------------------------------: |
 | <img src="assets/previews/brown.png" width="64"> | <img src="assets/previews/blue.png" width="64"> | <img src="assets/previews/green.png" width="64"> |
 
 </div>
@@ -145,6 +146,7 @@ These are upstream limitations in the editors' macOS integration — not somethi
 <summary><strong>Why isn't Warp terminal supported?</strong></summary>
 
 Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
+
 - Detect which tab triggered the notification
 - Focus a specific tab when clicking a notification
 - Check if you're viewing the active tab (for smart suppression)
@@ -152,6 +154,7 @@ Warp does not support AppleScript and doesn't expose a session ID environment va
 The Warp team prefers URI schemes over AppleScript, but these don't yet support focusing specific tabs.
 
 **Relevant issues:**
+
 - [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
 - [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
 
@@ -161,6 +164,7 @@ The Warp team prefers URI schemes over AppleScript, but these don't yet support 
 <summary><strong>Why isn't Ghostty terminal supported?</strong></summary>
 
 Ghostty currently lacks the APIs needed for full integration:
+
 - No `TERM_SESSION_ID` equivalent environment variable ([discussion](https://github.com/ghostty-org/ghostty/discussions/9084))
 - AppleScript support is planned but not yet implemented ([discussion](https://github.com/ghostty-org/ghostty/discussions/2353))
 
