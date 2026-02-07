@@ -41,6 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 content.title = config.title
                 if let subtitle = config.subtitle {
                     content.subtitle = subtitle
+                    content.threadIdentifier = subtitle
                 }
                 content.body = config.body
                 content.sound = self.notificationSound(from: config.sound)
