@@ -5,6 +5,7 @@ enum Constants {
     static let version = generatedVersion
     static let defaultTitle = "Claude"
     static let claudeDirectory = ".claude"
+    static let appSupportDirectory = "Library/Application Support/ClaudeNotifier"
     static let notifyScriptName = "notify.sh"
     static let settingsFileName = "settings.json"
     static let sessionIdKey = "sessionId"

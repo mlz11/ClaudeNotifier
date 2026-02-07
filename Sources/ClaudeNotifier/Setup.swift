@@ -107,16 +107,31 @@ func requestTerminalPermissions() {
     }
 }
 
-func ensureClaudeDirectoryExists(_ claudeDir: URL) {
+func ensureDirectoryExists(_ directory: URL) {
     let fileManager = FileManager.default
-
-    if !fileManager.fileExists(atPath: claudeDir.path) {
+    if !fileManager.fileExists(atPath: directory.path) {
         do {
-            try fileManager.createDirectory(at: claudeDir, withIntermediateDirectories: true)
-            print(success("Created \(claudeDir.path)"))
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            print(success("Created \(directory.path)"))
         } catch {
-            exitWithError("Error creating \(claudeDir.path): \(error.localizedDescription)")
+            exitWithError("Error creating \(directory.path): \(error.localizedDescription)")
         }
+    }
+}
+
+func appSupportDirectory() -> URL {
+    FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(Constants.appSupportDirectory)
+}
+
+func removeOldNotifyScript() {
+    let oldPath = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(Constants.claudeDirectory)
+        .appendingPathComponent(Constants.notifyScriptName)
+    if FileManager.default.fileExists(atPath: oldPath.path) {
+        try? FileManager.default.removeItem(at: oldPath)
+        Logger.info("Removed old notify script: \(oldPath.path)")
+        print(success("Removed old \(oldPath.path)"))
     }
 }
 
@@ -152,18 +167,18 @@ func loadSettings(from path: URL) -> [String: Any] {
     return [:]
 }
 
-func addNotificationHooks(to settings: inout [String: Any], configDir: URL) {
-    let notifyScriptPath = configDir.path + "/" + Constants.notifyScriptName
+func addNotificationHooks(to settings: inout [String: Any], scriptDir: URL) {
+    let notifyScriptPath = scriptDir.path + "/" + Constants.notifyScriptName
     let notificationHook: [String: Any] = [
         "matcher": "",
         "hooks": [
-            ["type": "command", "command": "\(notifyScriptPath) input_needed"]
+            ["type": "command", "command": "'\(notifyScriptPath)' input_needed"]
         ]
     ]
     let stopHook: [String: Any] = [
         "matcher": "",
         "hooks": [
-            ["type": "command", "command": "\(notifyScriptPath) task_complete"]
+            ["type": "command", "command": "'\(notifyScriptPath)' task_complete"]
         ]
     ]
 
@@ -350,13 +365,16 @@ func requestSystemEventsPermission() {
 func runSetup() {
     Logger.info("Starting setup")
     let claudeDir = promptForConfigDirectory()
-    ensureClaudeDirectoryExists(claudeDir)
+    ensureDirectoryExists(claudeDir)
     let settingsPath = claudeDir.appendingPathComponent(Constants.settingsFileName)
 
-    writeNotifyScript(to: claudeDir)
+    let appSupportDir = appSupportDirectory()
+    ensureDirectoryExists(appSupportDir)
+    writeNotifyScript(to: appSupportDir)
+    removeOldNotifyScript()
 
     var settings = loadSettings(from: settingsPath)
-    addNotificationHooks(to: &settings, configDir: claudeDir)
+    addNotificationHooks(to: &settings, scriptDir: appSupportDir)
     writeSettings(settings, to: settingsPath)
 
     let notificationsGranted = requestNotificationPermissions()

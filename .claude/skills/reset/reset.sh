@@ -5,7 +5,8 @@
 set -euo pipefail
 
 SETTINGS_FILE="$HOME/.claude/settings.json"
-NOTIFY_SCRIPT="$HOME/.claude/notify.sh"
+NOTIFY_SCRIPT="$HOME/Library/Application Support/ClaudeNotifier/notify.sh"
+APP_SUPPORT_DIR="$HOME/Library/Application Support/ClaudeNotifier"
 CLI_SYMLINK="$HOME/.local/bin/claude-notifier"
 APP_BUNDLE="/Applications/ClaudeNotifier.app"
 NOTIF_PLIST="$HOME/Library/Group Containers/group.com.apple.usernoted/Library/Preferences/group.com.apple.usernoted.plist"
@@ -158,6 +159,11 @@ cmd_remove_script() {
         echo "Removed $NOTIFY_SCRIPT"
     else
         echo "No notify.sh found"
+    fi
+
+    # Remove app support directory if empty
+    if [[ -d "$APP_SUPPORT_DIR" ]]; then
+        rmdir "$APP_SUPPORT_DIR" 2>/dev/null && echo "Removed $APP_SUPPORT_DIR" || true
     fi
 }
 

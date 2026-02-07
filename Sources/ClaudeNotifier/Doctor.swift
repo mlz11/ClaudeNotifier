@@ -52,7 +52,7 @@ func checkAppInstallation() -> CheckResult {
 
 func checkNotifyScript() -> CheckResult {
     let scriptPath = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(Constants.claudeDirectory)
+        .appendingPathComponent(Constants.appSupportDirectory)
         .appendingPathComponent(Constants.notifyScriptName)
 
     guard FileManager.default.fileExists(atPath: scriptPath.path) else {
@@ -67,7 +67,7 @@ func checkNotifyScript() -> CheckResult {
         return CheckResult(
             passed: false,
             message: "notify.sh is not executable",
-            remediation: "Run 'chmod +x ~/.claude/notify.sh' or 'claude-notifier setup'"
+            remediation: "Run 'chmod +x ~/\(Constants.appSupportDirectory)/notify.sh' or 'claude-notifier setup'"
         )
     }
 
