@@ -124,7 +124,7 @@ claude-notifier icon --default  # Reset to default (brown)
 ## Requirements
 
 - macOS 11.0+
-- iTerm2, Terminal.app, VS Code, VSCodium, Cursor, Windsurf, Zed, Ghostty, WebStorm, or IntelliJ IDEA
+- iTerm2, Terminal.app, Ghostty, VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm, or IntelliJ IDEA
 
 ## ❓ FAQ
 
