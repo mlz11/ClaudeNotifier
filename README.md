@@ -30,7 +30,7 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 - 📦 **Zero dependencies**: Just install and run `claude-notifier setup`.
 - 🎯 **Click-to-focus the exact tab**: Other tools open the app at best. ClaudeNotifier focuses the specific terminal tab or iTerm2 session that triggered the notification.
 - 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're not interrupted mid-thought.
-- 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), [Zed](https://zed.dev/), [WebStorm](https://www.jetbrains.com/webstorm/), and [IntelliJ IDEA](https://www.jetbrains.com/idea/).
+- 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [Warp](https://www.warp.dev/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), [Zed](https://zed.dev/), [WebStorm](https://www.jetbrains.com/webstorm/), and [IntelliJ IDEA](https://www.jetbrains.com/idea/).
 - 🩺 **Built-in diagnostics**: `claude-notifier doctor` checks your installation, hooks, permissions, and PATH so you can fix issues without guesswork.
 - 💅🏻 **A pretty icon**: Look, someone spent way too long on it. Might as well enjoy it.
 
@@ -124,7 +124,7 @@ claude-notifier icon --default  # Reset to default (brown)
 ## Requirements
 
 - macOS 11.0+
-- iTerm2, Terminal.app, Ghostty, VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm, or IntelliJ IDEA
+- iTerm2, Terminal.app, Ghostty, Warp, VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm, or IntelliJ IDEA
 
 ## ❓ FAQ
 
@@ -151,6 +151,13 @@ Ghostty also has **app-level support only**, for different reasons (it lacks the
 
 Once Ghostty adds both, we can upgrade to full support with tab-specific focus and suppression.
 
+#### Warp
+
+Warp also has **app-level support only**. It does not support AppleScript and doesn't expose a session ID environment variable, so tab-specific focus and suppression are not possible.
+
+- [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
+- [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
+
 </details>
 
 <details>
@@ -161,23 +168,5 @@ Partially. Claude Desktop's **Code tab** works with ClaudeNotifier because it ru
 The **Chat and Cowork tabs** are not supported. ClaudeNotifier hooks into Claude Code's lifecycle events (Notification/Stop hooks), which only fire when the Claude Code engine is running. Chat and Cowork tabs don't use Claude Code's hook system, and the Electron-based desktop app doesn't expose an API or observable event for detecting when a response completes.
 
 This would require Anthropic to add native notification support or expose hooks for prompt completion in those modes.
-
-</details>
-
-<details>
-<summary><strong>Why isn't Warp terminal supported?</strong></summary>
-
-Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
-
-- Detect which tab triggered the notification
-- Focus a specific tab when clicking a notification
-- Check if you're viewing the active tab (for smart suppression)
-
-The Warp team prefers URI schemes over AppleScript, but these don't yet support focusing specific tabs.
-
-**Relevant issues:**
-
-- [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
-- [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
 
 </details>

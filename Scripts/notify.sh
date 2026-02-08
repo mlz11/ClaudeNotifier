@@ -63,6 +63,9 @@ detect_terminal() {
     elif [ "$TERM_PROGRAM" = "ghostty" ]; then
         TERMINAL_TYPE="ghostty"
         SESSION_ID=""
+    elif [ "$TERM_PROGRAM" = "WarpTerminal" ]; then
+        TERMINAL_TYPE="warp"
+        SESSION_ID=""
     elif [ "$TERM_PROGRAM" = "vscode" ]; then
         # Differentiate VS Code forks by their bundle identifier
         case "$__CFBundleIdentifier" in
@@ -133,6 +136,9 @@ should_notify() {
             ;;
         ghostty)
             is_app_frontmost "com.mitchellh.ghostty" && return 1
+            ;;
+        warp)
+            is_app_frontmost "dev.warp.Warp-Stable" && return 1
             ;;
         webstorm)
             is_app_frontmost "com.jetbrains.WebStorm" && return 1
