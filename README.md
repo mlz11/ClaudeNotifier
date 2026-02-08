@@ -129,7 +129,7 @@ claude-notifier icon --default  # Reset to default (brown)
 ## ❓ FAQ
 
 <details>
-<summary><strong>Why aren't all terminals fully supported like iTerm2?</strong></summary>
+<summary><strong>Why aren't all terminals fully supported (tab-specific focus) like iTerm2?</strong></summary>
 
 Full support (tab-specific focus and suppression) requires two things from the terminal: AppleScript integration and a session ID environment variable. Currently only iTerm2 and Terminal.app provide both.
 
