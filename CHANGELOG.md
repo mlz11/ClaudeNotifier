@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-02-08
+
+### Added
+
+- WebStorm terminal support (app-level focus and suppression)
+- IntelliJ IDEA terminal support (app-level focus and suppression)
+
 ## [1.9.0] - 2026-02-07
 
 ### Added
@@ -166,6 +173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.10.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.10.0
 [1.9.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.9.0
 [1.8.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.8.0
 [1.7.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.7.0
