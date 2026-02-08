@@ -2,6 +2,7 @@
 build/
 .build/
 .swiftpm/
+.idea/
 
 # Generated at build time
 *.generated.swift
