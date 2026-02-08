@@ -81,7 +81,15 @@ detect_terminal() {
         esac
         SESSION_ID=""
     elif [ "$TERMINAL_EMULATOR" = "JetBrains-JediTerm" ]; then
-        TERMINAL_TYPE="webstorm"
+        # Differentiate JetBrains IDEs by their bundle identifier
+        case "$__CFBundleIdentifier" in
+            com.jetbrains.intellij)
+                TERMINAL_TYPE="intellij"
+                ;;
+            *)
+                TERMINAL_TYPE="webstorm"
+                ;;
+        esac
         SESSION_ID=""
     else
         TERMINAL_TYPE=""
@@ -128,6 +136,9 @@ should_notify() {
             ;;
         webstorm)
             is_app_frontmost "com.jetbrains.WebStorm" && return 1
+            ;;
+        intellij)
+            is_app_frontmost "com.jetbrains.intellij" && return 1
             ;;
         *)
             # Unknown terminal, always notify

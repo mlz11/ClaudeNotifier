@@ -390,11 +390,11 @@ func runSetup() {
 
     requestSystemEventsPermission()
 
-    // Launch permission request in isolated process to properly trigger TCC dialogs
     launchAutomationPermissionRequest()
 
     Logger.info("Setup complete")
     print("\n\(successBold("Setup complete!")) Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
-    print(hint("Supported terminals: iTerm2, Terminal.app, VS Code, Cursor, Windsurf, Zed, Ghostty, WebStorm"))
+    print(hint("Supported terminals: iTerm2, Terminal.app, VS Code, Cursor, Windsurf, Zed, Ghostty, WebStorm, "
+            + "IntelliJ IDEA"))
 }

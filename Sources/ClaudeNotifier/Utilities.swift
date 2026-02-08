@@ -109,6 +109,7 @@ enum TerminalType: String, CaseIterable {
     case zed
     case ghostty
     case webstorm
+    case intellij
     case unknown
 
     var displayName: String {
@@ -122,6 +123,7 @@ enum TerminalType: String, CaseIterable {
         case .zed: return "Zed"
         case .ghostty: return "Ghostty"
         case .webstorm: return "WebStorm"
+        case .intellij: return "IntelliJ IDEA"
         case .unknown: return "Unknown"
         }
     }
@@ -133,7 +135,7 @@ enum TerminalType: String, CaseIterable {
         case .iterm2: return "iTerm2"
         case .terminal: return "Terminal"
         case .vscode: return "Visual Studio Code"
-        case .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm, .unknown: return displayName
+        case .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm, .intellij, .unknown: return displayName
         }
     }
 
@@ -148,6 +150,7 @@ enum TerminalType: String, CaseIterable {
         case .zed: return "dev.zed.Zed"
         case .ghostty: return "com.mitchellh.ghostty"
         case .webstorm: return "com.jetbrains.WebStorm"
+        case .intellij: return "com.jetbrains.intellij"
         case .unknown: return nil
         }
     }
@@ -173,7 +176,7 @@ enum TerminalType: String, CaseIterable {
                 end if
             end tell
             """
-        case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm, .unknown:
+        case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm, .intellij, .unknown:
             return nil
         }
     }
@@ -194,7 +197,7 @@ func focusTerminalSession(sessionId: String, terminalType: TerminalType) {
         focusITermSession(sessionId)
     case .terminal:
         focusAppleTerminalSession(sessionId)
-    case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm:
+    case .vscode, .vscodium, .cursor, .windsurf, .zed, .ghostty, .webstorm, .intellij:
         focusAppLevel(terminalType)
     case .unknown:
         break
