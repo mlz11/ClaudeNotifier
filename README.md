@@ -30,7 +30,7 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 - 📦 **Zero dependencies**: Just install and run `claude-notifier setup`.
 - 🎯 **Click-to-focus the exact tab**: Other tools open the app at best. ClaudeNotifier focuses the specific terminal tab or iTerm2 session that triggered the notification.
 - 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're not interrupted mid-thought.
-- 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), and [Zed](https://zed.dev/).
+- 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), [Zed](https://zed.dev/), and [WebStorm](https://www.jetbrains.com/webstorm/).
 - 🩺 **Built-in diagnostics**: `claude-notifier doctor` checks your installation, hooks, permissions, and PATH so you can fix issues without guesswork.
 - 💅🏻 **A pretty icon**: Look, someone spent way too long on it. Might as well enjoy it.
 
@@ -124,7 +124,7 @@ claude-notifier icon --default  # Reset to default (brown)
 ## Requirements
 
 - macOS 11.0+
-- iTerm2, Terminal.app, VS Code, VSCodium, Cursor, Windsurf, Zed, or Ghostty
+- iTerm2, Terminal.app, VS Code, VSCodium, Cursor, Windsurf, Zed, Ghostty, or WebStorm
 
 ## ❓ FAQ
 
@@ -133,7 +133,7 @@ claude-notifier icon --default  # Reset to default (brown)
 
 Full support (tab-specific focus and suppression) requires two things from the terminal: AppleScript integration and a session ID environment variable. Currently only iTerm2 and Terminal.app provide both.
 
-#### IDE editors (VS Code, VSCodium, Cursor, Windsurf, Zed)
+#### IDE editors (VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm)
 
 These editors have **app-level support only**:
 

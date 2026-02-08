@@ -80,6 +80,9 @@ detect_terminal() {
                 ;;
         esac
         SESSION_ID=""
+    elif [ "$TERMINAL_EMULATOR" = "JetBrains-JediTerm" ]; then
+        TERMINAL_TYPE="webstorm"
+        SESSION_ID=""
     else
         TERMINAL_TYPE=""
         SESSION_ID=""
@@ -122,6 +125,9 @@ should_notify() {
             ;;
         ghostty)
             is_app_frontmost "com.mitchellh.ghostty" && return 1
+            ;;
+        webstorm)
+            is_app_frontmost "com.jetbrains.WebStorm" && return 1
             ;;
         *)
             # Unknown terminal, always notify
