@@ -154,6 +154,17 @@ Once Ghostty adds both, we can upgrade to full support with tab-specific focus a
 </details>
 
 <details>
+<summary><strong>Does it work with the Claude desktop app?</strong></summary>
+
+Partially. Claude Desktop's **Code tab** works with ClaudeNotifier because it runs the same Claude Code engine (hooks fire normally).
+
+The **Chat and Cowork tabs** are not supported. ClaudeNotifier hooks into Claude Code's lifecycle events (Notification/Stop hooks), which only fire when the Claude Code engine is running. Chat and Cowork tabs don't use Claude Code's hook system, and the Electron-based desktop app doesn't expose an API or observable event for detecting when a response completes.
+
+This would require Anthropic to add native notification support or expose hooks for prompt completion in those modes.
+
+</details>
+
+<details>
 <summary><strong>Why isn't Warp terminal supported?</strong></summary>
 
 Warp does not support AppleScript and doesn't expose a session ID environment variable. Without these, we cannot:
