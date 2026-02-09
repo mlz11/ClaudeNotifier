@@ -107,7 +107,7 @@ private func clearToEnd() {
 /// Renders an interactive menu inline, returns the selected value or nil on Esc.
 func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String? {
     var index = selectedIndex
-    let lineCount = 3 + items.count // header + hint + blank + items
+    let lineCount = 5 + items.count // blank + header + hint + blank + items + blank
     var firstDraw = true
 
     hideCursor()
@@ -118,16 +118,18 @@ func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String?
         }
         clearToEnd()
 
-        print(header(title))
-        print(hint("(↑/↓ navigate, Enter select, Esc back)"))
+        print("")
+        print("  \(header(title))")
+        print("  \(hint("↑/↓ navigate · Enter select · Esc back"))")
         print("")
 
         for (i, item) in items.enumerated() {
             let pointer = (i == index) ? info("❯") : " "
             let label = (i == index) ? info(item.label) : item.label
             let marker = item.isCurrent ? success(" ✓") : ""
-            print("  \(pointer) \(label)\(marker)")
+            print("    \(pointer) \(label)\(marker)")
         }
+        print("")
 
         fflush(stdout)
         firstDraw = false
