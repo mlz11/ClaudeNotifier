@@ -2,9 +2,6 @@ import AppKit
 import Foundation
 import UserNotifications
 
-// Note: `notifyScript` is defined in NotifyScript.generated.swift
-// Generated at build time from Scripts/notify.sh
-
 // MARK: - Setup Functions
 
 func promptForConfigDirectory() -> URL {
@@ -107,15 +104,13 @@ func requestTerminalPermissions() {
     }
 }
 
-func ensureDirectoryExists(_ directory: URL) {
-    let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: directory.path) {
-        do {
-            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
-            print(success("Created \(directory.path)"))
-        } catch {
-            exitWithError("Error creating \(directory.path): \(error.localizedDescription)")
-        }
+func ensureDirectoryExists(_ dir: URL) {
+    guard !FileManager.default.fileExists(atPath: dir.path) else { return }
+    do {
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        print(success("Created \(dir.path)"))
+    } catch {
+        exitWithError("Error creating \(dir.path): \(error.localizedDescription)")
     }
 }
 
@@ -328,9 +323,7 @@ private func verifyTerminalPermissions() {
     }
 }
 
-/// Request System Events permission by spawning osascript as a child process.
-/// macOS attributes TCC permissions to the responsible GUI app (the terminal),
-/// so this triggers the correct "Terminal → System Events" permission prompt.
+/// Spawn osascript to trigger the "Terminal → System Events" TCC prompt.
 func requestSystemEventsPermission() {
     print("\n\(info("Checking System Events permission..."))")
     print("  \(hint("(Required for smart notification suppression)"))")
@@ -373,6 +366,13 @@ func runSetup() {
     writeNotifyScript(to: appSupportDir)
     removeOldNotifyScript()
 
+    // Create default config, syncing icon with the installed variant
+    var config = AppConfig.defaultConfig
+    if let installedVariant = getCurrentVariant() {
+        config.icon = installedVariant.rawValue
+    }
+    saveConfig(config)
+
     var settings = loadSettings(from: settingsPath)
     addNotificationHooks(to: &settings, scriptDir: appSupportDir)
     writeSettings(settings, to: settingsPath)
@@ -395,6 +395,4 @@ func runSetup() {
     Logger.info("Setup complete")
     print("\n\(successBold("Setup complete!")) Claude Code will now send notifications.")
     print("Clicking a notification will focus the terminal tab that triggered it.")
-    print(hint("Supported terminals: iTerm2, Terminal.app, VS Code, Cursor, Windsurf, Zed, Ghostty, Warp, WebStorm, "
-            + "IntelliJ IDEA"))
 }

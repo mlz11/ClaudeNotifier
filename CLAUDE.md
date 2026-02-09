@@ -47,7 +47,10 @@ Sources/ClaudeNotifier/
 ├── AppDelegate.swift    # NSApplicationDelegate + UNUserNotificationCenterDelegate
 ├── Setup.swift          # Setup command + embedded notify.sh script
 ├── Doctor.swift         # Doctor command - diagnoses installation and permission issues
-├── Icon.swift           # Icon command - switch between icon color variants
+├── Config.swift         # AppConfig model + persistence (load/save config.json)
+├── ConfigCommand.swift  # Config command - interactive TUI for preferences
+├── TUI.swift            # Raw terminal input + menu rendering for interactive config
+├── Icon.swift           # Icon variant utilities (used by ConfigCommand and Doctor)
 ├── ArgumentParser.swift # CLI flag parsing and help text
 └── Utilities.swift      # Helpers (exitWithError, terminateApp, focusTerminalSession)
 ```
@@ -58,8 +61,11 @@ Sources/ClaudeNotifier/
 - **AppDelegate**: Handles notification display, authorization, and click responses
 - **Setup**: Embedded `notify.sh` script + functions to configure `~/.claude/settings.json` hooks
 - **Doctor**: Checks installation, hooks, permissions, and PATH configuration
-- **Icon**: Switches between icon color variants (brown, blue, green)
-- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`icon`/`help` subcommands
+- **Config**: `AppConfig` model with icon/sound fields, JSON persistence to `~/Library/Application Support/ClaudeNotifier/config.json`
+- **ConfigCommand**: Interactive TUI for configuring icon color and notification sound
+- **TUI**: Raw terminal mode handling, arrow key navigation, and menu rendering
+- **Icon**: `IconVariant` enum, `getCurrentVariant()`, `setVariant()`, and helper functions for icon switching
+- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`config`/`help` subcommands
 - **Utilities**: `exitWithError()`, `terminateApp()`, `focusTerminalSession()`, `TerminalType` enum
 
 **Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus terminal → exit
@@ -71,8 +77,7 @@ claude-notifier -m "Message" -t "Title" -s "Subtitle"
 claude-notifier -m "Message" -i "$ITERM_SESSION_ID"  # With session ID for focus-on-click
 claude-notifier setup         # Auto-configure Claude Code hooks
 claude-notifier doctor        # Diagnose installation and permission issues
-claude-notifier icon          # List available icon variants
-claude-notifier icon blue     # Switch to blue icon variant
+claude-notifier config        # Configure preferences (icon, sound) interactively
 ```
 
 ## Writing Style

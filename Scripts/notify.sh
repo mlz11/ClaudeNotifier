@@ -180,5 +180,13 @@ case "$EVENT_TYPE" in
         ;;
 esac
 
+# Read notification sound from config file
+CONFIG_FILE="$HOME/Library/Application Support/ClaudeNotifier/config.json"
+SOUND="default"
+if [ -f "$CONFIG_FILE" ]; then
+    CONFIGURED_SOUND=$(grep '"sound"' "$CONFIG_FILE" | head -1 | cut -d'"' -f4)
+    [ -n "$CONFIGURED_SOUND" ] && SOUND="$CONFIGURED_SOUND"
+fi
+
 # Send notification with session info for focus-on-click
-"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S default
+"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S "$SOUND"

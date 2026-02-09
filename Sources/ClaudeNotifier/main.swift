@@ -13,8 +13,8 @@ case "setup":
 case "doctor":
     runDoctor()
     exit(0)
-case "icon":
-    runIconCommand(args: CommandLine.arguments)
+case "config":
+    runConfigCommand(args: CommandLine.arguments)
     exit(0)
 case "logs":
     runLogsCommand(args: CommandLine.arguments)

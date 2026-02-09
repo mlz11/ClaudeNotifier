@@ -218,9 +218,14 @@ func printStatusHeader() {
         iconLabel = hint("unknown")
     }
 
+    // Sound config
+    let config = loadConfig()
+    let soundLabel = soundDisplayName(config.sound)
+
     print(versionLine)
-    print("  App:  \(appLocation)")
-    print("  Icon: \(iconLabel)")
+    print("  App:   \(appLocation)")
+    print("  Icon:  \(iconLabel)")
+    print("  Sound: \(soundLabel)")
     print("")
 }
 

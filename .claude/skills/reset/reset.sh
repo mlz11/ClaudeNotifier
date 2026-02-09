@@ -22,6 +22,7 @@ Commands:
   backup          Backup settings.json
   remove-hooks    Remove ClaudeNotifier hooks from settings.json
   remove-script   Remove notify.sh
+  remove-config   Remove config.json
   remove-cli      Remove CLI symlink
   remove-app      Remove app bundle
   reset-notif     Reset notification permissions
@@ -59,6 +60,9 @@ cmd_check() {
     fi
 
     [[ -f "$NOTIFY_SCRIPT" ]] && script_exists="true"
+
+    local config_exists="false"
+    [[ -f "$APP_SUPPORT_DIR/config.json" ]] && config_exists="true"
 
     if [[ -L "$CLI_SYMLINK" ]]; then
         cli_exists="true"
@@ -104,7 +108,8 @@ cmd_check() {
   "app_exists": $app_exists,
   "app_path": "$app_path",
   "brew_installed": $brew_installed,
-  "notif_exists": $notif_exists
+  "notif_exists": $notif_exists,
+  "config_exists": $config_exists
 }
 EOF
 }
@@ -159,6 +164,16 @@ cmd_remove_script() {
         echo "Removed $NOTIFY_SCRIPT"
     else
         echo "No notify.sh found"
+    fi
+}
+
+cmd_remove_config() {
+    local config_file="$APP_SUPPORT_DIR/config.json"
+    if [[ -f "$config_file" ]]; then
+        rm "$config_file"
+        echo "Removed $config_file"
+    else
+        echo "No config.json found"
     fi
 
     # Remove app support directory if empty
@@ -264,6 +279,9 @@ cmd_all() {
     echo "=== Remove Script ==="
     cmd_remove_script
     echo ""
+    echo "=== Remove Config ==="
+    cmd_remove_config
+    echo ""
     echo "=== Remove CLI ==="
     cmd_remove_cli
     echo ""
@@ -289,6 +307,7 @@ case "$1" in
     backup)       cmd_backup ;;
     remove-hooks) cmd_remove_hooks ;;
     remove-script) cmd_remove_script ;;
+    remove-config) cmd_remove_config ;;
     remove-cli)   cmd_remove_cli ;;
     remove-app)   cmd_remove_app ;;
     reset-notif)  cmd_reset_notif ;;

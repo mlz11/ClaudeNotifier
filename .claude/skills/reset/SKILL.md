@@ -14,6 +14,7 @@ Use the `reset.sh` script in this skill's directory to perform the reset.
 2. **Show summary**: Parse the JSON and tell the user what will be removed:
    - Hooks in settings.json (if `hooks_exist` is true)
    - Notify script at ~/Library/Application Support/ClaudeNotifier/notify.sh (if `script_exists` is true)
+   - Config file at ~/Library/Application Support/ClaudeNotifier/config.json (if `config_exists` is true)
    - CLI symlink at ~/.local/bin/claude-notifier (if `cli_exists` is true)
    - App bundle (show `app_path` if `app_exists` is true)
    - Notification permissions (if `notif_exists` is true)

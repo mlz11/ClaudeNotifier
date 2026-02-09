@@ -1,0 +1,131 @@
+import Foundation
+
+// MARK: - Config Command
+
+func runConfigCommand(args: [String]) {
+    let subArgs = Array(args.dropFirst(2)) // Drop program name and "config"
+
+    if subArgs.first == "--help" || subArgs.first == "-h" {
+        showConfigHelp()
+        return
+    }
+
+    guard isatty(STDIN_FILENO) != 0 else {
+        exitWithError("config command requires an interactive terminal")
+    }
+
+    var config = loadConfig()
+    let originalTermios = enableRawMode()
+
+    mainMenuLoop(&config)
+
+    // Restore terminal before applying changes (setVariant prints output)
+    disableRawMode(originalTermios)
+
+    // Clear screen on exit
+    print("\u{001B}[2J\u{001B}[H", terminator: "")
+    fflush(stdout)
+
+    applyConfig(&config)
+}
+
+private func mainMenuLoop(_ config: inout AppConfig) {
+    var selectedIndex = 0
+
+    while true {
+        let items = [
+            MenuItem(label: "Icon color", value: "icon", isCurrent: false),
+            MenuItem(label: "Notification sound", value: "sound", isCurrent: false),
+            MenuItem(label: "Done", value: "done", isCurrent: false)
+        ]
+
+        guard let choice = renderMenu(
+            title: "ClaudeNotifier Configuration",
+            items: items,
+            selectedIndex: selectedIndex
+        ) else {
+            return
+        }
+
+        switch choice {
+        case "icon":
+            selectedIndex = 0
+            iconSubmenu(&config)
+        case "sound":
+            selectedIndex = 1
+            soundSubmenu(&config)
+        case "done":
+            return
+        default:
+            break
+        }
+    }
+}
+
+private func iconSubmenu(_ config: inout AppConfig) {
+    let currentIcon = config.icon
+    let initialIndex = IconVariant.allCases.firstIndex { $0.rawValue == currentIcon } ?? 0
+
+    let items = IconVariant.allCases.map { variant in
+        MenuItem(
+            label: variant.displayName,
+            value: variant.rawValue,
+            isCurrent: variant.rawValue == currentIcon
+        )
+    }
+
+    if let selected = renderMenu(title: "Icon Color", items: items, selectedIndex: initialIndex) {
+        config.icon = selected
+    }
+}
+
+private func soundSubmenu(_ config: inout AppConfig) {
+    let currentSound = config.sound
+    let initialIndex = systemSounds.firstIndex(of: currentSound) ?? 0
+
+    let items = systemSounds.map { sound in
+        MenuItem(
+            label: soundDisplayName(sound),
+            value: sound,
+            isCurrent: sound == currentSound
+        )
+    }
+
+    if let selected = renderMenu(title: "Notification Sound", items: items, selectedIndex: initialIndex) {
+        config.sound = selected
+    }
+}
+
+private func applyConfig(_ config: inout AppConfig) {
+    let oldConfig = loadConfig()
+
+    // Save config first (persists sound change even when icon also changes)
+    saveConfig(config)
+
+    // Apply icon change if different
+    if config.icon != oldConfig.icon, let variant = IconVariant(rawValue: config.icon) {
+        setVariant(variant)
+    }
+}
+
+func soundDisplayName(_ sound: String) -> String {
+    switch sound {
+    case "default": return "Default (Tri-tone)"
+    case "none": return "None (silent)"
+    default: return sound
+    }
+}
+
+private func showConfigHelp() {
+    print("""
+    Usage: claude-notifier config
+
+    Open an interactive menu to configure ClaudeNotifier preferences.
+
+    Settings:
+      Icon color          Change the notification icon color (brown, blue, green)
+      Notification sound  Choose the notification sound or disable it
+
+    Config file: ~/\(Constants.appSupportDirectory)/\(Constants.configFileName)
+    """)
+}

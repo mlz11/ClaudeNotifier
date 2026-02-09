@@ -22,73 +22,7 @@ enum IconVariant: String, CaseIterable {
     }
 }
 
-// MARK: - Icon Command
-
-func runIconCommand(args: [String]) {
-    // Parse subcommand arguments
-    let subArgs = Array(args.dropFirst(2)) // Drop program name and "icon"
-
-    if subArgs.isEmpty || subArgs.first == "--list" || subArgs.first == "-l" {
-        listVariants()
-        return
-    }
-
-    if subArgs.first == "--help" || subArgs.first == "-h" {
-        showIconHelp()
-        return
-    }
-
-    if subArgs.first == "--default" || subArgs.first == "-d" {
-        setVariant(IconVariant.defaultVariant)
-        return
-    }
-
-    // Try to parse as variant name
-    guard let variant = IconVariant(rawValue: subArgs[0].lowercased()) else {
-        print(error("Error: Unknown variant '\(subArgs[0])'"))
-        print("")
-        listVariants()
-        exit(1)
-    }
-
-    setVariant(variant)
-}
-
-func listVariants() {
-    let currentVariant = getCurrentVariant()
-
-    print(info("Available icon variants:"))
-    for variant in IconVariant.allCases {
-        let current = (variant == currentVariant) ? success(" (current)") : ""
-        let defaultMark = (variant == IconVariant.defaultVariant && current.isEmpty) ? hint(" (default)") : ""
-        print("  \(variant.rawValue)\(defaultMark)\(current)")
-    }
-    print("")
-    print(hint("Usage: claude-notifier icon <variant>"))
-}
-
-func showIconHelp() {
-    print("""
-    Usage: claude-notifier icon [variant|option]
-
-    Change the app icon color variant.
-
-    Variants:
-      brown       Warm brown tones (default)
-      blue        Cool blue tones
-      green       Natural green tones
-
-    Options:
-      --list, -l   List available variants
-      --default, -d  Reset to default (brown)
-      --help, -h   Show this help
-
-    Examples:
-      claude-notifier icon           # List variants
-      claude-notifier icon blue      # Switch to blue
-      claude-notifier icon --default   # Reset to default
-    """)
-}
+// MARK: - Icon Utilities
 
 func getCurrentVariant() -> IconVariant? {
     guard let appPath = getInstalledAppPath() else { return nil }
@@ -169,6 +103,11 @@ func setVariant(_ variant: IconVariant) {
 
     print(success("Notification icon updated."))
     print(hint("Finder icon will refresh automatically, or run: killall Finder"))
+
+    // Sync icon choice to config file
+    var config = loadConfig()
+    config.icon = variant.rawValue
+    saveConfig(config)
 }
 
 func runProcess(_ path: String, _ arguments: [String]) -> Int32 {

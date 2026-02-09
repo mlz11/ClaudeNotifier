@@ -24,8 +24,8 @@ func parseArguments() -> ParsedArguments {
             return .command("setup")
         case "doctor":
             return .command("doctor")
-        case "icon":
-            return .command("icon")
+        case "config":
+            return .command("config")
         case "logs":
             return .command("logs")
         case "--request-automation":
@@ -58,7 +58,7 @@ func showHelp() {
     Commands:
       setup                       Set up Claude Code integration (installs hooks)
       doctor                      Diagnose installation and permission issues
-      icon [variant]              Change app icon color (brown, blue, green)
+      config                      Configure preferences (icon, sound) interactively
       logs                        View the log file (--clear to truncate)
 
     Options:
