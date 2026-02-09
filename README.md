@@ -105,13 +105,15 @@ claude-notifier doctor
 
 This checks your installation and permissions, showing any issues and how to fix them.
 
-### Customizing the Icon
+### Configuring Preferences
 
 ```bash
-claude-notifier icon          # List available variants
-claude-notifier icon blue     # Switch to blue
-claude-notifier icon --default  # Reset to default (brown)
+claude-notifier config
 ```
+
+Opens an interactive menu to configure icon color and notification sound. Use arrow keys to navigate and Enter to select.
+
+### Icon Variants
 
 <div align="center">
 
