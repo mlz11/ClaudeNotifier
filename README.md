@@ -85,7 +85,6 @@ This automatically:
 
   <details>
   <summary>🔐 <em>Permissions details</em></summary>
-
   1. **Notifications**: Required to display notifications.
      - Manage in: **System Settings → Notifications → ClaudeNotifier**
 
@@ -111,9 +110,18 @@ This checks your installation and permissions, showing any issues and how to fix
 claude-notifier config
 ```
 
-Opens an interactive menu to configure icon color and notification sound. Use arrow keys to navigate and Enter to select.
+Opens an interactive menu to configure icon color and notification sound.
 
-### Icon Variants
+```
+  ClaudeNotifier Configuration
+  ↑/↓ navigate · Enter select · Esc back
+
+    ❯ Icon color
+      Notification sound
+      Done
+```
+
+Available icon variants:
 
 <div align="center">
 
