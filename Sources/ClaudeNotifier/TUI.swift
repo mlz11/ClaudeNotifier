@@ -84,13 +84,39 @@ struct MenuItem {
     let isCurrent: Bool
 }
 
-/// Renders an interactive menu, returns the selected value or nil on Esc.
+/// Hide the cursor.
+private func hideCursor() {
+    print("\u{001B}[?25l", terminator: "")
+}
+
+/// Show the cursor.
+private func showCursor() {
+    print("\u{001B}[?25h", terminator: "")
+}
+
+/// Move cursor up `n` lines.
+private func cursorUp(_ lines: Int) {
+    if lines > 0 { print("\u{001B}[\(lines)A", terminator: "") }
+}
+
+/// Clear from cursor to end of screen.
+private func clearToEnd() {
+    print("\u{001B}[J", terminator: "")
+}
+
+/// Renders an interactive menu inline, returns the selected value or nil on Esc.
 func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String? {
     var index = selectedIndex
+    let lineCount = 3 + items.count // header + hint + blank + items
+    var firstDraw = true
+
+    hideCursor()
 
     while true {
-        // Clear screen and move cursor to top
-        print("\u{001B}[2J\u{001B}[H", terminator: "")
+        if !firstDraw {
+            cursorUp(lineCount)
+        }
+        clearToEnd()
 
         print(header(title))
         print(hint("(↑/↓ navigate, Enter select, Esc back)"))
@@ -104,6 +130,7 @@ func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String?
         }
 
         fflush(stdout)
+        firstDraw = false
 
         let key = readKey()
         switch key {
@@ -112,8 +139,16 @@ func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String?
         case .down:
             index = (index + 1) % items.count
         case .enter:
+            cursorUp(lineCount)
+            clearToEnd()
+            showCursor()
+            fflush(stdout)
             return items[index].value
         case .escape:
+            cursorUp(lineCount)
+            clearToEnd()
+            showCursor()
+            fflush(stdout)
             return nil
         case .other:
             break

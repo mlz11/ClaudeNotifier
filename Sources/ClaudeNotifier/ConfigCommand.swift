@@ -22,10 +22,6 @@ func runConfigCommand(args: [String]) {
     // Restore terminal before applying changes (setVariant prints output)
     disableRawMode(originalTermios)
 
-    // Clear screen on exit
-    print("\u{001B}[2J\u{001B}[H", terminator: "")
-    fflush(stdout)
-
     applyConfig(&config)
 }
 
