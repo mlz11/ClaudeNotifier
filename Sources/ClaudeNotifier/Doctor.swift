@@ -19,35 +19,15 @@ struct CheckResult {
 // MARK: - Installation Checks
 
 func checkAppInstallation() -> CheckResult {
-    let cliSymlink = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(".local/bin/claude-notifier")
-
-    // Check if CLI symlink exists
-    guard FileManager.default.fileExists(atPath: cliSymlink.path) else {
-        return CheckResult(
-            passed: false,
-            message: "CLI symlink not found",
-            remediation: "Run 'make install' to create symlink at ~/.local/bin/claude-notifier"
-        )
-    }
-
-    // Check if symlink is valid (points to existing file)
-    guard let target = try? FileManager.default.destinationOfSymbolicLink(atPath: cliSymlink.path),
-          FileManager.default.fileExists(atPath: target)
-    else {
-        return CheckResult(
-            passed: false,
-            message: "CLI symlink is broken",
-            remediation: "Run 'make install' to recreate symlink"
-        )
-    }
-
-    // Use shared utility to extract app bundle path
     if let appPath = getInstalledAppPath() {
         return CheckResult(passed: true, message: "App installed at \(appPath.path)")
     }
 
-    return CheckResult(passed: true, message: "CLI symlink: valid")
+    return CheckResult(
+        passed: false,
+        message: "ClaudeNotifier.app not found",
+        remediation: "Install via 'brew install mlz11/tap/claude-notifier' or 'make install'"
+    )
 }
 
 func checkNotifyScript() -> CheckResult {

@@ -124,7 +124,7 @@ func filesAreIdentical(_ file1: URL, _ file2: URL) -> Bool {
 func setVariant(_ variant: IconVariant) {
     guard let appPath = getInstalledAppPath() else {
         print(error("Error: ClaudeNotifier.app not found"))
-        print(warning("Run 'make install' first to install the app"))
+        print(warning("Install via 'brew install mlz11/tap/claude-notifier' or 'make install'"))
         exit(1)
     }
 

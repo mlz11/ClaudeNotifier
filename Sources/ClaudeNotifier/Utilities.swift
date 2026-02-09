@@ -72,18 +72,32 @@ func terminateApp(afterDelay delay: Double = 0) {
 // MARK: - App Bundle Resolution
 
 func getInstalledAppPath() -> URL? {
-    let cliSymlink = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(".local/bin/claude-notifier")
-
-    guard let target = try? FileManager.default.destinationOfSymbolicLink(atPath: cliSymlink.path) else {
-        return nil
+    // Strategy 1: Resolve the running executable's real path.
+    // Works for both Homebrew (/opt/homebrew/bin/claude-notifier -> ...app/Contents/MacOS/...)
+    // and make install (~/.local/bin/claude-notifier -> ...app/Contents/MacOS/...)
+    if let execURL = Bundle.main.executableURL {
+        let resolvedPath = execURL.resolvingSymlinksInPath().path
+        if let range = resolvedPath.range(of: "/Contents/MacOS/") {
+            let appURL = URL(fileURLWithPath: String(resolvedPath[..<range.lowerBound]))
+            if FileManager.default.fileExists(atPath: appURL.path) {
+                return appURL
+            }
+        }
     }
 
-    // Extract app path from symlink target
-    // Target looks like: /Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier
-    if let range = target.range(of: "/Contents/MacOS/") {
-        let appPath = String(target[..<range.lowerBound])
-        return URL(fileURLWithPath: appPath)
+    // Strategy 2: Resolve ~/.local/bin/claude-notifier symlink (make install)
+    let cliPath = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(".local/bin/claude-notifier").path
+    if let target = try? FileManager.default.destinationOfSymbolicLink(atPath: cliPath) {
+        if let range = target.range(of: "/Contents/MacOS/") {
+            return URL(fileURLWithPath: String(target[..<range.lowerBound]))
+        }
+    }
+
+    // Strategy 3: Check /Applications directly
+    let applicationsPath = URL(fileURLWithPath: "/Applications/ClaudeNotifier.app")
+    if FileManager.default.fileExists(atPath: applicationsPath.path) {
+        return applicationsPath
     }
 
     return nil
