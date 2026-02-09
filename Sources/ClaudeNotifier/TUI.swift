@@ -35,28 +35,41 @@ enum KeyInput {
     case other
 }
 
+/// Check if stdin has data available within the given timeout (milliseconds).
+private func stdinHasData(timeoutMs: Int32) -> Bool {
+    var pfd = pollfd(fd: STDIN_FILENO, events: Int16(POLLIN), revents: 0)
+    return poll(&pfd, 1, timeoutMs) > 0
+}
+
+/// Parse an escape sequence after the initial 0x1B byte has been read.
+private func readEscapeSequence() -> KeyInput {
+    // Wait briefly to see if more bytes follow (arrow keys send ESC [ A/B)
+    guard stdinHasData(timeoutMs: 50) else { return .escape }
+    var seq: [UInt8] = [0, 0]
+    let r1 = read(STDIN_FILENO, &seq, 1)
+    if r1 != 1 { return .escape }
+    guard stdinHasData(timeoutMs: 50) else { return .escape }
+    let r2 = read(STDIN_FILENO, &seq[1], 1)
+    if r2 != 1 { return .escape }
+    if seq[0] == 0x5B { // '['
+        switch seq[1] {
+        case 0x41: return .up // A
+        case 0x42: return .down // B
+        default: return .other
+        }
+    }
+    return .escape
+}
+
 func readKey() -> KeyInput {
     var buf: [UInt8] = [0]
     let bytesRead = read(STDIN_FILENO, &buf, 1)
     guard bytesRead == 1 else { return .other }
 
     switch buf[0] {
-    case 0x1B: // Escape sequence
-        var seq: [UInt8] = [0, 0]
-        // Try to read next two bytes (non-blocking check)
-        let r1 = read(STDIN_FILENO, &seq, 1)
-        if r1 != 1 { return .escape }
-        let r2 = read(STDIN_FILENO, &seq[1], 1)
-        if r2 != 1 { return .escape }
-        if seq[0] == 0x5B { // '['
-            switch seq[1] {
-            case 0x41: return .up // A
-            case 0x42: return .down // B
-            default: return .other
-            }
-        }
-        return .escape
-    case 0x0A, 0x0D: // Enter (LF or CR)
+    case 0x1B:
+        return readEscapeSequence()
+    case 0x0A, 0x0D:
         return .enter
     default:
         return .other
