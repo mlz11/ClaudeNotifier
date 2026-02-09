@@ -96,29 +96,45 @@ Wait a moment for GitHub to generate the tarball, then:
 curl -sL https://github.com/mlz11/ClaudeNotifier/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256
 ```
 
-### 8. Update homebrew formula
+### 8. Get release zip sha256
+
+Wait for the GitHub Actions workflow to attach `ClaudeNotifier.zip` to the release, then:
+
+```bash
+curl -sL https://github.com/mlz11/ClaudeNotifier/releases/download/vX.Y.Z/ClaudeNotifier.zip | shasum -a 256
+```
+
+If the asset is not yet available, wait and retry. The CI workflow needs time to build and upload.
+
+### 9. Update homebrew formula
 
 Edit `/Users/zraqs/dev/homebrew-tap/Formula/claude-notifier.rb`:
 - Update `url` to new version tag
 - Update `sha256` to new hash
 
-### 9. Push homebrew tap
+### 10. Update homebrew cask
+
+Edit `/Users/zraqs/dev/homebrew-tap/Casks/claude-notifier.rb`:
+- Update `version` to new version (without `v` prefix)
+- Update `sha256` to the release zip hash from step 8
+
+### 11. Push homebrew tap
 
 ```bash
 cd /Users/zraqs/dev/homebrew-tap
-git add Formula/claude-notifier.rb
+git add Formula/claude-notifier.rb Casks/claude-notifier.rb
 git commit -m "claude-notifier X.Y.Z"
 git push
 ```
 
-### 10. Report summary
+### 12. Report summary
 
 Tell the user:
 - New version number
 - What was included (features, fixes)
 - GitHub Release URL
-- That homebrew tap is updated
-- Upgrade command: `brew upgrade claude-notifier`
+- That homebrew tap is updated (formula and cask)
+- Upgrade commands: `brew upgrade claude-notifier` or `brew upgrade --cask claude-notifier`
 - That the `.app` zip will be attached to the release automatically by CI
 
 ## Notes

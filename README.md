@@ -40,7 +40,7 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 <summary><strong>Homebrew (Recommended)</strong></summary>
 
 ```bash
-brew install mlz11/tap/claude-notifier
+brew install --cask mlz11/tap/claude-notifier
 ```
 
 </details>
