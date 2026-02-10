@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-02-10
+
+### Added
+
+- Partial support for Claude Code IDE extensions (VS Code, Cursor, Windsurf, VSCodium, WebStorm, IntelliJ IDEA): task complete and permission request notifications work; input needed notifications are not available due to an upstream limitation
+- `PermissionRequest` hook registration in setup and doctor checks
+- Bundle ID fallback detection for extension context (when `TERM_PROGRAM` is unset)
+- Duplicate notification guard for `PermissionRequest` events in terminal context
+
 ## [1.13.0] - 2026-02-10
 
 ### Added
@@ -203,6 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.14.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.14.0
 [1.13.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.13.0
 [1.12.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.12.0
 [1.11.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.11.1
