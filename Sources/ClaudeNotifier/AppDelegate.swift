@@ -62,8 +62,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                     content.userInfo = userInfo
                 }
 
+                // Deterministic ID from source + project so a new notification
+                // replaces the previous one per terminal tab per project
+                let notificationId =
+                    "claude-\(config.terminalType ?? "")-\(config.sessionId ?? "")-\(config.subtitle ?? "")"
+
                 let request = UNNotificationRequest(
-                    identifier: UUID().uuidString,
+                    identifier: notificationId,
                     content: content,
                     trigger: nil
                 )

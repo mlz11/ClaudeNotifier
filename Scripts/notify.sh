@@ -164,18 +164,33 @@ fi
 REPO_NAME=$(git rev-parse --show-toplevel 2>/dev/null | xargs basename 2>/dev/null)
 REPO_NAME="${REPO_NAME:-$(basename "$PWD")}"
 
+# Map terminal type to display name for the notification subtitle
+case "$TERMINAL_TYPE" in
+    iterm2)     APP_LABEL="iTerm2" ;;
+    terminal)   APP_LABEL="Terminal" ;;
+    vscode)     APP_LABEL="VS Code" ;;
+    vscodium)   APP_LABEL="VSCodium" ;;
+    cursor)     APP_LABEL="Cursor" ;;
+    windsurf)   APP_LABEL="Windsurf" ;;
+    zed)        APP_LABEL="Zed" ;;
+    ghostty)    APP_LABEL="Ghostty" ;;
+    warp)       APP_LABEL="Warp" ;;
+    webstorm)   APP_LABEL="WebStorm" ;;
+    intellij)   APP_LABEL="IntelliJ" ;;
+    *)          APP_LABEL="" ;;
+esac
 # Configure based on event type
+TITLE="Claude Code"
+[ -n "$APP_LABEL" ] && TITLE="$TITLE · $APP_LABEL"
+
 case "$EVENT_TYPE" in
     "input_needed")
-        TITLE="Claude Code"
         MESSAGE="Awaiting your input"
         ;;
     "task_complete")
-        TITLE="Claude Code"
         MESSAGE="Task completed"
         ;;
     *)
-        TITLE="Claude Code"
         MESSAGE="$EVENT_TYPE"
         ;;
 esac
