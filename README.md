@@ -144,14 +144,16 @@ Available icon variants:
 
 Full support (tab-specific focus and suppression) requires two things from the terminal: AppleScript integration and a session ID environment variable. Currently only iTerm2 and Terminal.app provide both.
 
-#### IDE editors (VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm, IntelliJ IDEA)
+#### IDE terminals (VS Code, VSCodium, Cursor, Windsurf, Zed, WebStorm, IntelliJ IDEA)
 
-These editors have **app-level support only**:
+When using Claude Code in an IDE's **integrated terminal**, these editors have **app-level support only**:
 
 - **App-level suppression**: Notifications are suppressed whenever the editor is frontmost, even if you're in the editor rather than the terminal panel. These editors don't expose which panel is focused via AppleScript or environment variables.
 - **No tab-specific focus**: Clicking a notification brings the editor to the foreground but cannot focus a specific terminal instance.
 
 These are upstream limitations, not something ClaudeNotifier can work around without companion extensions.
+
+For the **Claude Code extension** (as opposed to the integrated terminal), see the [extension FAQ entry below](#does-it-work-with-the-claude-code-ide-extension).
 
 #### Ghostty
 
@@ -168,6 +170,19 @@ Warp also has **app-level support only**. It does not support AppleScript and do
 
 - [AppleScript support request](https://github.com/warpdotdev/Warp/issues/3364)
 - [Scripting & CLI discussion](https://github.com/warpdotdev/Warp/discussions/612)
+
+</details>
+
+<details>
+<summary><strong>Does it work with the Claude Code IDE extension?</strong></summary>
+
+Partially. The Claude Code extensions for VS Code, Cursor, Windsurf, VSCodium, WebStorm, and IntelliJ IDEA run Claude as a subprocess rather than in a terminal. This means the `Notification` hook never fires ([confirmed upstream, won't fix](https://github.com/anthropics/claude-code/issues/11156)), so you won't get **input needed** notifications.
+
+You will still get:
+- **Task complete** notifications (via the `Stop` hook)
+- **Permission request** notifications (via the `PermissionRequest` hook)
+
+Smart suppression and click-to-focus work the same as in the integrated terminal.
 
 </details>
 

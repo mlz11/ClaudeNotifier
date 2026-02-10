@@ -83,11 +83,13 @@ func checkSettingsHooks() -> CheckResult {
 
         let hasNotificationHook = hooks["Notification"] != nil
         let hasStopHook = hooks["Stop"] != nil
+        let hasPermissionRequestHook = hooks["PermissionRequest"] != nil
 
-        if !hasNotificationHook || !hasStopHook {
+        if !hasNotificationHook || !hasStopHook || !hasPermissionRequestHook {
             let missing = [
                 !hasNotificationHook ? "Notification" : nil,
-                !hasStopHook ? "Stop" : nil
+                !hasStopHook ? "Stop" : nil,
+                !hasPermissionRequestHook ? "PermissionRequest" : nil
             ].compactMap { $0 }
 
             return CheckResult(

@@ -15,6 +15,14 @@ if [ ! -t 0 ]; then
     esac
 fi
 
+# In terminal context, the Notification hook already fires for permission prompts.
+# Skip PermissionRequest events to avoid duplicate notifications.
+if [ "$EVENT_TYPE" = "permission_request" ]; then
+    if [ -n "$TERM_PROGRAM" ] || [ -n "$ITERM_SESSION_ID" ] || [ -n "$TERMINAL_EMULATOR" ]; then
+        exit 0
+    fi
+fi
+
 # Get Terminal.app's tab TTY by walking up the process tree
 # This handles cases where the user runs a nested terminal (tmux, qterm, etc.)
 get_terminal_app_tty() {
@@ -91,6 +99,32 @@ detect_terminal() {
                 ;;
             *)
                 TERMINAL_TYPE="webstorm"
+                ;;
+        esac
+        SESSION_ID=""
+    elif [ -n "$__CFBundleIdentifier" ]; then
+        # Extension context: TERM_PROGRAM is unset but bundle ID identifies the IDE
+        case "$__CFBundleIdentifier" in
+            com.microsoft.VSCode)
+                TERMINAL_TYPE="vscode"
+                ;;
+            com.todesktop.230313mzl4w4u92)
+                TERMINAL_TYPE="cursor"
+                ;;
+            com.vscodium)
+                TERMINAL_TYPE="vscodium"
+                ;;
+            com.exafunction.windsurf)
+                TERMINAL_TYPE="windsurf"
+                ;;
+            com.jetbrains.intellij)
+                TERMINAL_TYPE="intellij"
+                ;;
+            com.jetbrains.WebStorm)
+                TERMINAL_TYPE="webstorm"
+                ;;
+            *)
+                TERMINAL_TYPE=""
                 ;;
         esac
         SESSION_ID=""
@@ -189,6 +223,9 @@ case "$EVENT_TYPE" in
         ;;
     "task_complete")
         MESSAGE="Task completed"
+        ;;
+    "permission_request")
+        MESSAGE="Needs your approval"
         ;;
     *)
         MESSAGE="$EVENT_TYPE"

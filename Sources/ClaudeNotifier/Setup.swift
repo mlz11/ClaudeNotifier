@@ -163,27 +163,21 @@ func loadSettings(from path: URL) -> [String: Any] {
 }
 
 func addNotificationHooks(to settings: inout [String: Any], scriptDir: URL) {
-    let notifyScriptPath = scriptDir.path + "/" + Constants.notifyScriptName
-    let notificationHook: [String: Any] = [
-        "matcher": "",
-        "hooks": [
-            ["type": "command", "command": "'\(notifyScriptPath)' input_needed"]
-        ]
-    ]
-    let stopHook: [String: Any] = [
-        "matcher": "",
-        "hooks": [
-            ["type": "command", "command": "'\(notifyScriptPath)' task_complete"]
-        ]
+    let scriptPath = scriptDir.path + "/" + Constants.notifyScriptName
+    let hookEntries: [(key: String, event: String)] = [
+        ("Notification", "input_needed"),
+        ("Stop", "task_complete"),
+        ("PermissionRequest", "permission_request")
     ]
 
     var hooks = settings["hooks"] as? [String: Any] ?? [:]
-
-    warnIfExistingHooks(hooks, key: "Notification")
-    warnIfExistingHooks(hooks, key: "Stop")
-
-    hooks["Notification"] = [notificationHook]
-    hooks["Stop"] = [stopHook]
+    for entry in hookEntries {
+        warnIfExistingHooks(hooks, key: entry.key)
+        hooks[entry.key] = [[
+            "matcher": "",
+            "hooks": [["type": "command", "command": "'\(scriptPath)' \(entry.event)"]]
+        ]]
+    }
     settings["hooks"] = hooks
 }
 
