@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-02-10
+
+### Added
+
+- Notification deduplication: new notifications replace old ones per terminal tab per project instead of accumulating in Notification Center
+- Source app name shown in notification title (e.g. "Claude Code · iTerm2")
+
 ## [1.12.0] - 2026-02-09
 
 ### Added
@@ -196,6 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.13.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.13.0
 [1.12.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.12.0
 [1.11.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.11.1
 [1.11.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.11.0
