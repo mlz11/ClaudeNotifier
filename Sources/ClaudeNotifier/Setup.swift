@@ -162,19 +162,26 @@ func loadSettings(from path: URL) -> [String: Any] {
     return [:]
 }
 
+private struct HookEntry {
+    let key: String
+    let matcher: String
+    let event: String
+}
+
 func addNotificationHooks(to settings: inout [String: Any], scriptDir: URL) {
     let scriptPath = scriptDir.path + "/" + Constants.notifyScriptName
-    let hookEntries: [(key: String, event: String)] = [
-        ("Notification", "input_needed"),
-        ("Stop", "task_complete"),
-        ("PermissionRequest", "permission_request")
+    let hookEntries: [HookEntry] = [
+        HookEntry(key: "Notification", matcher: "", event: "input_needed"),
+        HookEntry(key: "Stop", matcher: "", event: "task_complete"),
+        HookEntry(key: "PermissionRequest", matcher: "", event: "permission_request"),
+        HookEntry(key: "SessionStart", matcher: "compact", event: "compact_complete")
     ]
 
     var hooks = settings["hooks"] as? [String: Any] ?? [:]
     for entry in hookEntries {
         warnIfExistingHooks(hooks, key: entry.key)
         hooks[entry.key] = [[
-            "matcher": "",
+            "matcher": entry.matcher,
             "hooks": [["type": "command", "command": "'\(scriptPath)' \(entry.event)"]]
         ]]
     }

@@ -227,6 +227,9 @@ case "$EVENT_TYPE" in
     "permission_request")
         MESSAGE="Needs your approval"
         ;;
+    "compact_complete")
+        MESSAGE="Context compacted"
+        ;;
     *)
         MESSAGE="$EVENT_TYPE"
         ;;
