@@ -31,6 +31,7 @@ enum KeyInput {
     case up
     case down
     case enter
+    case space
     case escape
     case other
 }
@@ -71,6 +72,8 @@ func readKey() -> KeyInput {
         return readEscapeSequence()
     case 0x0A, 0x0D:
         return .enter
+    case 0x20:
+        return .space
     default:
         return .other
     }
@@ -105,8 +108,18 @@ private func clearToEnd() {
 }
 
 /// Renders an interactive menu inline, returns the selected value or nil on Esc.
-func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String? {
+/// If `onPreview` is provided, pressing Space calls it with the highlighted item's value.
+func renderMenu(
+    title: String,
+    items: [MenuItem],
+    selectedIndex: Int,
+    onPreview: ((String) -> Void)? = nil
+) -> String? {
     var index = selectedIndex
+    let hasPreview = onPreview != nil
+    let hintText = hasPreview
+        ? "↑/↓ navigate · Space preview · Enter select · Esc back"
+        : "↑/↓ navigate · Enter select · Esc back"
     let lineCount = 5 + items.count // blank + header + hint + blank + items + blank
     var firstDraw = true
 
@@ -120,7 +133,7 @@ func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String?
 
         print("")
         print("  \(header(title))")
-        print("  \(hint("↑/↓ navigate · Enter select · Esc back"))")
+        print("  \(hint(hintText))")
         print("")
 
         for (i, item) in items.enumerated() {
@@ -140,6 +153,8 @@ func renderMenu(title: String, items: [MenuItem], selectedIndex: Int) -> String?
             index = (index - 1 + items.count) % items.count
         case .down:
             index = (index + 1) % items.count
+        case .space:
+            onPreview?(items[index].value)
         case .enter:
             cursorUp(lineCount)
             clearToEnd()

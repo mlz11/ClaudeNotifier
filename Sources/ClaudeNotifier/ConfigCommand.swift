@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 // MARK: - Config Command
@@ -87,8 +88,22 @@ private func soundSubmenu(_ config: inout AppConfig) {
         )
     }
 
-    if let selected = renderMenu(title: "Notification Sound", items: items, selectedIndex: initialIndex) {
+    if let selected = renderMenu(
+        title: "Notification Sound",
+        items: items,
+        selectedIndex: initialIndex,
+        onPreview: { previewSound($0) }
+    ) {
         config.sound = selected
+    }
+}
+
+private func previewSound(_ sound: String) {
+    switch sound {
+    case "none", "default":
+        return
+    default:
+        NSSound(named: NSSound.Name(sound))?.play()
     }
 }
 
@@ -106,7 +121,7 @@ private func applyConfig(_ config: inout AppConfig) {
 
 func soundDisplayName(_ sound: String) -> String {
     switch sound {
-    case "default": return "Default (Tri-tone)"
+    case "default": return "Default (system sound)"
     case "none": return "None (silent)"
     default: return sound
     }
