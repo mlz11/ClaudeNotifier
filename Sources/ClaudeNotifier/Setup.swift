@@ -45,15 +45,26 @@ func requestNotificationPermissions() -> Bool {
         break
     }
 
-    // Request authorization for first-time setup
-    var granted = false
-    center.requestAuthorization(options: [.alert, .sound, .badge]) { result, _ in
-        granted = result
+    // Trigger the native permission popup. We ignore the completion handler's `granted`
+    // value because macOS may return false before the permission is fully committed.
+    center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
         semaphore.signal()
     }
     semaphore.wait()
 
-    if granted {
+    // Re-check actual status after the user responds (getNotificationSettings is the source of truth).
+    print("  \(hint("A system popup should have appeared asking for notification permissions."))")
+    print("  Press \(info("Enter")) after responding to the popup...", terminator: "")
+    fflush(stdout)
+    _ = readLine()
+
+    center.getNotificationSettings { settings in
+        currentStatus = settings.authorizationStatus
+        semaphore.signal()
+    }
+    semaphore.wait()
+
+    if currentStatus == .authorized || currentStatus == .provisional {
         print("  \(success("Notifications: ✓"))")
         return true
     } else {
@@ -66,7 +77,6 @@ func requestTerminalPermissions() {
     print("\n\(info("Requesting terminal automation permissions..."))")
     print("  \(hint("(You may see permission dialogs - please click OK to allow)"))")
 
-    // Access windows/tabs to trigger the same permission as focusITermSession
     let runningApps = NSWorkspace.shared.runningApplications
 
     for terminal in TerminalType.supported {
@@ -215,15 +225,10 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
     }
 }
 
-/// Launch automation permission request in isolated process via `open`
-/// This is necessary because apps launched from terminal inherit the terminal's context
-/// and may bypass TCC permission checks
+/// Launch automation permission request in isolated process via `open`.
+/// Apps launched from terminal inherit the terminal's context and may bypass TCC checks.
 private func launchAutomationPermissionRequest() {
-    // Find the app bundle path from the executable path
-    // Handle multiple scenarios:
-    // 1. Direct execution: ./build/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier
-    // 2. Symlink execution: ~/.local/bin/claude-notifier -> /Applications/...
-    // 3. Homebrew: claude-notifier (just command name, need to find via which)
+    // Resolve the app bundle path (handles direct execution, symlinks, and PATH lookup)
     let executablePath = CommandLine.arguments[0]
     var resolvedPath: String
 
@@ -288,7 +293,6 @@ private func launchAutomationPermissionRequest() {
     verifyTerminalPermissions()
 }
 
-/// Verify terminal permissions after the isolated process requested them
 private func verifyTerminalPermissions() {
     let runningApps = NSWorkspace.shared.runningApplications
 
@@ -305,8 +309,6 @@ private func verifyTerminalPermissions() {
             continue
         }
 
-        // Permission was just requested in isolated process, so this should now work
-        // or return -1743 if user denied
         let script = NSAppleScript(source: "tell application \"\(terminal.appleScriptName)\" to return name")
         var errorDict: NSDictionary?
         script?.executeAndReturnError(&errorDict)
@@ -324,7 +326,6 @@ private func verifyTerminalPermissions() {
     }
 }
 
-/// Spawn osascript to trigger the "Terminal → System Events" TCC prompt.
 func requestSystemEventsPermission() {
     print("\n\(info("Checking System Events permission..."))")
     print("  \(hint("(Required for smart notification suppression)"))")
