@@ -5,8 +5,22 @@ import Foundation
 struct AppConfig: Codable {
     var icon: String
     var sound: String
+    var notifyInHeadlessMode: Bool
 
-    static let defaultConfig = AppConfig(icon: "brown", sound: "default")
+    static let defaultConfig = AppConfig(icon: "brown", sound: "default", notifyInHeadlessMode: false)
+
+    init(icon: String = "brown", sound: String = "default", notifyInHeadlessMode: Bool = false) {
+        self.icon = icon
+        self.sound = sound
+        self.notifyInHeadlessMode = notifyInHeadlessMode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        icon = try container.decodeIfPresent(String.self, forKey: .icon) ?? "brown"
+        sound = try container.decodeIfPresent(String.self, forKey: .sound) ?? "default"
+        notifyInHeadlessMode = try container.decodeIfPresent(Bool.self, forKey: .notifyInHeadlessMode) ?? false
+    }
 }
 
 let systemSounds = [

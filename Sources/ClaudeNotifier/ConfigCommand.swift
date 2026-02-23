@@ -33,6 +33,7 @@ private func mainMenuLoop(_ config: inout AppConfig) {
         let items = [
             MenuItem(label: "Icon color", value: "icon", isCurrent: false),
             MenuItem(label: "Notification sound", value: "sound", isCurrent: false),
+            MenuItem(label: "Headless mode notifications", value: "headless", isCurrent: false),
             MenuItem(label: "Done", value: "done", isCurrent: false)
         ]
 
@@ -51,6 +52,9 @@ private func mainMenuLoop(_ config: inout AppConfig) {
         case "sound":
             selectedIndex = 1
             soundSubmenu(&config)
+        case "headless":
+            selectedIndex = 2
+            headlessSubmenu(&config)
         case "done":
             return
         default:
@@ -98,6 +102,24 @@ private func soundSubmenu(_ config: inout AppConfig) {
     }
 }
 
+private func headlessSubmenu(_ config: inout AppConfig) {
+    let current = config.notifyInHeadlessMode
+    let initialIndex = current ? 0 : 1
+
+    let items = [
+        MenuItem(label: "Enabled", value: "true", isCurrent: current),
+        MenuItem(label: "Disabled", value: "false", isCurrent: !current)
+    ]
+
+    if let selected = renderMenu(
+        title: "Headless Mode Notifications",
+        items: items,
+        selectedIndex: initialIndex
+    ) {
+        config.notifyInHeadlessMode = (selected == "true")
+    }
+}
+
 private func previewSound(_ sound: String) {
     switch sound {
     case "none", "default":
@@ -134,8 +156,9 @@ private func showConfigHelp() {
     Open an interactive menu to configure ClaudeNotifier preferences.
 
     Settings:
-      Icon color          Change the notification icon color (brown, blue, green)
-      Notification sound  Choose the notification sound or disable it
+      Icon color                    Change the notification icon color (brown, blue, green)
+      Notification sound            Choose the notification sound or disable it
+      Headless mode notifications   Enable notifications for claude -p sessions (off by default)
 
     Config file: ~/\(Constants.appSupportDirectory)/\(Constants.configFileName)
     """)

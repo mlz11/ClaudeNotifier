@@ -58,7 +58,7 @@ func showHelp() {
     Commands:
       setup                       Set up Claude Code integration (installs hooks)
       doctor                      Diagnose installation and permission issues
-      config                      Configure preferences (icon, sound) interactively
+      config                      Configure preferences interactively
       logs                        View the log file (--clear to truncate)
 
     Options:

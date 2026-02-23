@@ -23,6 +23,29 @@ if [ "$EVENT_TYPE" = "permission_request" ]; then
     fi
 fi
 
+# Check if an ancestor process is claude running in headless mode (-p/--print)
+is_headless_session() {
+    local pid=$$
+    while [ -n "$pid" ] && [ "$pid" != "1" ] && [ "$pid" != "0" ]; do
+        pid=$(ps -p "$pid" -o ppid= 2>/dev/null | tr -d ' ')
+        [ -z "$pid" ] && return 1
+        local args
+        args=$(ps -p "$pid" -o args= 2>/dev/null)
+        [ -z "$args" ] && continue
+        # Extract command basename (handles both "claude ..." and "/path/to/claude ...")
+        local cmd
+        cmd=$(basename "$(echo "$args" | cut -d' ' -f1)")
+        if [ "$cmd" = "claude" ]; then
+            case "$args" in
+                *" -p "*|*" -p"|*" --print "*|*" --print")
+                    return 0
+                    ;;
+            esac
+        fi
+    done
+    return 1
+}
+
 # Get Terminal.app's tab TTY by walking up the process tree
 # This handles cases where the user runs a nested terminal (tmux, qterm, etc.)
 get_terminal_app_tty() {
@@ -188,6 +211,19 @@ should_notify() {
 
     return 0  # Different tab, notify
 }
+
+# Skip notification for headless (claude -p) sessions unless config allows it
+if is_headless_session; then
+    CONFIG_FILE="$HOME/Library/Application Support/ClaudeNotifier/config.json"
+    NOTIFY_HEADLESS="false"
+    if [ -f "$CONFIG_FILE" ]; then
+        CONFIGURED_VALUE=$(grep '"notifyInHeadlessMode"' "$CONFIG_FILE" | head -1 | grep -oE 'true|false')
+        [ -n "$CONFIGURED_VALUE" ] && NOTIFY_HEADLESS="$CONFIGURED_VALUE"
+    fi
+    if [ "$NOTIFY_HEADLESS" = "false" ]; then
+        exit 0
+    fi
+fi
 
 # Skip notification if user is looking at this tab
 if ! should_notify; then
