@@ -111,7 +111,7 @@ This checks your installation and permissions, showing any issues and how to fix
 claude-notifier config
 ```
 
-Opens an interactive menu to configure icon color and notification sound.
+Opens an interactive menu to configure icon color, notification sound, and headless mode behavior.
 
 ```
   ClaudeNotifier Configuration
@@ -119,6 +119,7 @@ Opens an interactive menu to configure icon color and notification sound.
 
     ❯ Icon color
       Notification sound
+      Headless mode notifications
       Done
 ```
 
