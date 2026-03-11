@@ -4,14 +4,26 @@
 EVENT_TYPE="$1"
 NOTIFIER="claude-notifier"
 
-# Read hook input from stdin (Claude Code passes JSON with notification_type)
-# Skip idle_prompt — user was already notified when input was first needed
+# Read hook input from stdin (Claude Code passes JSON with session context)
+HOOK_INPUT=""
 if [ ! -t 0 ]; then
     HOOK_INPUT=$(cat)
+fi
+
+# Skip idle_prompt — user was already notified when input was first needed
+case "$HOOK_INPUT" in
+    *'"idle_prompt"'*)
+        exit 0
+        ;;
+esac
+
+# Skip non-Claude-Code hooks (e.g. Cursor's own AI fires Stop hooks with a
+# different JSON schema that uses conversation_id instead of session_id).
+# Claude Code always includes session_id in hook stdin.
+if [ -n "$HOOK_INPUT" ]; then
     case "$HOOK_INPUT" in
-        *'"idle_prompt"'*)
-            exit 0
-            ;;
+        *'"session_id"'*) ;;  # Claude Code session, continue
+        *) exit 0 ;;          # Not a Claude Code session, skip
     esac
 fi
 
