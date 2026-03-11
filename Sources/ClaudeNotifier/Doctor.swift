@@ -1,4 +1,5 @@
 import AppKit
+import CoreServices
 import Foundation
 import UserNotifications
 
@@ -27,6 +28,20 @@ func checkAppInstallation() -> CheckResult {
         passed: false,
         message: "ClaudeNotifier.app not found",
         remediation: "Install via 'brew install mlz11/tap/claude-notifier' or 'make install'"
+    )
+}
+
+func checkLaunchServicesRegistration() -> CheckResult {
+    let bundleId = Constants.bundleIdentifier as NSString
+    let cfResult = LSCopyApplicationURLsForBundleIdentifier(bundleId as CFString, nil)
+    if let urls = cfResult?.takeRetainedValue() as? [URL], !urls.isEmpty {
+        return CheckResult(passed: true, message: "Launch Services: app registered")
+    }
+
+    return CheckResult(
+        passed: false,
+        message: "Launch Services: app not registered with macOS",
+        remediation: "Run 'open /Applications/ClaudeNotifier.app' to register the app, or restart your Mac"
     )
 }
 
@@ -244,6 +259,7 @@ func runDoctor() {
     // Collect all check results
     let checks: [CheckResult] = [
         checkAppInstallation(),
+        checkLaunchServicesRegistration(),
         checkNotifyScript(),
         checkSettingsHooks(),
         checkNotificationPermissions()
