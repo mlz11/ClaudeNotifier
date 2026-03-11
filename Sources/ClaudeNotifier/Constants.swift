@@ -12,4 +12,5 @@ enum Constants {
     static let terminalTypeKey = "terminalType"
     static let logFileName = "claude-notifier.log"
     static let configFileName = "config.json"
+    static let bundleIdentifier = "com.mlz11.claude-notifier"
 }
