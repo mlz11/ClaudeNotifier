@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.1] - 2026-03-11
+
+### Fixed
+
+- False positive notifications from Cursor's own AI requests (chat, autocomplete, composer) by validating that hook events originate from Claude Code sessions (closes #42)
+
 ## [1.16.0] - 2026-02-23
 
 ### Added
@@ -231,6 +237,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.16.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.1
 [1.16.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.0
 [1.15.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.15.0
 [1.14.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.14.0
