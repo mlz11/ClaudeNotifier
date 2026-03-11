@@ -34,6 +34,7 @@ private func mainMenuLoop(_ config: inout AppConfig) {
             MenuItem(label: "Icon color", value: "icon", isCurrent: false),
             MenuItem(label: "Notification sound", value: "sound", isCurrent: false),
             MenuItem(label: "Headless mode notifications", value: "headless", isCurrent: false),
+            MenuItem(label: "SDK mode notifications", value: "sdk", isCurrent: false),
             MenuItem(label: "Done", value: "done", isCurrent: false)
         ]
 
@@ -55,6 +56,9 @@ private func mainMenuLoop(_ config: inout AppConfig) {
         case "headless":
             selectedIndex = 2
             headlessSubmenu(&config)
+        case "sdk":
+            selectedIndex = 3
+            sdkSubmenu(&config)
         case "done":
             return
         default:
@@ -120,6 +124,24 @@ private func headlessSubmenu(_ config: inout AppConfig) {
     }
 }
 
+private func sdkSubmenu(_ config: inout AppConfig) {
+    let current = config.notifyInSdkMode
+    let initialIndex = current ? 0 : 1
+
+    let items = [
+        MenuItem(label: "Enabled", value: "true", isCurrent: current),
+        MenuItem(label: "Disabled", value: "false", isCurrent: !current)
+    ]
+
+    if let selected = renderMenu(
+        title: "SDK Mode Notifications",
+        items: items,
+        selectedIndex: initialIndex
+    ) {
+        config.notifyInSdkMode = (selected == "true")
+    }
+}
+
 private func previewSound(_ sound: String) {
     switch sound {
     case "none", "default":
@@ -159,6 +181,7 @@ private func showConfigHelp() {
       Icon color                    Change the notification icon color (brown, blue, green)
       Notification sound            Choose the notification sound or disable it
       Headless mode notifications   Enable notifications for claude -p sessions (off by default)
+      SDK mode notifications        Enable notifications for SDK-driven sessions like Conductor (off by default)
 
     Config file: ~/\(Constants.appSupportDirectory)/\(Constants.configFileName)
     """)

@@ -29,7 +29,7 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 
 - 📦 **Zero dependencies**: Just install and run `claude-notifier setup`.
 - 🎯 **Click-to-focus the exact tab**: Other tools open the app at best. ClaudeNotifier focuses the specific terminal tab or iTerm2 session that triggered the notification.
-- 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're not interrupted mid-thought.
+- 🤫 **Smart suppression**: Notifications are silenced when you're already looking at the terminal, so you're not interrupted mid-thought. Orchestrated sessions (Conductor, Agent SDK apps) and headless (`claude -p`) sessions are also suppressed by default.
 - 🧹 **No notification spam**: Each terminal tab and project keeps at most one notification in Notification Center. New notifications replace old ones instead of piling up.
 - 🖥️ **Wide terminal support**: [iTerm2](https://iterm2.com/), [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac), [Ghostty](https://ghostty.org/), [Warp](https://www.warp.dev/), [VS Code](https://code.visualstudio.com/), [VSCodium](https://vscodium.com/), [Cursor](https://cursor.com/home), [Windsurf](https://codeium.com/windsurf), [Zed](https://zed.dev/), [WebStorm](https://www.jetbrains.com/webstorm/), and [IntelliJ IDEA](https://www.jetbrains.com/idea/).
 - 🩺 **Built-in diagnostics**: `claude-notifier doctor` checks your installation, hooks, permissions, and PATH so you can fix issues without guesswork.
@@ -111,7 +111,7 @@ This checks your installation and permissions, showing any issues and how to fix
 claude-notifier config
 ```
 
-Opens an interactive menu to configure icon color, notification sound, and headless mode behavior.
+Opens an interactive menu to configure icon color, notification sound, and suppression behavior.
 
 ```
   ClaudeNotifier Configuration
@@ -120,6 +120,7 @@ Opens an interactive menu to configure icon color, notification sound, and headl
     ❯ Icon color
       Notification sound
       Headless mode notifications
+      SDK mode notifications
       Done
 ```
 
