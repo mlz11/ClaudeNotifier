@@ -237,6 +237,21 @@ if is_headless_session; then
     fi
 fi
 
+# Skip notification for SDK-driven sessions (e.g. Conductor, custom Agent SDK apps)
+# unless config allows it. These sessions are orchestrated programmatically,
+# so the user typically does not need to act on hook events.
+if [ "$CLAUDE_CODE_ENTRYPOINT" = "sdk-ts" ] || [ "$CLAUDE_CODE_ENTRYPOINT" = "sdk-python" ]; then
+    CONFIG_FILE="$HOME/Library/Application Support/ClaudeNotifier/config.json"
+    NOTIFY_SDK="false"
+    if [ -f "$CONFIG_FILE" ]; then
+        CONFIGURED_VALUE=$(grep '"notifyInSdkMode"' "$CONFIG_FILE" | head -1 | grep -oE 'true|false')
+        [ -n "$CONFIGURED_VALUE" ] && NOTIFY_SDK="$CONFIGURED_VALUE"
+    fi
+    if [ "$NOTIFY_SDK" = "false" ]; then
+        exit 0
+    fi
+fi
+
 # Skip notification if user is looking at this tab
 if ! should_notify; then
     exit 0
