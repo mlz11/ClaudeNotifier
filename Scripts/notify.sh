@@ -246,6 +246,48 @@ fi
 REPO_NAME=$(git rev-parse --show-toplevel 2>/dev/null | xargs basename 2>/dev/null)
 REPO_NAME="${REPO_NAME:-$(basename "$PWD")}"
 
+# Extract session context from Claude Code conversation history
+SESSION_CONTEXT=""
+if [ -n "$HOOK_INPUT" ]; then
+    CLAUDE_SESSION_ID=$(echo "$HOOK_INPUT" | python3 -c "
+import sys, json
+try:
+    print(json.loads(sys.stdin.read()).get('session_id', ''))
+except:
+    pass
+" 2>/dev/null)
+
+    if [ -n "$CLAUDE_SESSION_ID" ]; then
+        HISTORY_FILE="$HOME/.claude/history.jsonl"
+        if [ -f "$HISTORY_FILE" ]; then
+            SESSION_CONTEXT=$(grep "\"sessionId\":\"$CLAUDE_SESSION_ID\"" "$HISTORY_FILE" | python3 -c "
+import sys, json, re
+rename = None
+first_msg = None
+for line in sys.stdin:
+    try:
+        msg = json.loads(line.strip()).get('display', '')
+        if not msg:
+            continue
+        if msg.startswith('/rename '):
+            rename = msg[8:].strip()
+        elif not msg.startswith('/') and first_msg is None:
+            cleaned = re.sub(r'\[Pasted text #\d+[^\]]*\]\s*', '', msg).strip()
+            if cleaned:
+                first_line = cleaned.split(chr(10))[0].strip()
+                if len(first_line) > 40:
+                    first_line = first_line[:37] + '...'
+                first_msg = first_line
+    except:
+        continue
+print(rename or first_msg or '')
+" 2>/dev/null)
+        fi
+    fi
+fi
+
+SUBTITLE="${SESSION_CONTEXT:-$REPO_NAME}"
+
 # Map terminal type to display name for the notification subtitle
 case "$TERMINAL_TYPE" in
     iterm2)     APP_LABEL="iTerm2" ;;
@@ -292,4 +334,4 @@ if [ -f "$CONFIG_FILE" ]; then
 fi
 
 # Send notification with session info for focus-on-click
-"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S "$SOUND"
+"$NOTIFIER" -t "$TITLE" -s "$SUBTITLE" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S "$SOUND"
