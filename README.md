@@ -38,7 +38,16 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 ## 📦 Installation
 
 <details open>
-<summary><strong>Homebrew (Recommended)</strong></summary>
+<summary><strong>Quick Install (Recommended)</strong></summary>
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/scripts/install.sh | bash
+```
+
+</details>
+
+<details>
+<summary><strong>Homebrew</strong></summary>
 
 ```bash
 brew install --cask mlz11/tap/claude-notifier
