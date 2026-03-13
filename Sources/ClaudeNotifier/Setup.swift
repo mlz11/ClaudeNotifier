@@ -5,6 +5,14 @@ import UserNotifications
 // MARK: - Setup Functions
 
 func promptForConfigDirectory() -> URL {
+    let defaultDir = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent(Constants.claudeDirectory)
+
+    // When stdin is not a TTY (e.g. curl | bash), skip the prompt and use the default
+    guard isatty(STDIN_FILENO) != 0 else {
+        return defaultDir
+    }
+
     let defaultPath = "~/.claude"
     print("Claude config directory [\(hint(defaultPath))]: ", terminator: "")
     fflush(stdout)
@@ -13,8 +21,7 @@ func promptForConfigDirectory() -> URL {
         return URL(fileURLWithPath: (input as NSString).expandingTildeInPath)
     }
 
-    return FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent(Constants.claudeDirectory)
+    return defaultDir
 }
 
 /// Returns true if notifications are authorized, false if denied
@@ -53,10 +60,16 @@ func requestNotificationPermissions() -> Bool {
     semaphore.wait()
 
     // Re-check actual status after the user responds (getNotificationSettings is the source of truth).
-    print("  \(hint("A system popup should have appeared asking for notification permissions."))")
-    print("  Press \(info("Enter")) after responding to the popup...", terminator: "")
-    fflush(stdout)
-    _ = readLine()
+    if isatty(STDIN_FILENO) != 0 {
+        print("  \(hint("A system popup should have appeared asking for notification permissions."))")
+        print("  Press \(info("Enter")) after responding to the popup...", terminator: "")
+        fflush(stdout)
+        _ = readLine()
+    } else {
+        // Non-interactive: wait briefly for the user to respond to the system popup
+        print("  \(hint("Waiting for notification permission response..."))")
+        Thread.sleep(forTimeInterval: 3)
+    }
 
     center.getNotificationSettings { settings in
         currentStatus = settings.authorizationStatus
@@ -228,42 +241,29 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
 /// Launch automation permission request in isolated process via `open`.
 /// Apps launched from terminal inherit the terminal's context and may bypass TCC checks.
 private func launchAutomationPermissionRequest() {
-    // Resolve the app bundle path (handles direct execution, symlinks, and PATH lookup)
     let executablePath = CommandLine.arguments[0]
-    var resolvedPath: String
-
+    let resolvedPath: String
     if executablePath.contains("/") {
-        // Path contains directory separator, resolve it directly
         resolvedPath = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath().path
     } else {
-        // Just a command name (e.g., "claude-notifier"), find it via PATH
         let which = Process()
         which.executableURL = URL(fileURLWithPath: "/usr/bin/which")
         which.arguments = [executablePath]
         let pipe = Pipe()
         which.standardOutput = pipe
-        do {
-            try which.run()
-            which.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let pathString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            if !pathString.isEmpty {
-                resolvedPath = URL(fileURLWithPath: pathString).resolvingSymlinksInPath().path
-            } else {
-                resolvedPath = executablePath
-            }
-        } catch {
-            resolvedPath = executablePath
-        }
+        try? which.run()
+        which.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let pathString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        resolvedPath = pathString.isEmpty
+            ? executablePath
+            : URL(fileURLWithPath: pathString).resolvingSymlinksInPath().path
     }
 
     let appBundlePath: String
-
     if resolvedPath.contains(".app/Contents/MacOS/") {
-        // Running from app bundle (directly or via symlink)
         appBundlePath = resolvedPath.components(separatedBy: "/Contents/MacOS/")[0]
     } else {
-        // Fallback to default location
         appBundlePath = "/Applications/ClaudeNotifier.app"
     }
 
