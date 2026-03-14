@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-03-14
+
+### Added
+
+- Configurable notification subtitle: show session context (conversation name or first message) instead of repo name
+- `subtitleContent` config option (`"repo"` default or `"session"`) in interactive `config` menu
+- `-c, --claude-session-id` flag for passing Claude session ID to the binary
+- Launch Services registration check in `doctor` command
+
 ## [1.16.2] - 2026-03-11
 
 ### Fixed
@@ -248,6 +257,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.17.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.17.0
 [1.16.2]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.2
 [1.16.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.1
 [1.16.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.0
