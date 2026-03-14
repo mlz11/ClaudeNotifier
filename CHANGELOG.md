@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2026-03-14
+
+### Added
+
+- `update` command: check for new releases and upgrade via Homebrew
+- Version check in `doctor` output (warns when a newer version is available)
+- One-line install script: `curl -fsSL .../install.sh | bash`
+- Install and uninstall shell scripts in `Scripts/`
+
+### Changed
+
+- Removed "From Source" install method from README (Homebrew is now the only documented method)
+- Remediation text in `doctor` and `icon` commands now references Homebrew instead of `make install`
+
 ## [1.17.0] - 2026-03-14
 
 ### Added
@@ -257,6 +271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make install` creates CLI symlink at `~/.local/bin/claude-notifier`
 - PATH hint shown during install if needed
 
+[1.18.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.18.0
 [1.17.0]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.17.0
 [1.16.2]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.2
 [1.16.1]: https://github.com/mlz11/ClaudeNotifier/releases/tag/v1.16.1
