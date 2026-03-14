@@ -48,6 +48,8 @@ func fetchLatestVersion() -> (tag: String, version: String)? {
 func isBrewInstall() -> Bool {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    // The cask token is "claude-notifier" (without tap prefix).
+    // brew list --cask resolves by token, not by full tap-qualified name.
     process.arguments = ["brew", "list", "--cask", "claude-notifier"]
     process.standardOutput = FileHandle.nullDevice
     process.standardError = FileHandle.nullDevice
@@ -79,9 +81,13 @@ func isBrewAvailable() -> Bool {
 
 // MARK: - Update Command
 
+// NOTE: fetchLatestVersion() uses DispatchSemaphore to block synchronously.
+// This is safe in CLI mode but would deadlock on the main thread of an NSApplication run loop.
+// The update and doctor commands call exit() before reaching app.run(), so this is fine.
+
 func runUpdate() {
     Logger.info("Running update check")
-    print("Checking for updates...")
+    print("Checking for updates...\(hint(" (this may take a moment)"))")
 
     guard let latest = fetchLatestVersion() else {
         print(error("Could not check for updates (network error or GitHub API unavailable)."))
@@ -126,12 +132,15 @@ func runUpdate() {
         process.waitUntilExit()
 
         if process.terminationStatus == 0 {
+            Logger.info("Update completed successfully")
             print(success("Updated successfully!"))
         } else {
+            Logger.error("Upgrade failed with exit code \(process.terminationStatus)")
             print(error("Upgrade failed (exit code \(process.terminationStatus))."))
             exit(1)
         }
     } catch let brewError {
+        Logger.error("Failed to run brew: \(brewError.localizedDescription)")
         print(error("Failed to run brew: \(brewError.localizedDescription)"))
         exit(1)
     }
@@ -141,7 +150,11 @@ func runUpdate() {
 
 func checkVersionUpToDate() -> CheckResult {
     guard let latest = fetchLatestVersion() else {
-        return CheckResult(passed: true, message: "Version: v\(Constants.version) (could not check for updates)")
+        return CheckResult(
+            passed: false,
+            message: "Version: v\(Constants.version) (could not check for updates)",
+            remediation: "Check your network connection or try again later"
+        )
     }
 
     let current = Constants.version
