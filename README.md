@@ -111,7 +111,7 @@ This checks your installation and permissions, showing any issues and how to fix
 claude-notifier config
 ```
 
-Opens an interactive menu to configure icon color, notification sound, and suppression behavior.
+Opens an interactive menu to configure icon color, notification sound, subtitle content, and suppression behavior.
 
 ```
   ClaudeNotifier Configuration
@@ -119,6 +119,7 @@ Opens an interactive menu to configure icon color, notification sound, and suppr
 
     ❯ Icon color
       Notification sound
+      Subtitle content
       Headless mode notifications
       SDK mode notifications
       Done
