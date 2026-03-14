@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaudeNotifier — Native macOS notifications for Claude Code</title>
+  <meta name="description" content="Native macOS notifications for Claude Code. Click-to-focus, smart suppression, zero dependencies.">
+  <meta property="og:title" content="ClaudeNotifier">
+  <meta property="og:description" content="Native macOS notifications for Claude Code. Click to focus the exact terminal tab.">
+  <meta property="og:image" content="https://mlz11.github.io/ClaudeNotifier/og.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mlz11.github.io/ClaudeNotifier">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ClaudeNotifier">
+  <meta name="twitter:description" content="Native macOS notifications for Claude Code. Click to focus the exact terminal tab.">
+  <meta name="twitter:image" content="https://mlz11.github.io/ClaudeNotifier/og.png">
+  <meta name="keywords" content="claude code, notifications, macos, terminal, iterm2, developer tools, cli, claude ai">
+  <meta name="author" content="mlz11">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mlz11.github.io/ClaudeNotifier">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f4e3ce'/%3E%3Cg shape-rendering='crispEdges'%3E%3Cg fill='%233b2418'%3E%3Crect x='7' y='10' width='18' height='10'/%3E%3Crect x='10' y='8' width='12' height='2'/%3E%3Crect x='5' y='12' width='2' height='5'/%3E%3Crect x='25' y='12' width='2' height='5'/%3E%3Crect x='9' y='20' width='3' height='6'/%3E%3Crect x='13' y='20' width='2' height='6'/%3E%3Crect x='17' y='20' width='2' height='6'/%3E%3Crect x='20' y='20' width='3' height='6'/%3E%3C/g%3E%3Cg fill='%23140a06'%3E%3Crect x='12' y='12' width='2' height='3'/%3E%3Crect x='19' y='12' width='2' height='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ClaudeNotifier",
+    "operatingSystem": "macOS",
+    "applicationCategory": "DeveloperApplication",
+    "description": "Native macOS notifications for Claude Code. Focuses the exact terminal tab when clicked, stays quiet when you're already looking.",
+    "url": "https://mlz11.github.io/ClaudeNotifier",
+    "image": "https://mlz11.github.io/ClaudeNotifier/og.png",
+    "downloadUrl": "https://github.com/mlz11/ClaudeNotifier",
+    "softwareVersion": "1.18.0",
+    "license": "https://opensource.org/licenses/MIT",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "mlz11", "url": "https://github.com/mlz11" }
+  }
+  </script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --font: 'Fira Code', 'SF Mono', monospace;
+      --radius: 12px;
+      --max-width: 1100px;
+      --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      --bg: #151110;
+      --bg-alt: #1E1915;
+      --surface: #252019;
+      --text: #F0E6DA;
+      --text-secondary: #A89484;
+      --accent: #E88A4A;
+      --accent-hover: #F0A060;
+      --border: #3A3028;
+      --code-bg: #1E1915;
+      --card-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
+    }
+
+
+    /* === HERO === */
+    .hero {
+      padding: 60px 24px 20px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-logo {
+      margin-bottom: 24px;
+      position: relative;
+      display: inline-block;
+    }
+    .hero-logo svg {
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .hero-logo svg:hover { transform: scale(1.05); }
+    .hero-logo svg:active { transform: scale(0.97); }
+    .try-me {
+      position: absolute;
+      top: -8px;
+      left: calc(100% + 8px);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .try-me.hidden { opacity: 0; }
+    .try-me-text {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      font-weight: 400;
+    }
+    .try-me-arrow {
+      color: var(--text-secondary);
+      margin-left: 4px;
+      animation: wiggle 2s ease-in-out infinite;
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-3px, 2px) rotate(-6deg); }
+    }
+    .hero h1 {
+      font-family: var(--font);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-secondary);
+      max-width: 100%;
+      margin: 0 auto 0;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    /* === FLOATING NOTIFICATION === */
+    .floating-notif {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 345px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 18px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.08);
+      z-index: 1000;
+      cursor: pointer;
+      transform: translateX(calc(100% + 24px));
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .floating-notif.visible { transform: translateX(0); }
+    .floating-notif.dismiss {
+      transform: translateX(calc(100% + 24px));
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 1, 1), opacity 0.35s ease;
+    }
+    .floating-notif .notif-icon {
+      width: 38px; height: 38px;
+      border-radius: 22%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .floating-notif .notif-icon svg { width: 100%; height: 100%; }
+    .floating-notif .notif-text { flex: 1; min-width: 0; }
+    .floating-notif .notif-app {
+      font-size: 12px;
+      font-weight: 400;
+      color: #999;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      line-height: 1.3;
+    }
+    .floating-notif .notif-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      line-height: 1.3;
+    }
+    .floating-notif .notif-body {
+      font-size: 12px;
+      color: #555;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      line-height: 1.3;
+    }
+
+    /* === SECTIONS === */
+    section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+    .section-label {
+      font-family: var(--font);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    /* === FEATURES === */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: all var(--transition);
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-2px);
+    }
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .feature-icon {
+      width: 32px; height: 32px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      line-height: 1;
+      text-align: center;
+    }
+    .feature-card h3 {
+      font-family: var(--font);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    /* === INSTALL === */
+    .install-box { max-width: 900px; }
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      position: relative;
+      overflow: hidden;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .code-block code {
+      white-space: pre;
+      display: block;
+      padding-right: 70px;
+      overflow-x: auto;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 50%; right: 10px;
+      transform: translateY(-50%);
+      z-index: 1;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-family: var(--font);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--text); }
+    .copy-btn.copied { color: var(--accent); }
+
+
+    /* === FOOTER === */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .footer-links { display: flex; gap: 16px; }
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+      display: flex;
+      align-items: center;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .hero { padding: 40px 20px 40px; }
+      .floating-notif { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+
+    /* === ANIMATIONS === */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+  </style>
+</head>
+<body>
+
+  <main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Never miss Claude again.</h1>
+    <div class="hero-logo" id="heroLogo">
+      <svg viewBox="0 0 32 32" width="80" height="80" id="heroIcon" role="img" aria-label="ClaudeNotifier icon">
+        <defs>
+          <linearGradient id="hero-bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" id="bg-stop1" stop-color="#f4e3ce"/>
+            <stop offset="1" id="bg-stop2" stop-color="#d7b896"/>
+          </linearGradient>
+        </defs>
+        <rect width="32" height="32" fill="url(#hero-bg)" rx="4"/>
+        <g shape-rendering="crispEdges">
+          <g id="icon-body" fill="#3b2418">
+            <rect x="7" y="10" width="18" height="10"/><rect x="10" y="8" width="12" height="2"/>
+            <rect x="5" y="12" width="2" height="5"/><rect x="25" y="12" width="2" height="5"/>
+            <rect x="9" y="20" width="3" height="6"/><rect x="13" y="20" width="2" height="6"/>
+            <rect x="17" y="20" width="2" height="6"/><rect x="20" y="20" width="3" height="6"/>
+          </g>
+          <g id="icon-eyes" fill="#140a06">
+            <rect x="12" y="12" width="2" height="3"/><rect x="19" y="12" width="2" height="3"/>
+          </g>
+        </g>
+      </svg>
+      <div class="try-me" id="tryMe">
+        <span class="try-me-text">click me</span>
+        <svg class="try-me-arrow" width="20" height="24" viewBox="0 0 20 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2C14 10 8 14 2 18M2 18L6 16M2 18L4 14"/></svg>
+      </div>
+    </div>
+    <p class="hero-sub">Native macOS notifications for Claude Code.<br>Focuses the exact terminal tab when clicked, stays quiet when you're already looking.</p>
+
+  </section>
+
+  <!-- Floating notification (fixed to browser viewport) -->
+  <div class="floating-notif" id="floatingNotif">
+    <div class="notif-icon">
+      <svg viewBox="0 0 32 32"><defs><linearGradient id="notif-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" id="notif-stop1" stop-color="#f4e3ce"/><stop offset="1" id="notif-stop2" stop-color="#d7b896"/></linearGradient></defs><rect width="32" height="32" fill="url(#notif-bg)" rx="6"/><g shape-rendering="crispEdges"><g id="notif-body" fill="#3b2418"><rect x="7" y="10" width="18" height="10"/><rect x="10" y="8" width="12" height="2"/><rect x="5" y="12" width="2" height="5"/><rect x="25" y="12" width="2" height="5"/><rect x="9" y="20" width="3" height="6"/><rect x="13" y="20" width="2" height="6"/><rect x="17" y="20" width="2" height="6"/><rect x="20" y="20" width="3" height="6"/></g><g id="notif-eyes" fill="#140a06"><rect x="12" y="12" width="2" height="3"/><rect x="19" y="12" width="2" height="3"/></g></g></svg>
+    </div>
+    <div class="notif-text">
+      <div class="notif-app" id="notifApp">Claude Code &middot; iTerm2</div>
+      <div class="notif-title" id="notifTitle">ClaudeNotifier</div>
+      <div class="notif-body" id="notifBody">Claude needs your input</div>
+    </div>
+  </div>
+
+
+  <!-- Install -->
+  <section id="install" class="fade-in">
+    <div class="section-label">Installation</div>
+    <div class="section-title">Ready under a minute</div>
+    <div class="install-box">
+      <div class="code-block">
+        <code>curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/Scripts/install.sh | bash</code>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="fade-in">
+    <div class="section-label">Features</div>
+    <div class="section-title">Everything you need, nothing you don't</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon">&#9678;</div><h3>Click-to-Focus</h3></div>
+        <p>Opens the exact terminal tab that triggered it.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></div><h3>Smart Suppression</h3></div>
+        <p>Stays quiet when you're already looking.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon">&#9632;</div><h3>No Spam</h3></div>
+        <p>New notifications replace old ones, never pile up.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon">&#9000;</div><h3>Wide Terminal Support</h3></div>
+        <p>iTerm2, Terminal.app, Ghostty, Warp, VS Code, Cursor, Zed, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon">&#9881;</div><h3>Built-in Diagnostics</h3></div>
+        <p>One command to check everything works.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-header"><div class="feature-icon">&#10023;</div><h3>Customizable</h3></div>
+        <p>Pick your icon color, sound, and subtitle.</p>
+      </div>
+    </div>
+  </section>
+
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">built with <svg width="16" height="16" viewBox="0 0 24 24" fill="#e25555" style="vertical-align: -2px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+      <div class="footer-links">
+        <a href="https://github.com/mlz11/ClaudeNotifier" target="_blank" aria-label="GitHub"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // === Periodic floating notifications ===
+    const notif = document.getElementById('floatingNotif');
+    const notifApp = document.getElementById('notifApp');
+    const notifBody = document.getElementById('notifBody');
+
+    const messages = [
+      { app: 'Claude Code \u00b7 iTerm2', body: 'Claude needs your input' },
+      { app: 'Claude Code \u00b7 VS Code', body: 'Task completed' },
+      { app: 'Claude Code \u00b7 Terminal', body: 'Permission requested' },
+      { app: 'Claude Code \u00b7 Cursor', body: 'Claude needs your input' },
+      { app: 'Claude Code \u00b7 iTerm2', body: 'Task completed' },
+      { app: 'Claude Code \u00b7 Ghostty', body: 'Permission requested' },
+    ];
+
+    let msgIndex = 0;
+
+    function showNotification() {
+      const msg = messages[msgIndex];
+      notifApp.textContent = msg.app;
+      notifBody.textContent = msg.body;
+      notif.classList.add('visible');
+
+      setTimeout(() => {
+        notif.classList.remove('visible');
+      }, 4000);
+
+      msgIndex = (msgIndex + 1) % messages.length;
+    }
+
+    // Click to dismiss and scroll to install
+    notif.addEventListener('click', () => {
+      notif.classList.remove('visible');
+      notif.classList.add('dismiss');
+      document.getElementById('install').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => { notif.classList.remove('dismiss'); }, 350);
+    });
+
+    // First notification after 2s, then every 8s
+    setTimeout(() => {
+      showNotification();
+      setInterval(showNotification, 8000);
+    }, 2000);
+
+    // === Copy code ===
+    function copyCode(btn) {
+      const code = btn.parentElement.querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+
+    // === Icon color cycling ===
+    const iconVariants = [
+      {
+        bg1: '#f4e3ce', bg2: '#d7b896', body: '#3b2418', eyes: '#140a06',
+        accent: '#E88A4A', accentHover: '#F0A060',
+        bg: '#151110', bgAlt: '#1E1915', surface: '#252019',
+        text: '#F0E6DA', textSecondary: '#A89484', border: '#3A3028', codeBg: '#1E1915'
+      },
+      {
+        bg1: '#cee0f4', bg2: '#96b8d7', body: '#1a3a5c', eyes: '#061424',
+        accent: '#4A9EE8', accentHover: '#60B0F0',
+        bg: '#0F1318', bgAlt: '#151C24', surface: '#1A2330',
+        text: '#DAE6F0', textSecondary: '#8498AC', border: '#28333E', codeBg: '#151C24'
+      },
+      {
+        bg1: '#cef4d8', bg2: '#96d7a8', body: '#1a4a2a', eyes: '#061a0c',
+        accent: '#4ACA6E', accentHover: '#60D880',
+        bg: '#0F1512', bgAlt: '#151E18', surface: '#1A2820',
+        text: '#DAF0E2', textSecondary: '#84AC90', border: '#283E30', codeBg: '#151E18'
+      },
+    ];
+    let iconIndex = 0;
+    const heroIcon = document.getElementById('heroIcon');
+    const tryMeEl = document.getElementById('tryMe');
+    const root = document.documentElement;
+
+    heroIcon.addEventListener('click', () => {
+      iconIndex = (iconIndex + 1) % iconVariants.length;
+      const v = iconVariants[iconIndex];
+      document.getElementById('bg-stop1').setAttribute('stop-color', v.bg1);
+      document.getElementById('bg-stop2').setAttribute('stop-color', v.bg2);
+      document.getElementById('icon-body').setAttribute('fill', v.body);
+      document.getElementById('icon-eyes').setAttribute('fill', v.eyes);
+      document.getElementById('notif-stop1').setAttribute('stop-color', v.bg1);
+      document.getElementById('notif-stop2').setAttribute('stop-color', v.bg2);
+      document.getElementById('notif-body').setAttribute('fill', v.body);
+      document.getElementById('notif-eyes').setAttribute('fill', v.eyes);
+      root.style.setProperty('--accent', v.accent);
+      root.style.setProperty('--accent-hover', v.accentHover);
+      root.style.setProperty('--bg', v.bg);
+      root.style.setProperty('--bg-alt', v.bgAlt);
+      root.style.setProperty('--surface', v.surface);
+      root.style.setProperty('--text', v.text);
+      root.style.setProperty('--text-secondary', v.textSecondary);
+      root.style.setProperty('--border', v.border);
+      root.style.setProperty('--code-bg', v.codeBg);
+      tryMeEl.classList.add('hidden');
+    });
+
+    // === Scroll fade-in ===
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  </script>
+</body>
+</html>
