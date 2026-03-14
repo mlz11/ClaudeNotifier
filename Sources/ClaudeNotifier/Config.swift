@@ -7,19 +7,23 @@ struct AppConfig: Codable {
     var sound: String
     var notifyInHeadlessMode: Bool
     var notifyInSdkMode: Bool
+    var subtitleContent: String
 
     static let defaultConfig = AppConfig(
-        icon: "brown", sound: "default", notifyInHeadlessMode: false, notifyInSdkMode: false
+        icon: "brown", sound: "default", notifyInHeadlessMode: false, notifyInSdkMode: false,
+        subtitleContent: "repo"
     )
 
     init(
         icon: String = "brown", sound: String = "default",
-        notifyInHeadlessMode: Bool = false, notifyInSdkMode: Bool = false
+        notifyInHeadlessMode: Bool = false, notifyInSdkMode: Bool = false,
+        subtitleContent: String = "repo"
     ) {
         self.icon = icon
         self.sound = sound
         self.notifyInHeadlessMode = notifyInHeadlessMode
         self.notifyInSdkMode = notifyInSdkMode
+        self.subtitleContent = subtitleContent
     }
 
     init(from decoder: Decoder) throws {
@@ -28,6 +32,7 @@ struct AppConfig: Codable {
         sound = try container.decodeIfPresent(String.self, forKey: .sound) ?? "default"
         notifyInHeadlessMode = try container.decodeIfPresent(Bool.self, forKey: .notifyInHeadlessMode) ?? false
         notifyInSdkMode = try container.decodeIfPresent(Bool.self, forKey: .notifyInSdkMode) ?? false
+        subtitleContent = try container.decodeIfPresent(String.self, forKey: .subtitleContent) ?? "repo"
     }
 }
 

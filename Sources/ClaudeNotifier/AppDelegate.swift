@@ -32,6 +32,60 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
+    /// Clean a user message for use as subtitle: strip pasted-text markers, take first line, truncate
+    private func cleanMessageForSubtitle(_ message: String) -> String? {
+        var cleaned = message
+        let pastedPattern = "\\[Pasted text #\\d+ [^\\]]*\\]"
+        if let regex = try? NSRegularExpression(pattern: pastedPattern) {
+            cleaned = regex.stringByReplacingMatches(
+                in: cleaned,
+                range: NSRange(cleaned.startIndex..., in: cleaned),
+                withTemplate: ""
+            ).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let firstLine = cleaned.components(separatedBy: .newlines).first ?? ""
+        guard !firstLine.isEmpty else { return nil }
+        return firstLine.count > 40 ? String(firstLine.prefix(40)) + "..." : firstLine
+    }
+
+    /// Resolve session context (conversation name or first message) from Claude history
+    private func resolveSessionContext(sessionId: String) -> String? {
+        let historyPath = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(Constants.claudeDirectory)
+            .appendingPathComponent("history.jsonl")
+
+        guard let data = try? Data(contentsOf: historyPath),
+              let content = String(data: data, encoding: .utf8)
+        else {
+            Logger.debug("Could not read history.jsonl")
+            return nil
+        }
+
+        var rename: String?
+        var firstMessage: String?
+
+        for line in content.components(separatedBy: .newlines) {
+            guard !line.isEmpty,
+                  let lineData = line.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
+                  let lineSessionId = json["sessionId"] as? String,
+                  lineSessionId == sessionId
+            else { continue }
+
+            guard let messageType = json["type"] as? String, messageType == "user",
+                  let message = json["message"] as? String
+            else { continue }
+
+            if message.hasPrefix("/rename ") {
+                rename = String(message.dropFirst("/rename ".count)).trimmingCharacters(in: .whitespaces)
+            } else if firstMessage == nil, !message.hasPrefix("/") {
+                firstMessage = cleanMessageForSubtitle(message)
+            }
+        }
+
+        return rename ?? firstMessage
+    }
+
     func showNotification(_ config: NotificationConfig) {
         let center = UNUserNotificationCenter.current()
 
@@ -43,7 +97,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 Logger.info("Notification authorization granted")
                 let content = UNMutableNotificationContent()
                 content.title = config.title
-                if let subtitle = config.subtitle {
+
+                // Resolve subtitle: use session context if configured
+                var resolvedSubtitle = config.subtitle
+                let appConfig = loadConfig()
+                let useSession = appConfig.subtitleContent == "session"
+                if useSession, let claudeSessionId = config.claudeSessionId, !claudeSessionId.isEmpty {
+                    if let sessionContext = self.resolveSessionContext(sessionId: claudeSessionId) {
+                        Logger.debug("Resolved session context: \(sessionContext)")
+                        resolvedSubtitle = sessionContext
+                    }
+                }
+
+                if let subtitle = resolvedSubtitle {
                     content.subtitle = subtitle
                     content.threadIdentifier = subtitle
                 }
@@ -65,7 +131,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 // Deterministic ID from source + project so a new notification
                 // replaces the previous one per terminal tab per project
                 let notificationId =
-                    "claude-\(config.terminalType ?? "")-\(config.sessionId ?? "")-\(config.subtitle ?? "")"
+                    "claude-\(config.terminalType ?? "")-\(config.sessionId ?? "")-\(resolvedSubtitle ?? "")"
 
                 let request = UNNotificationRequest(
                     identifier: notificationId,

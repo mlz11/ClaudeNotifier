@@ -47,7 +47,8 @@ func parseArguments() -> ParsedArguments {
         body: flagValue(for: ["-m", "--message"], in: args),
         sessionId: flagValue(for: ["-i", "--session-id"], in: args),
         terminalType: flagValue(for: ["-T", "--terminal"], in: args),
-        sound: flagValue(for: ["-S", "--sound"], in: args)
+        sound: flagValue(for: ["-S", "--sound"], in: args),
+        claudeSessionId: flagValue(for: ["-c", "--claude-session-id"], in: args)
     )
 }
 
@@ -70,6 +71,7 @@ func showHelp() {
                                   cursor, windsurf, zed, ghostty, warp, webstorm, intellij
       -S, --sound "sound"         Notification sound: "default", "none", or a sound name
                                   Examples: Glass, Basso, Blow, Ping, Pop, Funk, Submarine
+      -c, --claude-session-id "id"  Claude session ID for resolving session context (optional)
       -v, --version               Show version
       -h, --help                  Show this help message
     """)

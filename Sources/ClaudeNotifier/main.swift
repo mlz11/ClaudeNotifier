@@ -48,7 +48,8 @@ if let body = parsed.body {
         body: body,
         sessionId: parsed.sessionId,
         terminalType: parsed.terminalType,
-        sound: parsed.sound
+        sound: parsed.sound,
+        claudeSessionId: parsed.claudeSessionId
     )
 }
 
