@@ -7,6 +7,7 @@ struct NotificationConfig {
     let sessionId: String?
     let terminalType: String?
     let sound: String?
+    let claudeSessionId: String?
 }
 
 struct ParsedArguments {
@@ -17,6 +18,7 @@ struct ParsedArguments {
     let sessionId: String?
     let terminalType: String?
     let sound: String?
+    let claudeSessionId: String?
 
     static func command(_ name: String) -> ParsedArguments {
         ParsedArguments(
@@ -26,7 +28,8 @@ struct ParsedArguments {
             body: nil,
             sessionId: nil,
             terminalType: nil,
-            sound: nil
+            sound: nil,
+            claudeSessionId: nil
         )
     }
 }

@@ -33,6 +33,7 @@ private func mainMenuLoop(_ config: inout AppConfig) {
         let items = [
             MenuItem(label: "Icon color", value: "icon", isCurrent: false),
             MenuItem(label: "Notification sound", value: "sound", isCurrent: false),
+            MenuItem(label: "Subtitle content", value: "subtitle", isCurrent: false),
             MenuItem(label: "Headless mode notifications", value: "headless", isCurrent: false),
             MenuItem(label: "SDK mode notifications", value: "sdk", isCurrent: false),
             MenuItem(label: "Done", value: "done", isCurrent: false)
@@ -53,17 +54,42 @@ private func mainMenuLoop(_ config: inout AppConfig) {
         case "sound":
             selectedIndex = 1
             soundSubmenu(&config)
-        case "headless":
+        case "subtitle":
             selectedIndex = 2
+            subtitleSubmenu(&config)
+        case "headless":
+            selectedIndex = 3
             headlessSubmenu(&config)
         case "sdk":
-            selectedIndex = 3
+            selectedIndex = 4
             sdkSubmenu(&config)
         case "done":
             return
         default:
             break
         }
+    }
+}
+
+private func subtitleSubmenu(_ config: inout AppConfig) {
+    let current = config.subtitleContent
+    let initialIndex = current == "session" ? 1 : 0
+
+    let items = [
+        MenuItem(label: "Repository name", value: "repo", isCurrent: current == "repo"),
+        MenuItem(
+            label: "Session context (conversation name or first message)",
+            value: "session",
+            isCurrent: current == "session"
+        )
+    ]
+
+    if let selected = renderMenu(
+        title: "Subtitle Content",
+        items: items,
+        selectedIndex: initialIndex
+    ) {
+        config.subtitleContent = selected
     }
 }
 
@@ -180,6 +206,7 @@ private func showConfigHelp() {
     Settings:
       Icon color                    Change the notification icon color (brown, blue, green)
       Notification sound            Choose the notification sound or disable it
+      Subtitle content              Show repo name or session context in subtitle
       Headless mode notifications   Enable notifications for claude -p sessions (off by default)
       SDK mode notifications        Enable notifications for SDK-driven sessions like Conductor (off by default)
 

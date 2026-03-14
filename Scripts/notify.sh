@@ -27,6 +27,12 @@ if [ -n "$HOOK_INPUT" ]; then
     esac
 fi
 
+# Extract Claude session ID from hook input for session context resolution
+CLAUDE_SESSION_ID=""
+if [ -n "$HOOK_INPUT" ]; then
+    CLAUDE_SESSION_ID=$(echo "$HOOK_INPUT" | grep -o '"session_id":"[^"]*"' | head -1 | sed 's/"session_id":"//;s/"//')
+fi
+
 # In terminal context, the Notification hook already fires for permission prompts.
 # Skip PermissionRequest events to avoid duplicate notifications.
 if [ "$EVENT_TYPE" = "permission_request" ]; then
@@ -307,4 +313,4 @@ if [ -f "$CONFIG_FILE" ]; then
 fi
 
 # Send notification with session info for focus-on-click
-"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S "$SOUND"
+"$NOTIFIER" -t "$TITLE" -s "$REPO_NAME" -m "$MESSAGE" -i "$SESSION_ID" -T "$TERMINAL_TYPE" -S "$SOUND" -c "$CLAUDE_SESSION_ID"
