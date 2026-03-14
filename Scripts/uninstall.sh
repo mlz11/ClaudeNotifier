@@ -17,22 +17,48 @@ ok()      { printf "${GREEN}  [ok]${RESET} %s\n" "$1"; }
 warn()    { printf "${YELLOW}  [warn]${RESET} %s\n" "$1"; }
 info()    { printf "  %s\n" "$1"; }
 
+confirm() {
+    if [ -t 0 ]; then
+        printf "%s [y/N] " "$1"
+        read -r answer
+        case "$answer" in
+            [yY]|[yY][eE][sS]) return 0 ;;
+            *) return 1 ;;
+        esac
+    else
+        # Non-interactive: proceed
+        return 0
+    fi
+}
+
 # -- Remove hooks from settings.json --
 step "Removing Claude Code hooks"
 
 settings_file="$HOME/.claude/settings.json"
 if [ -f "$settings_file" ]; then
-    # Remove the four hook keys added by ClaudeNotifier
+    # Only remove hooks whose command references claude-notifier's notify script
     if command -v python3 &>/dev/null; then
         python3 -c "
-import json, sys
+import json
 path = '$settings_file'
 with open(path) as f:
     data = json.load(f)
 hooks = data.get('hooks', {})
 removed = []
-for key in ['Notification', 'Stop', 'PermissionRequest', 'SessionStart']:
-    if key in hooks:
+for key in list(hooks.keys()):
+    entries = hooks[key]
+    if not isinstance(entries, list):
+        continue
+    is_ours = False
+    for entry in entries:
+        for hook in entry.get('hooks', []):
+            cmd = hook.get('command', '')
+            if 'claude-notifier' in cmd or 'ClaudeNotifier' in cmd:
+                is_ours = True
+                break
+        if is_ours:
+            break
+    if is_ours:
         del hooks[key]
         removed.append(key)
 if not hooks:
@@ -49,7 +75,7 @@ if not removed:
 "
     else
         warn "python3 not found, could not clean hooks from $settings_file"
-        info "Manually remove Notification, Stop, PermissionRequest, and SessionStart from hooks in $settings_file"
+        info "Manually remove ClaudeNotifier hooks from $settings_file"
     fi
 else
     info "No settings file found at $settings_file"
@@ -77,9 +103,13 @@ else
     removed_something=false
 
     if [ -d "/Applications/ClaudeNotifier.app" ]; then
-        rm -rf "/Applications/ClaudeNotifier.app"
-        ok "Removed /Applications/ClaudeNotifier.app"
-        removed_something=true
+        if confirm "  Remove /Applications/ClaudeNotifier.app?"; then
+            rm -rf "/Applications/ClaudeNotifier.app"
+            ok "Removed /Applications/ClaudeNotifier.app"
+            removed_something=true
+        else
+            info "Skipped /Applications/ClaudeNotifier.app"
+        fi
     fi
 
     cli_path="$HOME/.local/bin/claude-notifier"

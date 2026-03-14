@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ClaudeNotifier installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/Scripts/install.sh | bash
 
 # -- Colors --
 RED='\033[0;31m'
@@ -45,7 +45,7 @@ if ! command -v brew &>/dev/null; then
 fi
 
 ok "Homebrew found"
-brew install --cask mlz11/tap/claude-notifier
+brew install --cask mlz11/tap/claude-notifier || fail "Homebrew installation failed"
 
 ok "ClaudeNotifier installed"
 

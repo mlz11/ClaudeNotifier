@@ -59,30 +59,32 @@ func requestNotificationPermissions() -> Bool {
     }
     semaphore.wait()
 
-    // Re-check actual status after the user responds (getNotificationSettings is the source of truth).
     if isatty(STDIN_FILENO) != 0 {
+        // Re-check actual status after the user responds (getNotificationSettings is the source of truth).
         print("  \(hint("A system popup should have appeared asking for notification permissions."))")
         print("  Press \(info("Enter")) after responding to the popup...", terminator: "")
         fflush(stdout)
         _ = readLine()
+
+        center.getNotificationSettings { settings in
+            currentStatus = settings.authorizationStatus
+            semaphore.signal()
+        }
+        semaphore.wait()
+
+        if currentStatus == .authorized || currentStatus == .provisional {
+            print("  \(success("Notifications: ✓"))")
+            return true
+        } else {
+            print("  \(error("Notifications: denied"))")
+            return false
+        }
     } else {
-        // Non-interactive: wait briefly for the user to respond to the system popup
-        print("  \(hint("Waiting for notification permission response..."))")
-        Thread.sleep(forTimeInterval: 3)
-    }
-
-    center.getNotificationSettings { settings in
-        currentStatus = settings.authorizationStatus
-        semaphore.signal()
-    }
-    semaphore.wait()
-
-    if currentStatus == .authorized || currentStatus == .provisional {
-        print("  \(success("Notifications: ✓"))")
+        // Non-interactive: can't wait for user to respond to the system popup.
+        // Accept whatever the current status is and advise running doctor.
+        print("  \(hint("If the notification permission popup appeared, please allow it."))")
+        print("  \(hint("Run '\(info("claude-notifier doctor"))' to verify permissions."))")
         return true
-    } else {
-        print("  \(error("Notifications: denied"))")
-        return false
     }
 }
 
@@ -211,7 +213,6 @@ func addNotificationHooks(to settings: inout [String: Any], scriptDir: URL) {
     settings["hooks"] = hooks
 }
 
-/// Warn the user if existing hooks will be overwritten
 private func warnIfExistingHooks(_ hooks: [String: Any], key: String) {
     guard let existing = hooks[key] as? [[String: Any]], !existing.isEmpty else { return }
 
@@ -238,8 +239,7 @@ func writeSettings(_ settings: [String: Any], to path: URL) {
     }
 }
 
-/// Launch automation permission request in isolated process via `open`.
-/// Apps launched from terminal inherit the terminal's context and may bypass TCC checks.
+/// Launch automation permission request in isolated process via `open` (avoids inheriting terminal's TCC context).
 private func launchAutomationPermissionRequest() {
     let executablePath = CommandLine.arguments[0]
     let resolvedPath: String

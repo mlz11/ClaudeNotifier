@@ -41,7 +41,7 @@ Most other notification setups rely on `terminal-notifier` or `osascript` one-li
 <summary><strong>Quick Install (Recommended)</strong></summary>
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mlz11/ClaudeNotifier/main/Scripts/install.sh | bash
 ```
 
 </details>
