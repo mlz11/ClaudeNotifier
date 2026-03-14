@@ -30,7 +30,7 @@ fi
 # Extract Claude session ID from hook input for session context resolution
 CLAUDE_SESSION_ID=""
 if [ -n "$HOOK_INPUT" ]; then
-    CLAUDE_SESSION_ID=$(echo "$HOOK_INPUT" | grep -o '"session_id":"[^"]*"' | head -1 | sed 's/"session_id":"//;s/"//')
+    CLAUDE_SESSION_ID=$(echo "$HOOK_INPUT" | grep -o '"session_id": *"[^"]*"' | head -1 | sed 's/"session_id": *"//;s/"//')
 fi
 
 # In terminal context, the Notification hook already fires for permission prompts.

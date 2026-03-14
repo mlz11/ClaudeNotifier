@@ -69,13 +69,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                   let lineData = line.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
                   let lineSessionId = json["sessionId"] as? String,
-                  lineSessionId == sessionId
+                  lineSessionId == sessionId,
+                  let display = json["display"] as? String
             else { continue }
 
-            guard let messageType = json["type"] as? String, messageType == "user",
-                  let message = json["message"] as? String
-            else { continue }
-
+            let message = display.trimmingCharacters(in: .whitespacesAndNewlines)
             if message.hasPrefix("/rename ") {
                 rename = String(message.dropFirst("/rename ".count)).trimmingCharacters(in: .whitespaces)
             } else if firstMessage == nil, !message.hasPrefix("/") {
