@@ -28,6 +28,8 @@ func parseArguments() -> ParsedArguments {
             return .command("config")
         case "logs":
             return .command("logs")
+        case "update":
+            return .command("update")
         case "--request-automation":
             // Internal command: request automation permissions (launched via `open`)
             return .command("request-automation")
@@ -61,6 +63,7 @@ func showHelp() {
       doctor                      Diagnose installation and permission issues
       config                      Configure preferences interactively
       logs                        View the log file (--clear to truncate)
+      update                      Check for updates and upgrade via Homebrew
 
     Options:
       -m, --message "text"        The notification body (required for notifications)

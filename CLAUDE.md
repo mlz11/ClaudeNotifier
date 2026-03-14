@@ -51,6 +51,7 @@ Sources/ClaudeNotifier/
 ├── ConfigCommand.swift  # Config command - interactive TUI for preferences
 ├── TUI.swift            # Raw terminal input + menu rendering for interactive config
 ├── Icon.swift           # Icon variant utilities (used by ConfigCommand and Doctor)
+├── Update.swift         # Update command + version check
 ├── ArgumentParser.swift # CLI flag parsing and help text
 └── Utilities.swift      # Helpers (exitWithError, terminateApp, focusTerminalSession)
 ```
@@ -65,7 +66,8 @@ Sources/ClaudeNotifier/
 - **ConfigCommand**: Interactive TUI for configuring icon color and notification sound
 - **TUI**: Raw terminal mode handling, arrow key navigation, and menu rendering
 - **Icon**: `IconVariant` enum, `getCurrentVariant()`, `setVariant()`, and helper functions for icon switching
-- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`config`/`help` subcommands
+- **Update**: Version check via GitHub API, brew upgrade integration, doctor version check
+- **ArgumentParser**: Parses `-t`, `-s`, `-m`, `-i` flags and `setup`/`doctor`/`config`/`update`/`help` subcommands
 - **Utilities**: `exitWithError()`, `terminateApp()`, `focusTerminalSession()`, `TerminalType` enum
 
 **Entry flow:** Parse args → configure NSApplication → show notification (if -m provided) → handle notification click → focus terminal → exit
@@ -78,6 +80,7 @@ claude-notifier -m "Message" -i "$ITERM_SESSION_ID"  # With session ID for focus
 claude-notifier setup         # Auto-configure Claude Code hooks
 claude-notifier doctor        # Diagnose installation and permission issues
 claude-notifier config        # Configure preferences (icon, sound) interactively
+claude-notifier update        # Check for updates and upgrade via Homebrew
 ```
 
 ## Writing Style

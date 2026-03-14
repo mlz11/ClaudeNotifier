@@ -27,7 +27,7 @@ func checkAppInstallation() -> CheckResult {
     return CheckResult(
         passed: false,
         message: "ClaudeNotifier.app not found",
-        remediation: "Install via 'brew install mlz11/tap/claude-notifier' or 'make install'"
+        remediation: "Install via 'brew install mlz11/tap/claude-notifier'"
     )
 }
 
@@ -264,7 +264,8 @@ func runDoctor() {
         checkSettingsHooks(),
         checkNotificationPermissions()
     ] + checkTerminalAutomationPermissions() + [
-        checkPATHConfiguration()
+        checkPATHConfiguration(),
+        checkVersionUpToDate()
     ]
 
     // Problem-focused output

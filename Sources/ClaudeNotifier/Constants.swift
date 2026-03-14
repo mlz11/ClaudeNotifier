@@ -13,4 +13,6 @@ enum Constants {
     static let logFileName = "claude-notifier.log"
     static let configFileName = "config.json"
     static let bundleIdentifier = "com.mlz11.claude-notifier"
+    static let githubLatestReleaseURL = "https://api.github.com/repos/mlz11/ClaudeNotifier/releases/latest"
+    static let brewCaskName = "mlz11/tap/claude-notifier"
 }
