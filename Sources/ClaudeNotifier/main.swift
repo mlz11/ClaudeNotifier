@@ -19,6 +19,9 @@ case "config":
 case "logs":
     runLogsCommand(args: CommandLine.arguments)
     exit(0)
+case "update":
+    runUpdate()
+    exit(0)
 case "request-automation":
     requestTerminalPermissions()
     exit(0)

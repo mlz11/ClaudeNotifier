@@ -55,28 +55,6 @@ brew install --cask mlz11/tap/claude-notifier
 
 </details>
 
-<details>
-<summary><strong>From Source</strong></summary>
-
-```bash
-git clone https://github.com/mlz11/ClaudeNotifier.git
-cd ClaudeNotifier
-make install
-```
-
-You'll be prompted for the install directory (press Enter for default `/Applications`).
-
-This builds the app, installs it to the chosen directory, and creates a `claude-notifier` CLI command in `~/.local/bin`.
-
-If `~/.local/bin` is not in your PATH, add it:
-
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-</details>
-
 ## 🚀 Usage
 
 ### Quick Setup for Claude Code
