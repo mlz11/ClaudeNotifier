@@ -473,8 +473,11 @@
     ];
 
     let msgIndex = 0;
+    let notifDismissed = false;
+    let notifInterval = null;
 
     function showNotification() {
+      if (notifDismissed || msgIndex >= messages.length) return;
       const msg = messages[msgIndex];
       notifApp.textContent = msg.app;
       notifBody.textContent = msg.body;
@@ -484,22 +487,24 @@
         notif.classList.remove('visible');
       }, 4000);
 
-      msgIndex = (msgIndex + 1) % messages.length;
+      msgIndex++;
     }
 
     // Click to dismiss and scroll to install
     notif.addEventListener('click', () => {
+      notifDismissed = true;
+      if (notifInterval) clearInterval(notifInterval);
       notif.classList.remove('visible');
       notif.classList.add('dismiss');
       document.getElementById('install').scrollIntoView({ behavior: 'smooth' });
       setTimeout(() => { notif.classList.remove('dismiss'); }, 350);
     });
 
-    // First notification after 2s, then every 8s
+    // First notification after 3s, then every 20s
     setTimeout(() => {
       showNotification();
-      setInterval(showNotification, 8000);
-    }, 2000);
+      notifInterval = setInterval(showNotification, 20000);
+    }, 3000);
 
     // === Copy code ===
     function copyCode(btn) {
