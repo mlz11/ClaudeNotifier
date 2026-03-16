@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mlz11.github.io/ClaudeNotifier/sitemap.xml
+Sitemap: https://claudenotifier.com/sitemap.xml
